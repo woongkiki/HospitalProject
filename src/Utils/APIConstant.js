@@ -1,0 +1,1 @@
+export const BASE_URL = 'http://cnj06.cafe24.com'; //본 아이피
