@@ -49,7 +49,7 @@ const DnaSelect = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <HStack height='115px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.65) + 'px'}>
                             <DefText text='질환 중 가족력 여부를 체크해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='건강은 가족력과 밀접한 관련이 있습니다.' style={{fontSize:14, marginTop:10}} />
                         </Box>

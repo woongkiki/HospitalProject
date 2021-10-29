@@ -6,6 +6,9 @@ import { DefText } from '../common/BOOTSTRAP';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
 
+
+const {width} = Dimensions.get('window');
+
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
  
@@ -75,13 +78,19 @@ const BloodPressureAdd = (props) => {
     const [select3, setSelect3] = useState('100');
 
 
+    const SavesBtn = () => {
+        navigation.navigate('BloodPressure');
+        ToastMessage('혈압기록이 입력되었습니다.');
+    }
+
+
     return (
         <Box flex={1} backgroundColor='#fff     '>
             <HeaderComponents headerTitle='혈압기록' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.60) + 'px'}>
                             <DefText text='혈압을 기록해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='혈압측정 가이드를 꼭 참조해주세요.' style={{fontSize:14, }} />
                             <TouchableOpacity
@@ -172,8 +181,8 @@ const BloodPressureAdd = (props) => {
                 </Box>
             </ScrollView>
             <Box p={2.5}>
-                <TouchableOpacity style={styles.medicineButtons}>
-                    <DefText text='혈압 등록' style={styles.medicineButtonsText} />
+                <TouchableOpacity onPress={SavesBtn} style={styles.buttonDef}>
+                    <DefText text='혈압 등록' style={styles.buttonDefText} />
                 </TouchableOpacity>
             </Box>
             <DateTimePickerModal
@@ -203,6 +212,17 @@ const styles = StyleSheet.create({
         color:'#fff',
         
     },
+    buttonDef:{
+        height:40,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'#666',
+        borderRadius:5
+    },
+    buttonDefText:{
+        fontSize:14,
+        color:'#fff'
+    }
 })
 
 export default BloodPressureAdd;

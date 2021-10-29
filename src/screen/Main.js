@@ -26,6 +26,8 @@ import Medicine from '../screen/Medicine';
 import MedicineList from '../screen/MedicineList';
 import MedicineForm from '../screen/MedicineForm';
 import MedicineForm2 from '../screen/MedicineForm2';
+import MedicineAdd from '../screen/MedicineAdd';
+import MedicineView from '../screen/MedicineView';
 import DiseaseSelect from '../screen/DiseaseSelect';
 import DiseaseSchedule from './DiseaseSchedule';
 import DiseaseSchedule2 from './DiseaseSchedule2';
@@ -84,24 +86,7 @@ function CustomTabBar(props){
 
     const {state, navigation, optionsNum} = props;
 
-    let os;
-    if(Platform.OS === 'android'){
-        os = '안드';
-    }else{
-        os = '아오스'
-    }
 
-    const [optionsN, setOptionsN] = useState('1');
-
-    console.log(os,optionsN);
-
-    useEffect(()=>{setOptionsN(optionsNum.screenNumber)});
-
-    useEffect(()=>{
-        if(optionsN=='2'){
-            navigation.navigate('Community');
-        }
-    },[optionsN])
     //const focusedOptions = descriptors[state.routes[state.index].key];
  
     const screenName = state.routes[state.index].name;
@@ -110,7 +95,7 @@ function CustomTabBar(props){
  
      const navigateToHome=()=>{
          navigation.navigate('Home');
-         console.log()
+         //console.log()
      }
  
      const navigateToCommunity=()=>{
@@ -204,17 +189,10 @@ function Tab_Navigation(props){
 
     const {navigation} = props;
 
-    //console.log(props.route.params);
-
-    let optionss;
-    if(props.route.params !=undefined){
-        optionss = props.route.params;
-    }else{
-        optionss = '';
-    }
+    
    
     return(
-        <Tab.Navigator initialRouteName={Home} screenOptions={{headerShown:false}} tabBar={ (props) => <CustomTabBar {...props} optionsNum={optionss} /> }>
+        <Tab.Navigator initialRouteName={Home} screenOptions={{headerShown:false}} tabBar={ (props) => <CustomTabBar {...props} /> }>
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="Community" component={Community} />
             <Tab.Screen name="ChatingList" component={ChatingList} />
@@ -259,13 +237,13 @@ const Main = (props) => {
                     <NavigationContainer >
                         <SafeAreaView style={{flex:1}}>
                             <Stack.Navigator
-                                initialRouteName="Tab_Navigation"
+                                initialRouteName="Login"
                                 screenOptions={{
                                     headerShown:false,
                                 }}
                             >
-                                <Stack.Screen name="Tab_Navigation" component={Tab_Navigation} />
                                 <Stack.Screen name="Login" component={Login} />
+                                <Stack.Screen name="Tab_Navigation" component={Tab_Navigation} />
                                 <Stack.Screen name="Register" component={Register} />
                                 <Stack.Screen name="PasswordLost" component={PasswordLost} />
                                 <Stack.Screen name="PasswordChange" component={PasswordChange} />
@@ -317,6 +295,8 @@ const Main = (props) => {
                                 <Stack.Screen name="AlarmList" component={AlarmList} />
                                 <Stack.Screen name="HealthCheckList" component={HealthCheckList} />
                                 <Stack.Screen name="ChatView" component={ChatView} />
+                                <Stack.Screen name="MedicineAdd" component={MedicineAdd} />
+                                <Stack.Screen name="MedicineView" component={MedicineView} />
                                 
                             </Stack.Navigator>
                         </SafeAreaView>

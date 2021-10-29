@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
-import { Box, VStack, HStack, Image, CheckIcon, Input, Modal } from 'native-base';
+import { Box, VStack, HStack, Image, CheckIcon, Input, Modal, Toast } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, Alert } from 'react-native';
 import {DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderFood from '../components/HeaderFood';
 import HeaderComponents from '../components/HeaderComponents';
+import ToastMessage from '../components/ToastMessage';
 
 const {width} = Dimensions.get('window');
 const hospitalButtonWidth = (width-40) * 0.23;
@@ -116,7 +117,33 @@ const HealthCheckList = (props) => {
 
     const [loadings, setLoadings] = useState(0);
 
-   
+    const navigationMove = () => {
+        ToastMessage('상담이 요청되었습니다. 담당 병원이 확인시 채팅이 시작됩니다.');
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Home',
+            
+        });
+    }
+
+
+    const [selectCheckList, setSelectCheckList] = useState([]);
+
+    const checkListAdd = (checkList) => {
+        
+        let statusCheck = selectCheckList.includes(checkList);
+
+        if(!statusCheck){
+            selectCheckList.push(checkList);
+        }else{
+            const findIdx = selectCheckList.find((e) => e === checkList); // 배열에 같은값이 있으면 출력
+            const idxs = selectCheckList.indexOf(findIdx);
+
+            selectCheckList.splice(idxs, 1)
+        }
+        
+        setSelectCheckList([...selectCheckList])
+        console.log(selectCheckList);
+    }
 
     // useEffect(()=>{
         
@@ -139,7 +166,7 @@ const HealthCheckList = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <HStack height='115px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={ (width-80) * 0.6 + 'px'}>
                             <DefText text='건강 체크리스트를 기록해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='체크리스트는 정확한 자문에 도움이 됩니다.' style={{fontSize:14, marginTop:10 }} />
                         </Box>
@@ -282,17 +309,17 @@ const HealthCheckList = (props) => {
                                     /*단계1*/
                                     <>
                                     <Box alignItems='center' pt='15px'>
-                                        <Image source={require('../images/personAllFronts.png')} alt='전체 보여지기' />
-                                        <Box  position='absolute' top={0} left={0} width={width-40} height={380}>
+                                        <Image source={require('../images/personAllFronts.png')} alt='전체 보여지기' style={{width:width-40, resizeMode:'contain'}} />
+                                        <Box  position='absolute' top={0} left={0} width={width-40} height={380} resizeMode='contain'>
                                             {/*머리*/}
-                                            <Box width={width-40}  position='absolute' top='10px' left={0} alignItems='center'>
+                                            <Box width={width-40}  position='absolute' top='20px' left={0} alignItems='center'>
                                                 <TouchableOpacity onPress={()=>{setImageNumbers('headFront')}} >
                                                     <Image source={require('../images/checkListSelector.png')} alt='머리' />
                                                 </TouchableOpacity>
                                             </Box>
 
                                             {/*팔*/}
-                                            <Box width={width-40}  position='absolute' top='80px' left={0} alignItems='center' >
+                                            <Box width={width-40}  position='absolute' top='85px' left={0} alignItems='center' >
                                                 <HStack justifyContent='space-around' width={width-80}>
                                                     <TouchableOpacity>
                                                         <Image source={require('../images/checkListSelector.png')} alt='팔' />
@@ -344,17 +371,17 @@ const HealthCheckList = (props) => {
                                     imageNumbers == '2' &&
                                     /*단계1 뒷면*/
                                     <Box alignItems='center' pt='15px'>
-                                        <Image source={require('../images/personAllBacks.png')} alt='전체 보여지기 뒤' />
+                                        <Image source={require('../images/personAllBacks.png')} alt='전체 보여지기 뒤' style={{width:width-40, resizeMode:'contain'}} />
                                         <Box  position='absolute' top={0} left={0} width={width-40} height={456} >
                                             {/*머리*/}
-                                            <Box width={width-40}  position='absolute' top='10px' left={0} alignItems='center'>
+                                            <Box width={width-40}  position='absolute' top='20px' left={0} alignItems='center'>
                                                 <TouchableOpacity onPress={()=>{setImageNumbers('headBack')}}>
                                                     <Image source={require('../images/checkListSelector.png')} alt='머리' />
                                                 </TouchableOpacity>
                                             </Box>
 
                                             {/*팔*/}
-                                            <Box width={width-40}  position='absolute' top='80px' left={0} alignItems='center' >
+                                            <Box width={width-40}  position='absolute' top='85px' left={0} alignItems='center' >
                                                 <HStack justifyContent='space-around' width={width-80}>
                                                     <TouchableOpacity>
                                                         <Image source={require('../images/checkListSelector.png')} alt='팔' />
@@ -400,50 +427,50 @@ const HealthCheckList = (props) => {
                                     imageNumbers == 'headFront' &&
                                     <>
                                     <Box alignItems='center' pt='45px'>
-                                        <Image source={require('../images/headFronts.png')} alt='헤드 앞' />
+                                        <Image source={require('../images/headFronts.png')} alt='헤드 앞' style={{width:width-40, resizeMode:'contain'}} />
                                        
                                         <Box  position='absolute' top={45} left={0} width={width-40} height={330} alignItems='center' >
                                             <Box width={180} height={180}>
                                                 {/*머리*/}
                                                 <Box position='absolute' top='-5px' width={180} alignItems='center'>
-                                                    <TouchableOpacity style={[styles.checkIcons]}>
-                                                        <CheckIcon width={15} color='#696968' />
+                                                    <TouchableOpacity onPress={()=>checkListAdd('앞부분 머리')} style={[styles.checkIcons, selectCheckList.includes('앞부분 머리') && {backgroundColor:'#f00'}]}>
+                                                        <CheckIcon width={15} color={ selectCheckList.includes('앞부분 머리') ? '#fff' : '#696968'} />
                                                     </TouchableOpacity>
                                                 </Box>
                                                 {/**눈 */}
                                                 <Box position='absolute' top='45px' width={180} alignItems='center'>
                                                     <HStack>
-                                                        <TouchableOpacity style={[styles.checkIcons, {marginRight:40}]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('오른쪽눈')} style={[styles.checkIcons, {marginRight:40}, selectCheckList.includes('오른쪽눈') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('오른쪽눈') ? '#fff' : '#696968'} />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity style={[styles.checkIcons]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('왼쪽눈')} style={[styles.checkIcons, selectCheckList.includes('왼쪽눈') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('왼쪽눈') ? '#fff' : '#696968'} />
                                                         </TouchableOpacity>
                                                     </HStack>          
                                                 </Box>
                                                  {/* 귀, 코 */}
                                                  <Box position='absolute' top='90px' width={180} >
                                                     <HStack justifyContent='space-between'>
-                                                        <TouchableOpacity style={[styles.checkIcons, {marginLeft:-5}]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('오른쪽귀')} style={[styles.checkIcons, {marginLeft:-5}, selectCheckList.includes('오른쪽귀') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('오른쪽귀') ? '#fff' : '#696968'} />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity style={[styles.checkIcons]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('코')} style={[styles.checkIcons, selectCheckList.includes('코') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('코') ? '#fff' : '#696968'} />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity style={[styles.checkIcons, {marginRight:-5}]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('왼쪽귀')} style={[styles.checkIcons, {marginRight:-5}, selectCheckList.includes('왼쪽귀') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('왼쪽귀') ? '#fff' : '#696968'} />
                                                         </TouchableOpacity>
                                                     </HStack>          
                                                 </Box>
                                                 {/*입*/}
                                                 <Box position='absolute' bottom='5px' width={180} alignItems='center'>
-                                                    <TouchableOpacity style={[styles.checkIcons]}>
-                                                        <CheckIcon width={15} color='#696968' />
+                                                    <TouchableOpacity onPress={()=>checkListAdd('입')} style={[styles.checkIcons, selectCheckList.includes('입') && {backgroundColor:'#f00'}]}>
+                                                        <CheckIcon width={15} color={ selectCheckList.includes('입') ? '#fff' : '#696968'} />
                                                     </TouchableOpacity>
                                                 </Box>
                                             </Box>
                                         </Box>
-                                        <Box position='absolute' top='15px' left={0}>
+                                        <Box position='absolute' top='15px' left={0} zIndex={99}>
                                             <TouchableOpacity onPress={()=>{setImageNumbers('1')}}>
                                                 <Image source={require('../images/allSelectMove.png')} alt='왼쪽 전체보기' />
                                             </TouchableOpacity>
@@ -467,29 +494,29 @@ const HealthCheckList = (props) => {
                                             <Box width={180} height={180}>
                                                 {/*머리*/}
                                                 <Box position='absolute' top='-5px' width={180} alignItems='center'>
-                                                    <TouchableOpacity style={[styles.checkIcons]}>
-                                                        <CheckIcon width={15} color='#696968' />
+                                                    <TouchableOpacity onPress={()=>checkListAdd('뒷부분 머리')} style={[styles.checkIcons, selectCheckList.includes('뒷부분 머리') && {backgroundColor:'#f00'}]}>
+                                                        <CheckIcon width={15} color={ selectCheckList.includes('뒷부분 머리') ? '#fff' : '#696968'} />
                                                     </TouchableOpacity>
                                                 </Box>
                                                
                                                  {/* 얼굴 뒤 중앙 */}
                                                  <Box position='absolute' top='70px' width={180} >
                                                     <HStack justifyContent='space-between'>
-                                                        <TouchableOpacity style={[styles.checkIcons, {marginLeft:0}]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('뒷부분 오른쪽 귀')} style={[styles.checkIcons, {marginLeft:0}, selectCheckList.includes('뒷부분 오른쪽 귀') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('뒷부분 오른쪽 귀') ? '#fff' : '#696968'}  />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity style={[styles.checkIcons]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('뒷부분 머리 중앙')} style={[styles.checkIcons, selectCheckList.includes('뒷부분 머리 중앙') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('뒷부분 머리 중앙') ? '#fff' : '#696968'}  />
                                                         </TouchableOpacity>
-                                                        <TouchableOpacity style={[styles.checkIcons, {marginRight:0}]}>
-                                                            <CheckIcon width={15} color='#696968' />
+                                                        <TouchableOpacity onPress={()=>checkListAdd('뒷부분 왼쪽 귀')} style={[styles.checkIcons, {marginRight:0}, selectCheckList.includes('뒷부분 왼쪽 귀') && {backgroundColor:'#f00'}]}>
+                                                            <CheckIcon width={15} color={ selectCheckList.includes('뒷부분 왼쪽 귀') ? '#fff' : '#696968'}  />
                                                         </TouchableOpacity>
                                                     </HStack>          
                                                 </Box>
                                                 {/* 얼굴 뒤 아래*/}
                                                 <Box position='absolute' bottom='20px' width={180} alignItems='center'>
-                                                    <TouchableOpacity style={[styles.checkIcons]}>
-                                                        <CheckIcon width={15} color='#696968' />
+                                                    <TouchableOpacity onPress={()=>checkListAdd('뒷부분 머리 아래')}  style={[styles.checkIcons, selectCheckList.includes('뒷부분 머리 아래') && {backgroundColor:'#f00'}]}>
+                                                        <CheckIcon width={15} color={ selectCheckList.includes('뒷부분 머리 아래') ? '#fff' : '#696968'} />
                                                     </TouchableOpacity>
                                                 </Box>
                                             </Box>
@@ -520,14 +547,14 @@ const HealthCheckList = (props) => {
                                                     {/* 가슴부분 */}
                                                     <Box width={167} mt='40px'>
                                                         <HStack justifyContent='space-around'>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 가슴')} style={[styles.checkIcons, selectCheckList.includes('오른쪽 가슴') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 가슴') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('가슴 중앙')} style={[styles.checkIcons, selectCheckList.includes('가슴 중앙') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('가슴 중앙') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 가슴')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 가슴') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 가슴') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -535,14 +562,14 @@ const HealthCheckList = (props) => {
                                                     {/* 복부위 */}
                                                     <Box width={167} mt='40px'>
                                                         <HStack justifyContent='space-around'>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 배위')} style={[styles.checkIcons, selectCheckList.includes('오른쪽 배위') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 배위') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('배 중앙')} style={[styles.checkIcons, selectCheckList.includes('배 중앙') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('배 중앙') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 배위')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 배위') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 배위') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -550,14 +577,14 @@ const HealthCheckList = (props) => {
                                                     {/* 복부아래 */}
                                                     <Box width={167} mt='40px'>
                                                         <HStack justifyContent='space-around'>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 배 아래')} style={[styles.checkIcons, selectCheckList.includes('오른쪽 배 아래') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 배 아래') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('배 중앙 아래')} style={[styles.checkIcons, selectCheckList.includes('배 중앙 아래') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('배 중앙 아래') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 배 아래')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 배 아래') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 배 아래') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -590,11 +617,11 @@ const HealthCheckList = (props) => {
                                                     {/* 몸 뒤 목 */}
                                                      <Box width={180} mt='20px' alignItems='center'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginRight:15}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 뒷 목')}  style={[styles.checkIcons, {marginRight:15}, selectCheckList.includes('오른쪽 뒷 목') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 뒷 목') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 뒷 목')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 뒷 목') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 뒷 목') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -602,11 +629,11 @@ const HealthCheckList = (props) => {
                                                     {/* 몸 뒤 어깨 */}
                                                     <Box width={180} alignItems='center'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginRight:90}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 뒷 어깨')} style={[styles.checkIcons, {marginRight:90}, selectCheckList.includes('오른쪽 뒷 어깨') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 뒷 어깨') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 뒷 어깨')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 뒷 어깨') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 뒷 어깨') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -614,11 +641,11 @@ const HealthCheckList = (props) => {
                                                     {/* 몸 뒤 등 */}
                                                     <Box width={180} alignItems='center' mt='40px'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginRight:90}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 등')}  style={[styles.checkIcons, {marginRight:90}, selectCheckList.includes('오른쪽 등') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 등') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 등')}  style={[styles.checkIcons, selectCheckList.includes('왼쪽 등') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 등') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -626,17 +653,17 @@ const HealthCheckList = (props) => {
                                                     {/* 몸 뒤 허리위 */}
                                                     <Box width={180} alignItems='center' mt='40px'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('허리 위')} style={[styles.checkIcons, selectCheckList.includes('허리 위') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('허리 위') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
 
                                                     {/* 몸 뒤 허리아래 */}
-                                                    <Box width={180} alignItems='center' mt='10px'>
+                                                    <Box width={180}  alignItems='center' mt='10px'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('허리 아래')} style={[styles.checkIcons, selectCheckList.includes('허리 아래') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('허리 아래') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -644,14 +671,14 @@ const HealthCheckList = (props) => {
                                                     {/* 몸 뒤 엉덩이 */}
                                                     <Box width={180} alignItems='center' mt='30px'>
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginRight:30}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('오른쪽 엉덩이')} style={[styles.checkIcons, {marginRight:30}, selectCheckList.includes('오른쪽 엉덩이') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('오른쪽 엉덩이') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons,{marginRight:30}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('엉덩이 중앙')} style={[styles.checkIcons,{marginRight:30}, selectCheckList.includes('엉덩이 중앙') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('엉덩이 중앙') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('왼쪽 엉덩이')} style={[styles.checkIcons, selectCheckList.includes('왼쪽 엉덩이') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('왼쪽 엉덩이') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity>
                                                         </HStack>
                                                     </Box>
@@ -684,8 +711,8 @@ const HealthCheckList = (props) => {
                                                     {/* 허벅지 */}
                                                     <Box width={'150px'} mt='5px' >
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginLeft:30}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('허벅지')} style={[styles.checkIcons, {marginLeft:30}, selectCheckList.includes('허벅지') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('허벅지') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity> 
                                                         </HStack>
                                                     </Box>
@@ -693,11 +720,11 @@ const HealthCheckList = (props) => {
                                                     {/* 무릎 */}
                                                     <Box width={'150px'} mt='40px' >
                                                         <HStack >
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginLeft:20}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('앞 무릎')} style={[styles.checkIcons, {marginLeft:20}, selectCheckList.includes('앞 무릎') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('앞 무릎') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity> 
-                                                            <TouchableOpacity style={[styles.checkIcons, {marginLeft:30, marginTop:7}]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('뒷 무릎')} style={[styles.checkIcons, {marginLeft:30, marginTop:7}, selectCheckList.includes('뒷 무릎') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('뒷 무릎') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity> 
                                                         </HStack>
                                                     </Box>
@@ -705,8 +732,8 @@ const HealthCheckList = (props) => {
                                                     {/* 정강이 */}
                                                     <Box width={'150px'} mt='75px' >
                                                         <HStack justifyContent='center'>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('정강이')} style={[styles.checkIcons, selectCheckList.includes('정강이') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('정강이') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity> 
                                                             
                                                         </HStack>
@@ -715,8 +742,8 @@ const HealthCheckList = (props) => {
                                                     {/* 아킬레스건 */}
                                                     <Box width={'150px'} mt='80px' >
                                                         <HStack justifyContent='center'>
-                                                            <TouchableOpacity style={[styles.checkIcons]}>
-                                                                <CheckIcon width={15} color='#696968' />
+                                                            <TouchableOpacity onPress={()=>checkListAdd('아킬레스건')} style={[styles.checkIcons, selectCheckList.includes('아킬레스건') && {backgroundColor:'#f00'}]}>
+                                                                <CheckIcon width={15} color={ selectCheckList.includes('아킬레스건') ? '#fff' : '#696968'} />
                                                             </TouchableOpacity> 
                                                             
                                                         </HStack>
@@ -786,7 +813,7 @@ const HealthCheckList = (props) => {
                                     />
                                 </Box>
                                  <Box mt={5}>
-                                    <TouchableOpacity  style={[styles.buttonDef]}>
+                                    <TouchableOpacity onPress={navigationMove}  style={[styles.buttonDef]}>
                                         <DefText text='상담요청하기' style={styles.buttonDefText} />
                                     </TouchableOpacity>
                                 </Box>

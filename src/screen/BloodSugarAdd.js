@@ -78,13 +78,18 @@ const BloodSugarAdd = (props) => {
         setBloodSugar(text);
     }
 
+    const SavesBtn = () => {
+        navigation.navigate('BloodSugar');
+        ToastMessage('혈당기록이 입력되었습니다.');
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='혈당기록' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.60) + 'px'}>
                             <DefText text='혈당을 기록해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='혈당측정 가이드를 꼭 참조해주세요.' style={{fontSize:14, }} />
                             <TouchableOpacity
@@ -154,7 +159,7 @@ const BloodSugarAdd = (props) => {
                 </Box>
             </ScrollView>
             <Box p={2.5} px={5}>
-                <TouchableOpacity style={[styles.buttonDef]}>
+                <TouchableOpacity onPress={SavesBtn} style={[styles.buttonDef]}>
                    <DefText text='혈당 등록' style={styles.buttonDefText} />
                 </TouchableOpacity>
             </Box>

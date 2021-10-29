@@ -3,6 +3,7 @@ import { Box, VStack, HStack, Image } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet } from 'react-native';
 import {DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderFood from '../components/HeaderFood';
+import { textLengthOverCut } from '../common/dataFunction';
 
 const {width} = Dimensions.get('window');
 
@@ -20,13 +21,20 @@ const FoodDiary = (props) => {
         navigation.navigate('FoodDiaryList');
     }      
 
+    const navigationMove = () => {
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            
+        });
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderFood headerTitle='식단일기' navigation={navigation} diaryButton={FoodDiaryListBtn} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.65) + 'px'}>
                             <DefText text='비만이야기' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='약을 잘먹으면 큰병을 예방할 수 있습니다.' style={{fontSize:14, }} />
                             <TouchableOpacity
@@ -39,7 +47,7 @@ const FoodDiary = (props) => {
                                     justifyContent:'center',
                                     marginTop:10 
                                 }}
-                                onPress={()=>{navigation.navigate('Tab_Navigation', {'screenNumber':2})}}
+                                onPress={navigationMove}
                             >
                                 <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
                             </TouchableOpacity>
@@ -68,8 +76,8 @@ const FoodDiary = (props) => {
                         <DefText text='영양소 섭취가이드(일)' style={[styles.reportLabel], {marginBottom:10}} />
                         <Box>
                             <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width - 40) *0.2} />
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40) *0.2 + 'px'} />
+                                <Box width={(width - 40 )*0.7 + 'px' } borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' py={2.5}>
                                         <Box width='33.3%' >
                                             <DefText text='탄수화물(g)' style={[styles.tableText]} />
@@ -85,7 +93,7 @@ const FoodDiary = (props) => {
                             </HStack>
                             
                             <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                <Box width={(width - 40) *0.2} >
+                                <Box width={(width - 40) *0.2  + 'px'} >
                                     <HStack alignItems='center'>
                                         <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                             <DefText text='섭취량' style={[styles.tableText, {fontSize:13}]}  />
@@ -100,7 +108,7 @@ const FoodDiary = (props) => {
                                         </VStack>
                                     </HStack>
                                 </Box>
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' alignItems='center' >
                                         <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                             <Box >
@@ -134,8 +142,8 @@ const FoodDiary = (props) => {
                         </Box>
                         <Box mt={5}>
                             <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width - 40) *0.2} />
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40) *0.2 + 'px'} />
+                                <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' py={2.5}>
                                         <Box width='20%' >
                                             
@@ -151,7 +159,7 @@ const FoodDiary = (props) => {
                             </HStack>
                             
                             <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                <Box width={(width - 40) *0.2} >
+                                <Box width={(width - 40) *0.2 + 'px'} >
                                     <HStack alignItems='center'>
                                         <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                             <DefText text='섭취량' style={[styles.tableText, {fontSize:13}]}  />
@@ -166,7 +174,7 @@ const FoodDiary = (props) => {
                                         </VStack>
                                     </HStack>
                                 </Box>
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' alignItems='center' >
                                         <VStack width='20%' height={60} justifyContent='space-between' py={1.5}>
                                             <Box >
@@ -202,8 +210,8 @@ const FoodDiary = (props) => {
                         <DefText text='만성질환 위험감소 섭취안내(일)' style={[styles.reportLabel], {marginBottom:10}} />
                         <Box>
                             <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width - 40) *0.2} />
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40) *0.2 + 'px'} />
+                                <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' py={2.5}>
                                         <Box width='33.3%' >
                                             <DefText text='당류(g)' style={[styles.tableText]} />
@@ -219,7 +227,7 @@ const FoodDiary = (props) => {
                             </HStack>
                             
                             <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                <Box width={(width - 40) *0.2} >
+                                <Box width={(width - 40) *0.2 + 'px'} >
                                     <HStack alignItems='center'>
                                         <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                             <DefText text='비율' style={[styles.tableText, {fontSize:13}]}  />
@@ -234,7 +242,7 @@ const FoodDiary = (props) => {
                                         </VStack>
                                     </HStack>
                                 </Box>
-                                <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                     <HStack justifyContent='space-between' alignItems='center' >
                                         <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                             <Box >
@@ -270,7 +278,7 @@ const FoodDiary = (props) => {
                     </Box>
                     <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
                         <HStack alignItems='center'>
-                            <DefText text='식사일기 작성이 주는 가치 알아보세요.' style={{fontSize:14,color:'#999'}} />
+                            <DefText text={textLengthOverCut('식사일기 작성이 주는 가치 알아보세요.', 24)} style={{fontSize:14,color:'#999'}} />
                             <TouchableOpacity >
                 
                                 <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
@@ -282,7 +290,7 @@ const FoodDiary = (props) => {
                     </Box>
                     <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
                         <HStack alignItems='center'>
-                            <DefText text='! 식사를 거를 경우 당뇨발생 위험률이 높아집니다.' style={{fontSize:14,color:'#999'}} />
+                            <DefText text={ textLengthOverCut('! 식사를 거를 경우 당뇨발생 위험률이 높아집니다.', 24)} style={{fontSize:14,color:'#999'}} />
                             <TouchableOpacity >
                 
                                 <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
@@ -294,7 +302,7 @@ const FoodDiary = (props) => {
                     </Box>
                     <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
                         <HStack alignItems='center'>
-                            <DefText text='! 식사시간은 4~5시간 간격을 지키면 건강에 ...' style={{fontSize:14,color:'#999'}} />
+                            <DefText text={ textLengthOverCut('! 식사시간은 4~5시간 간격을 지키면 건강에 ...', 24)} style={{fontSize:14,color:'#999'}} />
                             <TouchableOpacity >
                 
                                 <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
@@ -310,7 +318,7 @@ const FoodDiary = (props) => {
                                 <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
                                     <DefText text='8:00 AM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Box width='75%'>
+                                <Box width='70%'>
                                     <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
                                         <HStack alignItems='center'>
                                             <Image source={require('../images/foodThumb01.png')} alt='약 복용' />
@@ -325,10 +333,10 @@ const FoodDiary = (props) => {
                                 </Box>
                             </HStack>
                             <HStack>
-                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
                                     <DefText text='11:20 AM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Box width='75%'>
+                                <Box width='70%'>
                                      <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
                                         <HStack alignItems='center'>
                                             <Image source={require('../images/foodThumb02.png')} alt='약 복용' />
@@ -343,10 +351,10 @@ const FoodDiary = (props) => {
                             </HStack>
 
                             <HStack mt={5} paddingBottom={5}>
-                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
                                     <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Box width='75%'>
+                                <Box width='70%'>
                                     <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
                                         <HStack alignItems='center'>
                                             <Image source={require('../images/foodThumb03.png')} alt='약 복용' />
@@ -397,7 +405,7 @@ const styles = StyleSheet.create({
 
     },
     tableText: {
-        fontSize:14,
+        fontSize:13,
         color:'#333',
         textAlign:'center'
     },

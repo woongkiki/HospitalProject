@@ -4,6 +4,7 @@ import { Box, HStack, VStack, Image, Input } from 'native-base';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderDefault from '../components/HeaderDefault';
 import {schKeyword, healthData} from '../Utils/DummyData';
+import Api from '../Api';
 
 const {width} = Dimensions.get('window');
 const HealthInfoWidth = (width - 40) - 100;
@@ -38,6 +39,25 @@ const Community = (props) => {
     const sortChangeButton = (sortCategory) => {
         setSortCategory(sortCategory);
     }
+
+
+    const trainerDataReceive = () => {
+        Api.send('bbs_list', {'code':'inbody'}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('트레이너 결과 출력 ㅇㅇ : ', resultItem);
+
+            }else{
+                console.log('결과 출력 실패!');
+            }
+        });
+    }
+
+    useEffect(()=>{
+        trainerDataReceive();
+    },[])
 
     //검색 키워드
     const schKeywordData = schKeyword.map((keyword, index)=>{
@@ -93,7 +113,7 @@ const Community = (props) => {
 
     return (
         <Box flex={1} backgroundColor='#fff' >
-            <HeaderDefault  headerTitle='건강정보' />
+            <HeaderDefault  headerTitle='건강정보' navigation={navigation} />
             <FlatList
                 
                 data={comData}
@@ -120,7 +140,7 @@ const Community = (props) => {
                         </Box>
                         <Box px={5}>            
                             <Box mt={5}>
-                                <TouchableOpacity style={{width:width-40, height:110, backgroundColor:'#fff', borderRadius:10}}>
+                                <TouchableOpacity onPress={()=>navigation.navigate('BloodSugar')} style={{width:width-40, height:110, backgroundColor:'#fff', borderRadius:10}}>
                                     <ImageBackground 
                                         source={require('../images/diabetesBg.png')}
                                         style={{ height:140, width:width-10, marginLeft:-10, marginTop:-15, alignItems:'center', justifyContent:'center'}}

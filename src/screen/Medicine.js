@@ -27,13 +27,21 @@ const Medicine = (props) => {
         await navigation.navigate('MedicineForm2');
     }
 
+
+    const navigationMove = () => {
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            
+        });
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderMedicine navigation={navigation} headerTitle='복약관리' medicineList={MedicineListButton} />
             <ScrollView>
                 <Box px={5} py={5}>
                     <HStack height='150px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.65) + 'px'}>
                             <DefText text='약먹기이야기' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='약을 잘먹으면 큰병을 예방할 수 있습니다.' style={{fontSize:15}} />
                             <TouchableOpacity
@@ -46,6 +54,7 @@ const Medicine = (props) => {
                                     justifyContent:'center',
                                     marginTop:20
                                 }}
+                                onPress={navigationMove}
                             >
                                 <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
                             </TouchableOpacity>
@@ -58,10 +67,10 @@ const Medicine = (props) => {
                     <VStack mt={8}>
                         <Box> 
                             <HStack>
-                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
                                     <DefText text='8:00 AM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Box width='78%'>
+                                <Box width='70%'>
                                     <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
                                         <HStack alignItems='center'>
                                             <Image source={require('../images/medicineIcon1.png')} alt='약 복용' />
@@ -86,10 +95,10 @@ const Medicine = (props) => {
                             </HStack>
 
                             <HStack mt={5} paddingBottom={5}>
-                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
                                     <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Box width='78%'>
+                                <Box width='70%'>
                                     <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
                                         <HStack alignItems='center'>
                                             <Image source={require('../images/medicineIcon1.png')} alt='약 복용' />
@@ -116,11 +125,12 @@ const Medicine = (props) => {
                     </VStack>
                 </Box>
             </ScrollView>
-            <Box style={{position:'absolute', bottom:20, right:20}}>
-                <TouchableOpacity onPress={()=>{setMedicineModal(!medicineModal)}}>
-                    <Image source={require('../images/medicinePlus.png')} alt='복약관리 추가' />
+            <Box p={2.5} px={5}>
+                <TouchableOpacity onPress={()=>{setMedicineModal(!medicineModal)}} style={[styles.buttonDef]}>
+                   <DefText text='복약관리 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
             </Box>
+          
             <Modal isOpen={medicineModal} onClose={() => setMedicineModal(false)}>
             
                 <Modal.Content maxWidth={width-40}>
@@ -156,6 +166,17 @@ const styles = StyleSheet.create({
     modalButtonsText : {
         color:'#fff',
         fontSize:14,
+    },
+    buttonDef:{
+        height:40,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'#666',
+        borderRadius:5
+    },
+    buttonDefText:{
+        fontSize:14,
+        color:'#fff'
     }
 })
 

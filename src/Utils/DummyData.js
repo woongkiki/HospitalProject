@@ -352,21 +352,21 @@ export const myChatList = [
         chatDoctor : '김영숙',
         chatSubject : '눈부심 시력저하',
         chatCategory : '진행중',
-        imgUrl : 'http://cnj06.cafe24.com/images/com_sampleImg1.png'
+        imgUrl : 'http://cnj06.cafe24.com/images/doctorSampleImgs.png'
     },
     {
         idx : 2,
         chatDoctor : '이익준',
         chatSubject : '간기능',
         chatCategory : '진행중',
-        imgUrl : 'http://cnj06.cafe24.com/images/com_sampleImg1.png'
+        imgUrl : 'http://cnj06.cafe24.com/images/doctorSampleImgs.png'
     },
     {
         idx : 3,
         chatDoctor : '채송화',
         chatSubject : '신경외과',
         chatCategory : '완료',
-        imgUrl : 'http://cnj06.cafe24.com/images/com_sampleImg1.png'
+        imgUrl : 'http://cnj06.cafe24.com/images/doctorSampleImgs.png'
     }
 ]
 
@@ -483,13 +483,7 @@ export const boardDatas = [
         date : '2021.07.07',
         content:"면역력 증진 프로그램 신청은 전화문의로 부탁드립니다."
     },
-    {
-        idx: 4,
-        title: '새로운 검진 패키지가 출시 되었습니다. 건강몰에서 확인하시고, 혜택 많이 받아가세요.',
-        category : '이벤트',
-        date : '2021.07.07',
-        content:"새로운 검진 패키지를 확인하세요!"
-    },
+    
     
 ]
 
@@ -760,5 +754,38 @@ export const AlarmListData = [
         category:'공지사항',
         title : '3~6일까지 하계휴가로 병원상담이 어렵습니다.',
         times : '15분전'
+    }
+];
+
+export const medicineAdd = [
+    {
+        medicineName : '다이아벡스정500밀리그램 (메트포르민염산염)',
+        medicineInfo : '당뇨병 용제',
+        medicineLook : '양면이 볼록하고 각각 DXR, 500이라고 새겨진 장방형의 흰색 내지 미색 정제',
+        medicineIngredient : '[M223014]메트포르민염산염',
+        medicineAdditive : '[M007131]정제수|[M060073]\n미결정셀룰로오스',
+        medicineTerm : '제조일로부터 36개월',
+        medicineKeep : '기밀용기, 실온보관(1~30℃)',
+        medicineType : '전문의약품',
+        medicineSize : '1정(약 1032mg) 중',
+        medicineKeepType : '60정((15정/PTP)Ⅹ4)',
+        medicineCompany : '(주)대웅제약',
+        medicineFile : 'no',
+        medicineImg : 'http://cnj06.cafe24.com/images/medicineEx1.png'
+    },
+    {
+        medicineName : '다이아벡스정500밀리그램 (메트포르민염산염)',
+        medicineInfo : '당뇨병 용제',
+        medicineLook : '양면이 볼록하고 각각 DXR, 500이라고 새겨진 장방형의 흰색 내지 미색 정제',
+        medicineIngredient : '[M223014]메트포르민염산염',
+        medicineAdditive : '[M007131]정제수|[M060073]\n미결정셀룰로오스',
+        medicineTerm : '제조일로부터 36개월',
+        medicineKeep : '기밀용기, 실온보관(1~30℃)',
+        medicineType : '전문의약품',
+        medicineSize : '1정(약 1032mg) 중',
+        medicineKeepType : '60정((15정/PTP)Ⅹ4)',
+        medicineCompany : '(주)대웅제약',
+        medicineFile : 'no',
+        medicineImg : 'http://cnj06.cafe24.com/images/medicineEx1.png'
     }
 ]

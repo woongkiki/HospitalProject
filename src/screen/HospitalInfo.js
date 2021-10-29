@@ -23,8 +23,15 @@ const HospitalInfo = ( props ) => {
     const [mapPopVisible, setMapPopVisible] = useState(false);
 
     const _hospitalTabButton = (button) => {
-       
-        setHospitalTab(button);
+       if(button==5){
+            navigation.navigate('Tab_Navigation', {
+                screen: 'ChatingList',
+                
+            });
+       }else{
+
+            setHospitalTab(button);
+       }
     }
 
     //병원정보 카테고리
@@ -275,12 +282,7 @@ const HospitalInfo = ( props ) => {
                                 <DefText text='전화걸기' />
                             </Box>
                         }
-                        {
-                            hospitalTab === 5 &&
-                            <Box>
-                                <DefText text='자문요청' />
-                            </Box>
-                        }
+                       
                     </Box>
                 </VStack>
             </ScrollView>

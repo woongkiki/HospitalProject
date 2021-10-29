@@ -17,13 +17,20 @@ const Inbody = (props) => {
 
     const fatStoSum = fatSto * 10;
 
+    const navigationMove = () => {
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            
+        });
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='체성분' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.65) + 'px'}>
                             <DefText text='체성분 이야기' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='중요한 건강지표 "체성분"에 관해 알아보세요.' style={{fontSize:14, }} />
                             <TouchableOpacity
@@ -36,7 +43,7 @@ const Inbody = (props) => {
                                     justifyContent:'center',
                                     marginTop:10 
                                 }}
-                                onPress={()=>{navigation.navigate('Tab_Navigation', {'screenNumber':2})}}
+                                onPress={navigationMove}
                             >
                                 <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
                             </TouchableOpacity>

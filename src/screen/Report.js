@@ -11,6 +11,14 @@ const {width} = Dimensions.get('window');
 
 const initialLayout = { width: Dimensions.get('window').width };
 
+const firstChartWidth = (width - 80) * 0.5;
+
+const secondChartWidth = (width - 80) * 0.45;
+
+console.log(width);
+console.log(firstChartWidth);
+console.log(secondChartWidth);
+
 const Report = (props) => {
 
     const {navigation} = props;
@@ -206,6 +214,7 @@ const Report = (props) => {
             <Box backgroundColor='#fff'>
                 <ScrollView>
                     <Box px={5} pb={5} pt={2.5}>
+                    
                         <Box>
                             <DefText text='주간평균 혈당' style={styles.reportLabel} />
                             <VStack mt={2.5}>
@@ -216,9 +225,9 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box> 
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -236,9 +245,9 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -251,7 +260,7 @@ const Report = (props) => {
                             <Box mt={5} alignItems='center'>
                                 <LineChart
                                     data={data}
-                                    width={width - 60}
+                                    width={width - 40}
                                     height={300}
                                     chartConfig={chartConfig}
                                     bezier
@@ -259,7 +268,7 @@ const Report = (props) => {
                                     withShadow={false} // 선그림자 여부 기본 true
                                     yLabelsOffset={20} //y축 그래프 사이 여백
                                     segments={5} //y축 수치 세그먼트 기본 4
-                                  
+                                    style={{marginLeft:-10}}
                                     />
                             </Box>
 
@@ -273,10 +282,10 @@ const Report = (props) => {
                             </Box>
                             <Box mt={5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
                                 <DefText text='혈당 값 추세' style={[styles.reportLabel], {marginBottom:10}} />
-                                <Box>
+                                <Box width={ (width-80) + 'px'} >
                                     <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
-                                        <Box width={(width - 40) *0.2} />
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40) *0.2 + 'px'} />
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' py={2.5}>
                                                 <Box width='33.3%' >
                                                     <DefText text='지난주' style={[styles.tableText]} />
@@ -290,7 +299,7 @@ const Report = (props) => {
                                     </HStack>
                                    
                                     <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='아침' style={[styles.tableText, {fontSize:15}]}  />
@@ -305,7 +314,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -337,7 +346,7 @@ const Report = (props) => {
                                     </HStack>
                                
                                     <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='점심' style={[styles.tableText, {fontSize:15}]}  />
@@ -352,7 +361,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -384,7 +393,7 @@ const Report = (props) => {
                                     </HStack>
                                    
                                     <HStack  >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='저녁' style={[styles.tableText, {fontSize:15}]}  />
@@ -399,7 +408,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -441,11 +450,11 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='주의' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압전단계' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압1기' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압2기' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='주의' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압1기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압2기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
 
                                     </HStack>
                                     
@@ -466,11 +475,11 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='주의' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압전단계' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압1기' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압2기' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='주의' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압1기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압2기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
 
                                     </HStack>
                                     
@@ -486,7 +495,7 @@ const Report = (props) => {
                             <Box alignItems='center'>
                                 <LineChart
                                     data={dataBlood}
-                                    width={width - 60}
+                                    width={width - 40}
                                     height={220}
                                     chartConfig={chartConfig}
                                     bezier
@@ -494,24 +503,25 @@ const Report = (props) => {
                                     withShadow={false} // 선그림자 여부 기본 true
                                     yLabelsOffset={20} //y축 그래프 사이 여백
                                     segments={5} //y축 수치 세그먼트 기본 4
-                                    
+                                    style={{marginLeft:-10}}
                                     />
                             </Box>
 
+                            
                             <VStack mt={5}>
                                 <DefText text='복약통계' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <HStack alignItems='flex-end' justifyContent='space-between' backgroundColor='#F1F1F1' p={5} borderRadius={10} >
-                                    <Box width={(width-80) * 0.55} height={(width-80) * 0.55}>
+                                    <Box >
                                         <ProgressChart
                                             data={medicineData}
-                                            width={(width-80) * 0.55}
-                                            height={(width-80) * 0.55}
+                                            width={firstChartWidth}
+                                            height={firstChartWidth}
                                             strokeWidth={15}
-                                            radius={ Platform.OS==='ios' ? 70 : 80 }
+                                            radius={ Platform.OS==='ios' ? firstChartWidth * 0.45 : firstChartWidth * 0.45 }
                                             chartConfig={chartConfigMedicine}
                                             hideLegend={true}
                                         />
-                                         <Box style={{width:(width-80) * 0.55, height:(width-80) * 0.55, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
+                                         <Box style={{width:firstChartWidth, height:firstChartWidth, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
                                             <DefText text={medicineData.labels} style={[styles.progerssChartText]} />
                                             <DefText text={medicineData.data * 100 + '%'} style={[styles.progerssChartNumber]}  />
                                             <DefText text={medicineData.medicineText} style={[styles.progerssChartText, medicineData.medicineText == '양호' ? {color:'#666'} : {color:'#f00'} ]}  />
@@ -520,14 +530,14 @@ const Report = (props) => {
                                     <Box>
                                         <ProgressChart
                                             data={medicineData2}
-                                            width={(width-80) * 0.43}
-                                            height={(width-80) * 0.43}
+                                            width={secondChartWidth}
+                                            height={secondChartWidth}
                                             strokeWidth={15}
-                                            radius={Platform.OS==='ios' ? 58 : 63}
+                                            radius={Platform.OS==='ios' ? secondChartWidth * 0.44 : secondChartWidth * 0.44 }
                                             chartConfig={chartConfigMedicine2}
                                             hideLegend={true}
                                         />
-                                         <Box style={{width:(width-80) * 0.43, height:(width-80) * 0.43, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
+                                         <Box style={{width:secondChartWidth, height:secondChartWidth, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
                                             <DefText text={medicineData2.labels} style={[styles.progerssChartText]}  />
                                             <DefText text={medicineData2.data * 100 + '%'} style={[styles.progerssChartNumber]} />
                                             <DefText text={medicineData2.medicineText} style={[styles.progerssChartText, medicineData2.medicineText == '양호' ? {color:'#666'} : {color:'#f00'}]}  />
@@ -536,6 +546,12 @@ const Report = (props) => {
                                 </HStack>
                                 
                             </VStack>
+
+
+
+
+
+
                             <VStack mt={5}>
                                 <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <Box p={5} backgroundColor='#F1F1F1' borderRadius={10}>
@@ -567,7 +583,7 @@ const Report = (props) => {
                                 <Box mt={5}>
                                     <LineChart
                                         data={dataKcal}
-                                        width={width - 60}
+                                        width={width - 40}
                                         height={220}
                                         chartConfig={chartConfig}
                                         bezier
@@ -576,6 +592,7 @@ const Report = (props) => {
                                         yLabelsOffset={20} //y축 그래프 사이 여백
                                         segments={5} //y축 수치 세그먼트 기본 4
                                         hideLegend={true}
+                                        style={{marginLeft:-10}}
                                     />
                                 </Box>
                             </VStack>
@@ -625,9 +642,9 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box> 
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -645,9 +662,9 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                        <DefText text='당뇨' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -657,10 +674,10 @@ const Report = (props) => {
                                     <DefText text='160' style={[styles.reportChartText, {color:'#333'}]} />
                                 </HStack>
                             </VStack>
-                            <Box mt={5} alignItems='center'>
+                            <Box mt={5} >
                                 <LineChart
                                     data={data}
-                                    width={width - 60}
+                                    width={width-40}
                                     height={300}
                                     chartConfig={chartConfig}
                                     bezier
@@ -668,7 +685,7 @@ const Report = (props) => {
                                     withShadow={false} // 선그림자 여부 기본 true
                                     yLabelsOffset={20} //y축 그래프 사이 여백
                                     segments={5} //y축 수치 세그먼트 기본 4
-                                  
+                                    style={{marginLeft:-10}}
                                     />
                             </Box>
 
@@ -684,8 +701,8 @@ const Report = (props) => {
                                 <DefText text='혈당 값 추세' style={[styles.reportLabel], {marginBottom:10}} />
                                 <Box>
                                     <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
-                                        <Box width={(width - 40) *0.2} />
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40) *0.2 + 'px'} />
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' py={2.5}>
                                                 <Box width='33.3%' >
                                                     <DefText text='지난주' style={[styles.tableText]} />
@@ -699,7 +716,7 @@ const Report = (props) => {
                                     </HStack>
                                    
                                     <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='아침' style={[styles.tableText, {fontSize:15}]}  />
@@ -714,7 +731,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -746,7 +763,7 @@ const Report = (props) => {
                                     </HStack>
                                
                                     <HStack borderBottomWidth={1} borderBottomColor='#999' >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='점심' style={[styles.tableText, {fontSize:15}]}  />
@@ -761,7 +778,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -793,7 +810,7 @@ const Report = (props) => {
                                     </HStack>
                                    
                                     <HStack  >
-                                        <Box width={(width - 40) *0.2} >
+                                        <Box width={(width - 40) *0.2 + 'px'} >
                                             <HStack alignItems='center'>
                                                 <Box width='50%' height={60} justifyContent='center' py={1.5}>
                                                     <DefText text='저녁' style={[styles.tableText, {fontSize:15}]}  />
@@ -808,7 +825,7 @@ const Report = (props) => {
                                                 </VStack>
                                             </HStack>
                                         </Box>
-                                        <Box width={(width - 40 )*0.7} borderLeftWidth={1} borderLeftColor="#999">
+                                        <Box width={(width - 40 )*0.7 + 'px'} borderLeftWidth={1} borderLeftColor="#999">
                                             <HStack justifyContent='space-between' alignItems='center' >
                                                 <VStack width='33.3%' height={60} justifyContent='space-between' py={1.5}>
                                                     <Box >
@@ -850,11 +867,11 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='주의' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압전단계' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압1기' style={[styles.reportChartText]} />
-                                        <DefText text='고혈압2기' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='주의' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압1기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='고혈압2기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
 
                                     </HStack>
                                     
@@ -875,11 +892,11 @@ const Report = (props) => {
                                         <Image source={require('../images/smileIcons.png')} alt='수치' />
                                     </Box>
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                        <DefText text='정상' style={[styles.reportChartText]} />
-                                        <DefText text='주의' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압전단계' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압1기' style={[styles.reportChartText]} />
-                                        <DefText text='저혈압2기' style={[styles.reportChartText]} />
+                                        <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='주의' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압1기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                        <DefText text='저혈압2기' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
 
                                     </HStack>
                                     
@@ -892,10 +909,10 @@ const Report = (props) => {
                                 </HStack>
                             </VStack>
 
-                            <Box alignItems='center'>
+                            <Box>
                                 <LineChart
                                     data={dataBlood}
-                                    width={width - 60}
+                                    width={width - 40}
                                     height={220}
                                     chartConfig={chartConfig}
                                     bezier
@@ -903,24 +920,24 @@ const Report = (props) => {
                                     withShadow={false} // 선그림자 여부 기본 true
                                     yLabelsOffset={20} //y축 그래프 사이 여백
                                     segments={5} //y축 수치 세그먼트 기본 4
-                                    
+                                    style={{marginLeft:-10}}
                                     />
                             </Box>
 
                             <VStack mt={5}>
                                 <DefText text='복약통계' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <HStack alignItems='flex-end' justifyContent='space-between' backgroundColor='#F1F1F1' p={5} borderRadius={10} >
-                                    <Box width={(width-80) * 0.55} height={(width-80) * 0.55}>
+                                    <Box width={firstChartWidth} height={firstChartWidth}>
                                         <ProgressChart
                                             data={medicineData}
-                                            width={(width-80) * 0.55}
-                                            height={(width-80) * 0.55}
+                                            width={firstChartWidth}
+                                            height={firstChartWidth}
                                             strokeWidth={15}
-                                            radius={Platform.OS==='ios' ? 70 : 80}
+                                            radius={Platform.OS==='ios' ? firstChartWidth * 0.44 : firstChartWidth * 0.44}
                                             chartConfig={chartConfigMedicine}
                                             hideLegend={true}
                                         />
-                                         <Box style={{width:(width-80) * 0.55, height:(width-80) * 0.55, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
+                                         <Box style={{width:firstChartWidth, height:firstChartWidth, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
                                             <DefText text={medicineData.labels} style={[styles.progerssChartText]} />
                                             <DefText text={medicineData.data * 100 + '%'} style={[styles.progerssChartNumber]}  />
                                             <DefText text={medicineData.medicineText} style={[styles.progerssChartText, medicineData.medicineText == '양호' ? {color:'#666'} : {color:'#f00'} ]}  />
@@ -929,14 +946,14 @@ const Report = (props) => {
                                     <Box>
                                         <ProgressChart
                                             data={medicineData2}
-                                            width={(width-80) * 0.43}
-                                            height={(width-80) * 0.43}
+                                            width={secondChartWidth}
+                                            height={secondChartWidth}
                                             strokeWidth={15}
-                                            radius={Platform.OS==='ios' ? 58 : 63}
+                                            radius={Platform.OS==='ios' ? secondChartWidth * 0.44 : secondChartWidth * 0.44}
                                             chartConfig={chartConfigMedicine2}
                                             hideLegend={true}
                                         />
-                                         <Box style={{width:(width-80) * 0.43, height:(width-80) * 0.43, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
+                                         <Box style={{width:secondChartWidth, height:secondChartWidth, backgroundColor:'rgba(0,0,0,0,3)', position:'absolute', bottom:0, left:0, alignItems:'center', justifyContent:'center'}}>
                                             <DefText text={medicineData2.labels} style={[styles.progerssChartText]}  />
                                             <DefText text={medicineData2.data * 100 + '%'} style={[styles.progerssChartNumber]} />
                                             <DefText text={medicineData2.medicineText} style={[styles.progerssChartText, medicineData2.medicineText == '양호' ? {color:'#666'} : {color:'#f00'}]}  />
@@ -976,7 +993,7 @@ const Report = (props) => {
                                 <Box mt={5}>
                                     <LineChart
                                         data={dataKcal}
-                                        width={width - 60}
+                                        width={width - 40}
                                         height={220}
                                         chartConfig={chartConfig}
                                         bezier
@@ -985,13 +1002,14 @@ const Report = (props) => {
                                         yLabelsOffset={20} //y축 그래프 사이 여백
                                         segments={5} //y축 수치 세그먼트 기본 4
                                         hideLegend={true}
+                                        style={{marginLeft:-10}}
                                     />
                                 </Box>
                                 <Box mt={2.5}>
                                     <DefText text='체중변화' style={[styles.reportLabel]} />
                                     <LineChart
                                         data={dataWeight}
-                                        width={width - 60}
+                                        width={width - 40}
                                         height={220}
                                         chartConfig={chartConfig}
                                         bezier
@@ -1000,13 +1018,14 @@ const Report = (props) => {
                                         yLabelsOffset={20} //y축 그래프 사이 여백
                                         segments={5} //y축 수치 세그먼트 기본 4
                                         hideLegend={true}
+                                        style={{marginLeft:-10}}
                                     />
                                 </Box>
                                 <Box mt={2.5}>
                                     <DefText text='근육량 변화' style={[styles.reportLabel]} />
                                     <LineChart
                                         data={dataMuscle}
-                                        width={width - 60}
+                                        width={width - 40}
                                         height={220}
                                         chartConfig={chartConfig}
                                         bezier
@@ -1015,13 +1034,14 @@ const Report = (props) => {
                                         yLabelsOffset={20} //y축 그래프 사이 여백
                                         segments={5} //y축 수치 세그먼트 기본 4
                                         hideLegend={true}
+                                        style={{marginLeft:-10}}
                                     />
                                 </Box>
                                 <Box mt={2.5}>
                                     <DefText text='체지방량 변화' style={[styles.reportLabel]} />
                                     <LineChart
                                         data={dataFat}
-                                        width={width - 60}
+                                        width={width - 40}
                                         height={220}
                                         chartConfig={chartConfig}
                                         bezier
@@ -1030,6 +1050,7 @@ const Report = (props) => {
                                         yLabelsOffset={20} //y축 그래프 사이 여백
                                         segments={5} //y축 수치 세그먼트 기본 4
                                         hideLegend={true}
+                                        style={{marginLeft:-10}}
                                     />
                                 </Box>
                             </VStack>
@@ -1094,7 +1115,7 @@ const Report = (props) => {
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderDefault headerTitle='리포트' />
+            <HeaderDefault headerTitle='리포트' navigation={navigation} />
 
             <TabView
                 navigation={navigation}

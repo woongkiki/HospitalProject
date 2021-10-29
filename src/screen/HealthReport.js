@@ -372,17 +372,18 @@ const HealthReport = ( props ) => {
             </ScrollView>
             {
                 buttonIdx === 2 && 
-                <Box style={{position:'absolute', bottom:20, right:20}}>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('MyDiseaseReport')}}>
-                        <Image source={require('../images/medicinePlus.png')} alt='질환기록 추가' />
+     
+                 <Box p={2.5} px={5}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('MyDiseaseReport')}} style={[styles.buttonDef]}>
+                        <DefText text='질환기록 추가' style={styles.buttonDefText} />
                     </TouchableOpacity>
                 </Box>
             }
             {
                 buttonIdx === 4 && 
-                <Box style={{position:'absolute', bottom:20, right:20}}>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('DnaSelect')}}>
-                        <Image source={require('../images/medicinePlus.png')} alt='유전기록 추가' />
+                <Box p={2.5} px={5}>
+                    <TouchableOpacity onPress={()=>{navigation.navigate('DnaSelect')}} style={[styles.buttonDef]}>
+                        <DefText text='유전기록 추가' style={styles.buttonDefText} />
                     </TouchableOpacity>
                 </Box>
             }
@@ -435,6 +436,17 @@ const styles = StyleSheet.create({
     dnaSelectButtonText: {
         fontSize:13,
         color:'#fff',
+    },
+    buttonDef:{
+        height:40,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'#666',
+        borderRadius:5
+    },
+    buttonDefText:{
+        fontSize:14,
+        color:'#fff'
     }
 })
 

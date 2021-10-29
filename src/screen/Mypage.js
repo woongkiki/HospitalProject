@@ -10,7 +10,7 @@ const Mypage = (props) => {
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderDefault headerTitle='마이페이지' />
+            <HeaderDefault headerTitle='마이페이지' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <TouchableOpacity style={[styles.mypageButton, {marginTop:0}]} onPress={()=>{navigation.navigate('HealthReport')}}>

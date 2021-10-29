@@ -3,6 +3,7 @@ import { Box, VStack, HStack, Image, Input } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet } from 'react-native';
 import {DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
+import ToastMessage from '../components/ToastMessage';
 
 const {width} = Dimensions.get('window');
 
@@ -86,6 +87,11 @@ const InbodyAdd = (props) => {
         setFatLevel(levels);
     }
 
+    const InputSubmit = () => {
+        navigation.navigate('Inbody');
+        ToastMessage('체성분이 입력되었습니다.');
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='체성분 입력' navigation={navigation} />
@@ -162,6 +168,7 @@ const InbodyAdd = (props) => {
                                         onChangeText={feetChange}
                                         style={{fontSize:15}}
                                         keyboardType='phone-pad'
+                                        _focus='transparent'
                                     />
                     
                                 </Box>
@@ -242,7 +249,7 @@ const InbodyAdd = (props) => {
                     
                                 </Box>
                             </HStack>
-                            <TouchableOpacity style={[styles.buttonDef, {marginTop:20}]}>
+                            <TouchableOpacity onPress={InputSubmit} style={[styles.buttonDef, {marginTop:20}]}>
                                 <DefText text='저장' style={styles.buttonDefText} />
                             </TouchableOpacity>
                         </Box>
@@ -284,6 +291,7 @@ const InbodyAdd = (props) => {
                                         onChangeText={feetInBodyChange}
                                         style={{fontSize:15}}
                                         keyboardType='phone-pad'
+                                        _focus='transparent'
                                     />
                     
                                 </Box>
@@ -347,7 +355,7 @@ const InbodyAdd = (props) => {
                                 </Box>
                                 
                             </HStack>
-                            <TouchableOpacity style={[styles.buttonDef, {marginTop:20}]}>
+                            <TouchableOpacity onPress={InputSubmit} style={[styles.buttonDef, {marginTop:20}]}>
                                 <DefText text='저장' style={styles.buttonDefText} />
                             </TouchableOpacity>
                         </Box>

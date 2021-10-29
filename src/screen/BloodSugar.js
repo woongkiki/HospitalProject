@@ -56,13 +56,22 @@ const BloodSugar = (props) => {
     const bloodNumberSelect1 = 120;
     const bloodNumberSelect2 = 55;
 
+    const navigationMove = () => {
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            
+        });
+    }
+
+
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='혈당' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.60) + 'px'}>
                             <DefText text='혈당이야기' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='중요한 건강지표 "혈당"에 관해 알아보세요.' style={{fontSize:14}} />
                             <TouchableOpacity
@@ -75,7 +84,7 @@ const BloodSugar = (props) => {
                                     justifyContent:'center',
                                     marginTop:10 
                                 }}
-                                onPress={()=>{navigation.navigate('Tab_Navigation', {'screenNumber':2})}}
+                                onPress={navigationMove}
                             >
                                 <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
                             </TouchableOpacity>
@@ -102,7 +111,7 @@ const BloodSugar = (props) => {
                     <Box mt={2.5}>
                         <LineChart
                             data={data}
-                            width={width - 60}
+                            width={width - 40}
                             height={235}
                             chartConfig={chartConfig}
                             bezier
@@ -110,6 +119,7 @@ const BloodSugar = (props) => {
                             withShadow={false} // 선그림자 여부 기본 true
                             yLabelsOffset={20} //y축 그래프 사이 여백
                             segments={5} //y축 수치 세그먼트 기본 4
+                            style={{marginLeft:-10}}
                         />
                     </Box>
                     <VStack mt={2.5}>
@@ -120,9 +130,9 @@ const BloodSugar = (props) => {
                                 <Image source={require('../images/smileIcons.png')} alt='수치' />
                             </Box> 
                             <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.reportChartText]} />
-                                <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                <DefText text='당뇨' style={[styles.reportChartText]} />
+                                <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='당뇨전단계' style={[styles.reportChartText,{color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                             </HStack>
                         </LinearGradient>
                         <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -140,9 +150,9 @@ const BloodSugar = (props) => {
                                 <Image source={require('../images/smileIcons.png')} alt='수치' />
                             </Box>
                             <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.reportChartText]} />
-                                <DefText text='당뇨전단계' style={[styles.reportChartText]} />
-                                <DefText text='당뇨' style={[styles.reportChartText]} />
+                                <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                             </HStack>
                         </LinearGradient>
                         <HStack justifyContent='space-around' height='35px' mt={1}>

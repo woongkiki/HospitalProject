@@ -60,7 +60,7 @@ const MedicineForm = (props) => {
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='복약관리' navigation={navigation} />
             <ScrollView>
-                <Box py={5} px={12}>
+                <Box p={5}>
                     <Box>
                         <Box>
                             <DefText text='대표이미지를 등록해주세요.' style={{fontSize:14}} />

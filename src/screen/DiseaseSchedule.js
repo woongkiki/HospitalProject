@@ -6,6 +6,8 @@ import HeaderComponents from '../components/HeaderComponents';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
 
+const {width} = Dimensions.get('window');
+
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
  
@@ -137,96 +139,231 @@ const DiseaseSchedule = (props) => {
         }
 
         //console.log(scheduleText, dateTimeText, isMedicineDate);
-        navigation.replace('MedicineForm2', {diseaseDatas: route.params.diseaseDatas, scheduleText:scheduleText, dateTimeText:dateTimeText, isMedicineDate:isMedicineDate});
+        navigation.replace('MedicineForm2', {diseaseDatas: route.params.diseaseDatas, scheduleText:scheduleText, dateTimeText:dateTimeText, isMedicineDate:isMedicineDate, selectCategory});
     }
 
    
-    
+    const [diseasePage, setDiseasePage] = useState('1');
+
+    // const [medicineTimes, setMedicineTimes] = useState([]);
+    let medicineTimes = Array();
+
+    const [medicineTimesArr, setMedicineTimesArr] = useState([]);
+    const [selectCategory, setSelectCategory] = useState([]);
+
+    const medicineAdds = (category) => {
+
+        
+        let medicineStatus = selectCategory.includes(category);
+
+        console.log(medicineStatus);
+
+        if(!medicineStatus){
+            selectCategory.push(category);
+        }else{
+            const findIdx = selectCategory.find((e) => e === category);
+            const idxs = selectCategory.indexOf(findIdx);
+
+            selectCategory.splice(idxs, 1)
+            //console.log(findIdx);
+
+        }
+
+        
+        setSelectCategory([...selectCategory])
+ 
+        
+    }
+
+
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='복약관리' navigation={navigation} />
             <ScrollView>
                 <Box px={5} py={5}>
-                    <HStack height='150px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                    <HStack height='120px' justifyContent='space-between' px={5} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                        <Box width={(width * 0.60) + 'px'} >
                             <DefText text='복약주기 및 일수' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='어떤 주기로 얼만큼 약을 드시나요?' style={{fontSize:15, marginTop:10}} />
+                            {
+                                diseasePage == '1' ?
+                                <DefText text='어떤 주기로 얼만큼 약을 드시나요?' style={{fontSize:15, marginTop:10}} />
+                                :
+                                <DefText text='약을 언제 드실 예정인지 체크해주세요.' style={{fontSize:15, marginTop:10}} />
+                            }
         
                         </Box>
                         <Image source={require('../images/medicineScheduleIcon.png')} alt='복약관리체크' />
                     </HStack>
-                    <Box mt={5}>
-                        <DefText text='시작일' style={styles.labelText} />
-                        <TouchableOpacity onPress={showDatePicker}>
-                            <HStack mt={2.5} alignItems='center' justifyContent='space-between' backgroundColor='#F1F1F1' borderRadius='20px' px={4}>
+                    {
+                        diseasePage == '1' &&
+                        <>
+                            <Box mt={5}>
+                                <DefText text='시작일' style={styles.labelText} />
+                                <TouchableOpacity onPress={showDatePicker}>
+                                    <HStack mt={2.5} alignItems='center' justifyContent='space-between' backgroundColor='#F1F1F1' borderRadius='20px' px={4}>
+                                    
+                                        <Box height='45px' justifyContent='center' alignItems='center'>
+                                            <DefText text={dateTimeText} style={{fontSize:14}} />
+                                        </Box>
+                                        <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20}} resizeMode='contain' />
+                                    </HStack>
+                                </TouchableOpacity>
+                            </Box>
+                            <Box mt={5}>
+                                <DefText text='복약주기' style={styles.labelText} />
+                                <HStack mt={2.5}>
+                                    <TouchableOpacity onPress={ () => schduleCateSelect('매일') } style={[styles.scheduleCate, scheduleCate == '매일' && {backgroundColor:'#666'}]}>
+                                        <DefText text='매일' style={[styles.scheduleCateText, scheduleCate == '매일' && {color:'#fff'}]} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={ () => schduleCateSelect('일수간격') } style={[styles.scheduleCate, scheduleCate == '일수간격' && {backgroundColor:'#666'}]}>
+                                        <DefText text='일수간격' style={[styles.scheduleCateText, scheduleCate == '일수간격' && {color:'#fff'}]} />
+                                    </TouchableOpacity>
+                                </HStack>
+                            </Box>
+                            <Box mt={2.5}>
+                                <HStack alignItems='center' backgroundColor='#F1F1F1' borderRadius='20px' px={4} >
+                                    <Image source={require('../images/schduleIcons.png')} alt='스케줄 입력' />
+                                    <DefInput 
+                                        placeholderText='일수 간격을 입력하세요.'
+                                        inputValue = {scheduleText}
+                                        onChangeText = {scheduleTextChange}
+                                        multiline = {false}
+                                        inputStyle={{backgroundColor:'transparent', borderWidth:0, width:'90%'}}
+                                        disabled={true}
+                                    />
+                                </HStack>
+                            </Box>
                             
-                                <Box height='45px' justifyContent='center' alignItems='center'>
-                                    <DefText text={dateTimeText} style={{fontSize:14}} />
+                            <Box mt={5}>
+                                <DefText text='복약일수' style={styles.labelText} />
+                                <HStack my={2.5}>
+                                    <TouchableOpacity onPress={ () => dateCategoryChange('계속') } style={[styles.scheduleCate, dateCategory == '계속' && {backgroundColor:'#666'}]}>
+                                        <DefText text='계속' style={[styles.scheduleCateText, dateCategory == '계속' && {color:'#fff'}]} />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={ () => dateCategoryChange('며칠간') } style={[styles.scheduleCate, dateCategory == '며칠간' && {backgroundColor:'#666'}]}>
+                                        <DefText text='며칠간' style={[styles.scheduleCateText, dateCategory == '며칠간' && {color:'#fff'}]} />
+                                    </TouchableOpacity>
+                                </HStack>
+                                <HStack alignItems='center' backgroundColor='#F1F1F1' borderRadius='20px' px={4} >
+                                    <Image source={require('../images/schduleIcons.png')} alt='스케줄 입력' />
+                                    
+                                    <DefInput 
+                                        placeholderText='일간 복약 예정입니다.'
+                                        inputValue = {isMedicineDate}
+                                        onChangeText = {MedicineDateChangeText}
+                                        multiline = {false}
+                                        inputStyle={{backgroundColor:'transparent', borderWidth:0, width:'90%'}}
+                                        disabled={true}
+                                    />
+                                </HStack>
+                            </Box>
+                        </>
+                    }
+                    {
+                        diseasePage == '2' && 
+                        <VStack mt={8}>
+                        <Box> 
+                            <HStack alignItems='center'>
+                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                    <DefText text='8:30 AM' style={{fontSize:12, color:'#77838F'}} />
                                 </Box>
-                                <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20}} resizeMode='contain' />
+                                <Box width='78%'>
+                                    <Box>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사전') && {backgroundColor:'#666'}]}>
+                                                <DefText text='아침식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('아침식사전') && {color:'#fff'} ]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack alignItems='center'>
+                                            <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                            <DefText text='아침' style={{fontSize:14, color:'#666'}} />
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사후') && {backgroundColor:'#666'}]}>
+                                                <DefText text='아침식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('아침식사후') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                </Box>
                             </HStack>
-                        </TouchableOpacity>
-                    </Box>
-                    <Box mt={5}>
-                        <DefText text='복약주기' style={styles.labelText} />
-                        <HStack mt={2.5}>
-                            <TouchableOpacity onPress={ () => schduleCateSelect('매일') } style={[styles.scheduleCate, scheduleCate == '매일' && {backgroundColor:'#666'}]}>
-                                <DefText text='매일' style={[styles.scheduleCateText, scheduleCate == '매일' && {color:'#fff'}]} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={ () => schduleCateSelect('일수간격') } style={[styles.scheduleCate, scheduleCate == '일수간격' && {backgroundColor:'#666'}]}>
-                                <DefText text='일수간격' style={[styles.scheduleCateText, scheduleCate == '일수간격' && {color:'#fff'}]} />
-                            </TouchableOpacity>
-                        </HStack>
-                    </Box>
-                    <Box mt={2.5}>
-                        <HStack alignItems='center' backgroundColor='#F1F1F1' borderRadius='20px' px={4} >
-                            <Image source={require('../images/schduleIcons.png')} alt='스케줄 입력' />
-                            <DefInput 
-                                placeholderText='일수 간격을 입력하세요.'
-                                inputValue = {scheduleText}
-                                onChangeText = {scheduleTextChange}
-                                multiline = {false}
-                                inputStyle={{backgroundColor:'transparent', borderWidth:0, width:'90%'}}
-                                disabled={true}
-                            />
-                        </HStack>
-                    </Box>
-                    
-                    <Box mt={5}>
-                        <DefText text='복약일수' style={styles.labelText} />
-                        <HStack my={2.5}>
-                            <TouchableOpacity onPress={ () => dateCategoryChange('계속') } style={[styles.scheduleCate, dateCategory == '계속' && {backgroundColor:'#666'}]}>
-                                <DefText text='계속' style={[styles.scheduleCateText, dateCategory == '계속' && {color:'#fff'}]} />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={ () => dateCategoryChange('며칠간') } style={[styles.scheduleCate, dateCategory == '며칠간' && {backgroundColor:'#666'}]}>
-                                <DefText text='며칠간' style={[styles.scheduleCateText, dateCategory == '며칠간' && {color:'#fff'}]} />
-                            </TouchableOpacity>
-                        </HStack>
-                        <HStack alignItems='center' backgroundColor='#F1F1F1' borderRadius='20px' px={4} >
-                            <Image source={require('../images/schduleIcons.png')} alt='스케줄 입력' />
-                            
-                            <DefInput 
-                                placeholderText='일간 복약 예정입니다.'
-                                inputValue = {isMedicineDate}
-                                onChangeText = {MedicineDateChangeText}
-                                multiline = {false}
-                                inputStyle={{backgroundColor:'transparent', borderWidth:0, width:'90%'}}
-                                disabled={true}
-                            />
-                        </HStack>
-                    </Box>
-                    <Box mt={5}>
-                        <DefText text='복약시간' style={styles.labelText} />
-                        <HStack>
-                            <TouchableOpacity>
-                                <DefText text='아침식사 전' />
-                            </TouchableOpacity>
-                            <TouchableOpacity>
-                                <DefText text='아침식사 후' />
-                            </TouchableOpacity>
-                        </HStack>
-                    </Box>
+                            <HStack alignItems='center' mt={5}>
+                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                    <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                </Box>
+                                <Box width='78%'>
+                                    <Box>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사전') && {backgroundColor:'#666'}]}>
+                                                <DefText text='점심식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('점심식사전') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack alignItems='center'>
+                                            <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                            <DefText text='점심' style={{fontSize:14, color:'#666'}} />
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사후') && {backgroundColor:'#666'}]}>
+                                                <DefText text='점심식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('점심식사후') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                </Box>
+                            </HStack>
+                            <HStack alignItems='center' mt={5}>
+                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                    <DefText text='6:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                </Box>
+                                <Box width='78%'>
+                                    <Box>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사전')}  style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사전') && {backgroundColor:'#666'}]}>
+                                                <DefText text='저녁식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('저녁식사전') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack alignItems='center'>
+                                            <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                            <DefText text='저녁' style={{fontSize:14, color:'#666'}} />
+                                        </HStack>
+                                    </Box>
+                                    <Box mt={2.5}>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사후') && {backgroundColor:'#666'}]}>
+                                                <DefText text='저녁식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('저녁식사후') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                </Box>
+                            </HStack>
+                            <HStack alignItems='center' mt={5}>
+                                <Box width='20%' p={2.5} marginRight='15px' alignItems='center'>
+                                    <DefText text='6:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                </Box>
+                                <Box width='78%'>
+                                    <Box>
+                                        <HStack>
+                                            <TouchableOpacity onPress={()=>medicineAdds('잠들기전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('잠들기전') && {backgroundColor:'#666'}]}>
+                                                <DefText text='잠들기 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('잠들기전') && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        </HStack>
+                                    </Box>
+                                    
+                                </Box>
+                            </HStack>
+
+                        </Box>
+                    </VStack>
+                    }
                 </Box>
             </ScrollView>
             <DateTimePickerModal
@@ -235,11 +372,23 @@ const DiseaseSchedule = (props) => {
                 onConfirm={handleConfirm}
                 onCancel={hideDatePicker}
             />
-            <Box p={2.5}>
-                <TouchableOpacity onPress={_handlerDisease} disabled={buttonState} style={[styles.medicineButtons, !buttonState && {backgroundColor:'#333'}]}>
-                    <DefText text='저장' style={styles.medicineButtonsText} />
-                </TouchableOpacity>
-            </Box>
+            {
+                diseasePage == '1' &&
+                <Box p={2.5}>
+                    <TouchableOpacity onPress={()=>setDiseasePage('2')} style={[styles.medicineButtons]}>
+                        <DefText text='다음' style={styles.medicineButtonsText} />
+                    </TouchableOpacity>
+                </Box>
+            }
+            {
+                diseasePage == '2' &&
+                <Box p={2.5}>
+                    <TouchableOpacity onPress={_handlerDisease} disabled={buttonState} style={[styles.medicineButtons, !buttonState && {backgroundColor:'#333'}]}>
+                        <DefText text='저장' style={styles.medicineButtonsText} />
+                    </TouchableOpacity>
+                </Box>
+            }
+            
         </Box>
     );
 };

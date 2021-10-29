@@ -5,6 +5,8 @@ import HeaderComponents from '../components/HeaderComponents';
 import { DefText } from '../common/BOOTSTRAP';
 import LinearGradient from 'react-native-linear-gradient';
 
+const {width} = Dimensions.get('window');
+
 const BloodPressure = (props) => {
 
     const {navigation} = props;
@@ -25,13 +27,20 @@ const BloodPressure = (props) => {
 
     const HeartLate = 77;
 
+    const navigationMove = () => {
+        navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            
+        });
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='혈압' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
                     <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box>
+                        <Box width={(width * 0.60) + 'px'}>
                             <DefText text='혈압이야기' style={{fontSize:16, fontWeight:'bold'}} />
                             <DefText text='중요한 건강지표 "혈압"에 관해 알아보세요.' style={{fontSize:14, }} />
                             <TouchableOpacity
@@ -44,7 +53,7 @@ const BloodPressure = (props) => {
                                     justifyContent:'center',
                                     marginTop:10 
                                 }}
-                                onPress={()=>{navigation.navigate('Tab_Navigation', {'screenNumber':2})}}
+                                onPress={navigationMove}
                             >
                                 <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
                             </TouchableOpacity>
@@ -76,11 +85,11 @@ const BloodPressure = (props) => {
                                 <Image source={require('../images/smileIcons.png')} alt='수치' />
                             </Box> 
                             <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText]} />
-                                <DefText text='주의' style={[styles.BloodPreText]} />
-                                <DefText text='고혈압전단계' style={[styles.BloodPreText]} />
-                                <DefText text='고혈압1기' style={[styles.BloodPreText]} />
-                                <DefText text='고혈압2기' style={[styles.BloodPreText]} />
+                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
                             </HStack>
                         </LinearGradient>
                         <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -98,11 +107,11 @@ const BloodPressure = (props) => {
                                 <Image source={require('../images/smileIcons.png')} alt='수치' />
                             </Box> 
                             <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText]} />
-                                <DefText text='주의' style={[styles.BloodPreText]} />
-                                <DefText text='저혈압전단계' style={[styles.BloodPreText]} />
-                                <DefText text='저혈압1기' style={[styles.BloodPreText]} />
-                                <DefText text='저혈압2기' style={[styles.BloodPreText]} />
+                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='저혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='저혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <DefText text='저혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
                             </HStack>
                         </LinearGradient>
                         <HStack justifyContent='space-around' height='35px' mt={1}>
@@ -127,9 +136,10 @@ const BloodPressure = (props) => {
                     </HStack>
                 </Box>
             </ScrollView>
-            <Box style={{position:'absolute', bottom:20, right:20}}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('BloodPressureAdd')}}>
-                    <Image source={require('../images/medicinePlus.png')} alt='혈압기록 추가' />
+
+            <Box p={2.5} px={5}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('BloodPressureAdd')}} style={[styles.buttonDef]}>
+                   <DefText text='혈당기록 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
             </Box>
         </Box>
@@ -145,6 +155,17 @@ const styles = StyleSheet.create({
         fontSize:14,
         color:'#fff'
     },
+    buttonDef:{
+        height:40,
+        alignItems:'center',
+        justifyContent:'center',
+        backgroundColor:'#666',
+        borderRadius:5
+    },
+    buttonDefText:{
+        fontSize:14,
+        color:'#fff'
+    }
 })
 
 export default BloodPressure;

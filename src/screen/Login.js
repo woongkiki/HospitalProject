@@ -12,13 +12,13 @@ const Login = (props) => {
     const {width} = Dimensions.get('window');
 
     //e-mail 아이디
-    const [emailInput, setEmailInput] = useState('');
+    const [emailInput, setEmailInput] = useState('test@test.com');
     const emailChange = (text) => {
         setEmailInput(text);
     }
 
     //비밀번호 입력
-    const [passwordInput, setPasswordInput] = useState('');
+    const [passwordInput, setPasswordInput] = useState('1234');
     const passwordChange = (password) => {
         setPasswordInput(password);
     }
@@ -50,6 +50,13 @@ const Login = (props) => {
         navigation.navigate('Register');
     }
 
+    const _LoginButton = () => {
+        navigation.replace('Tab_Navigation', {
+            screen: 'Home',
+            
+        });
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <ScrollView>
@@ -62,18 +69,18 @@ const Login = (props) => {
                 <VStack py={10} px={12}>
                     <Box>
                         <DefText text='이메일' style={{fontSize:14}} />
-                        <DefInput 
+                        <Input 
                             placeholderText='이메일을 입력해주세요.'
                             value = {emailInput}
                             onChangeText = {emailChange}
                             multiline = {false}
-                            inputStyle={{marginTop:15}}
+                            style={{marginTop:15}}
                         />
                     </Box>
                     <Box mt={5}>
                         <DefText text='비밀번호' style={{fontSize:14}} />
                         <Box mt='15px'>
-                            <DefInput 
+                            <Input 
                                 placeholderText='비밀번호를 입력해주세요.'
                                 value = {passwordInput}
                                 onChangeText = {passwordChange}
@@ -108,7 +115,7 @@ const Login = (props) => {
                             </TouchableOpacity>
                         </HStack>
                         <Box mt={7}>
-                            <Button onPress={_loginButton} text='로그인' buttonStyle={{borderRadius:8}} textStyle={{lineHeight:22, fontSize:14}} />
+                            <Button onPress={_LoginButton} text='로그인' buttonStyle={{borderRadius:8}} textStyle={{lineHeight:22, fontSize:14}} />
                         </Box>
                         <Box mt={5}>
                             <Button onPress={_RegisterButton} text='가입하기' buttonStyle={{borderRadius:8}} textStyle={{lineHeight:22, fontSize:14}} />

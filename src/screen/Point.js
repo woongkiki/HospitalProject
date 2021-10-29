@@ -67,7 +67,7 @@ const Point = (props) => {
                         {
                             pointCategory === '1개월' &&
                             <Box py={10} alignItems='center'>
-                                <DefText text='6개월이내에 포인트내역이 없습니다.' style={{fontSize:15, color:'#333'}} />
+                                <DefText text='1개월이내에 포인트내역이 없습니다.' style={{fontSize:15, color:'#333'}} />
                             </Box>
                         }
                         {

@@ -138,11 +138,18 @@ const FoodDiaryAdd = (props) => {
 
 
     const [foodSelects, setFoodSelects] = useState('');
+    const [foods, setFoods] = useState('');
 
     const foodSelectBtn = (food, items) => {
         setFoodSelects(food);
         
     }
+
+    useEffect(()=>{
+        if(foodSelects != ''){
+            setFoods(foodSelects);
+        }
+    },[foodSelects])
 
     const foodSaveBtn = () => {
         setFoodAddModal(false);
@@ -155,11 +162,18 @@ const FoodDiaryAdd = (props) => {
 
     const [schText, setSchText] = useState('');
 
-
+    const [tags, setTags] = useState('');
 
     const diseaseSelectButton = (buttonText) => {
-        setSelectDisease('#'+buttonText)
+        setSelectDisease('#'+buttonText);
+        
     }
+    
+    useEffect(()=>{
+        if(selectDisease != ''){
+            setTags(selectDisease);
+        }
+    },[selectDisease])
 
     const [diseaseModal, setDiseaseModal] = useState(false);
     const [diseaseInput, setDiseaseInput] = useState('');
@@ -177,6 +191,10 @@ const FoodDiaryAdd = (props) => {
         setDiseaseInput('');
     }
 
+    const tagAdds = () => {
+        setTagVisible(false);
+    }
+
     const diseaseDataList1 = foodCategoryLists.map((item, index)=>{
         return(
             <TouchableOpacity key={index} style={[styles.disButton, selectDisease === item && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item)}>
@@ -185,7 +203,10 @@ const FoodDiaryAdd = (props) => {
         )
     })
 
-
+    const foodDiarySaves = () => {
+        navigation.navigate('FoodDiary');
+        ToastMessage('식단일기가 입력되었습니다.');
+    }
 
     const foodSearchResults = foodSearchRes.map((item, index)=>{
         return(
@@ -256,10 +277,21 @@ const FoodDiaryAdd = (props) => {
                                     <DefText text='음식추가' style={{fontSize:13, color:'#fff'}} />
                                 </TouchableOpacity>
                             </HStack>
-                           
-                            <Box justifyContent='center' alignItems='center' height={50}>
-                                <DefText text='음식을 추가하세요.' style={{fontSize:14, color:'#666'}} />
-                            </Box>
+                           {
+                               foods != '' ?
+                               <HStack>
+                                    <Box>
+                                        <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px={5}>
+                                            <DefText text={foods} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />  
+                                        </HStack>
+                                    </Box>
+                                </HStack>
+                               :
+                                <Box justifyContent='center' alignItems='center' height={50}>
+                                    <DefText text='음식을 추가하세요.' style={{fontSize:14, color:'#666'}} />
+                                </Box>
+                           }
+                            
                         </Box>
                     </Box>
                     <Box mt={5}>
@@ -270,9 +302,21 @@ const FoodDiaryAdd = (props) => {
                                     <DefText text='추가' style={{fontSize:13, color:'#fff'}} />
                                 </TouchableOpacity>
                             </HStack>
-                            <Box justifyContent='center' alignItems='center' height={50}>
-                                <DefText text='음식에 관한 태그를 추가하세요.' style={{fontSize:14, color:'#666'}} />
-                            </Box>
+                            {
+                                tags != '' ?
+                                
+                                <HStack>
+                                    <Box>
+                                        <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px={5}>
+                                            <DefText text={tags} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />  
+                                        </HStack>
+                                    </Box>
+                                </HStack>
+                                :
+                                <Box justifyContent='center' alignItems='center' height={50}>
+                                    <DefText text='음식에 관한 태그를 추가하세요.' style={{fontSize:14, color:'#666'}} />
+                                </Box>
+                            }
                         </Box>
                     </Box>
                     <Box mt={5}>
@@ -354,7 +398,7 @@ const FoodDiaryAdd = (props) => {
                             />
                         </Box>
                     </Box>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('FoodDiaryAdd')}} style={[styles.buttonDef, {marginTop:20}]}>
+                    <TouchableOpacity onPress={foodDiarySaves} style={[styles.buttonDef, {marginTop:20}]}>
                         <DefText text='저장' style={styles.buttonDefText} />
                     </TouchableOpacity>
                 </Box>
@@ -466,7 +510,7 @@ const FoodDiaryAdd = (props) => {
                         </Box>
                     </ScrollView>
                     <Box p={2.5} px={5}>
-                        <TouchableOpacity style={[styles.buttonDef]}>
+                        <TouchableOpacity onPress={tagAdds} style={[styles.buttonDef]}>
                         <DefText text='태그 추가' style={styles.buttonDefText} />
                         </TouchableOpacity>
                     </Box>

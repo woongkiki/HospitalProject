@@ -70,7 +70,7 @@ const Home = (props) => {
                     style={{width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'}}
                 >
                     <Box style={[styles.mainIconButton]}>
-                        <Image source={{uri:item.imageUrl}} alt={item.title} style={{width:38, height:38, marginLeft:-5, marginTop:-5}} resizeMode='contain' />
+                        <Image source={{uri:item.imageUrl}} alt={item.title} style={{width:30, height:30, marginLeft:-5, marginTop:-5}} resizeMode='contain' />
                         <DefText text={item.title} style={[styles.mainIconTitle, {marginLeft:-5}]} />
                     </Box>
                 </ImageBackground>
@@ -308,14 +308,14 @@ const Home = (props) => {
                                 justifyContent='center'
                                 mt={-2.5}
                             >
-                                <HStack alignItems='center'  width={width-40} px={6}>
-                                    <VStack alignItems='center'>
-                                        <TouchableOpacity onPress={()=>navigation.navigate('Board')}>
+                                <HStack justifyContent='space-between' alignItems='center' width={width-40} px={5}>
+                                    <VStack alignItems='center' width={(width-80) * 0.18} >
+                                        <TouchableOpacity onPress={()=>navigation.navigate('Board')} style={{alignItems:'center'}}>
                                             <DefText text='안내' style={{fontSize:18, fontWeight:'bold', marginBottom:10}} />
                                             <Image source={require('../images/infomationIcon.png')} alt='안내' height='45px' resizeMode='contain' /> 
                                         </TouchableOpacity>
                                     </VStack>
-                                    <VStack ml={7} justifyContent='space-between'>
+                                    <VStack width={(width-80) * 0.75} justifyContent='space-between' >
                                         {boardDataList}
                                     </VStack>
                                 </HStack>
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
         
     },
     mainIconTitle:{
-        fontSize:13,
+        fontSize:12,
         color:'#FFFFFF', 
         marginTop:7
     },

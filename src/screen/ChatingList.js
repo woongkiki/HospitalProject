@@ -2,8 +2,9 @@ import React, {useState, useEffect} from 'react';
 import { ScrollView, Dimensions, View, Text, Platform, FlatList, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Box, HStack, VStack, Image } from 'native-base';
 import { DefText } from '../common/BOOTSTRAP';
-import HeaderMain from '../components/HeaderMain';
+import HeaderDefault from '../components/HeaderDefault';
 import {myChatList, myChatListComplete, myChatListIng} from '../Utils/DummyData';
+import ToastMessage from '../components/ToastMessage';
 
 const { width } = Dimensions.get('window');
 const RightContWidth = (width - 40) - 90;
@@ -37,22 +38,36 @@ const ChatingList = (props) => {
             setChatDatas(myChatList)
         }
         if(chatCategorys == '진행중'){
-            setChatDatas(myChatListComplete)
+            setChatDatas(myChatListIng)
         }
         if(chatCategorys == '완료'){
-            setChatDatas(myChatListIng)
+            setChatDatas(myChatListComplete)
         }
         setChatListLoading(false);
     },[chatCategorys])
 
+
+    const ChatingButtons = (status) => {
+
+        console.log(status.chatCategory);
+
+        if(status.chatCategory == '완료'){
+            ToastMessage('완료된 채팅입니다.');
+            return false;
+        }else{
+            navigation.navigate('ChatView', status);
+        }
+
+    }
+
     //채팅내역 컴포넌트
     const _renderItem = ({item, index}) => {
         return(
-            <TouchableOpacity style={[ styles.chatListButton]} onPress={()=>navigation.navigate('ChatView')}>
+            <TouchableOpacity style={[ styles.chatListButton]} onPress={()=>ChatingButtons(item)}>
                 <HStack>
                     <Image source={{uri:item.imgUrl}} alt={item.chatDoctor} style={{width:70, height:70, resizeMode:'contain'}} />
                     <VStack width={RightContWidth} px={3} justifyContent='space-around'>
-                        <HStack justifyContent='space-between'>
+                        <HStack justifyContent='space-between' width={(width-40)*0.7 + 'px'}>
                             <HStack alignItems='center'>
                                 <DefText text={item.chatDoctor} style={styles.buttonDoctorName} />
                                 <DefText text='Cure Mentor.' style={styles.buttonMentorText} />
@@ -62,7 +77,7 @@ const ChatingList = (props) => {
                             </Box>
                         </HStack>
           
-                        <HStack justifyContent='space-between' alignItems='center'>
+                        <HStack justifyContent='space-between' alignItems='center' width={(width-40)*0.7 + 'px'}>
                             <VStack>
                                 <Text style={styles.buttonContentText}>
                                     자문내용 : {item.chatSubject}
@@ -89,7 +104,7 @@ const ChatingList = (props) => {
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderMain navigation={navigation} />
+            <HeaderDefault headerTitle='채팅내역' navigation={navigation} />
            
             <Box p={5}>
                 <DefText text='원하시는 태그를 선택하시면 보다 쉽게 검색이 가능합니다.' style={{fontSize:15, color:'#666'}} />

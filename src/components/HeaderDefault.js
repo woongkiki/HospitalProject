@@ -3,6 +3,8 @@ import { Box, VStack, HStack, Image } from 'native-base';
 import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, View } from 'react-native';
 import { DefText } from '../common/BOOTSTRAP';
 
+const {width} = Dimensions.get('window');
+
 const HeaderDefault = ( props ) => {
 
     const {navigation, headerTitle} = props;
@@ -10,9 +12,11 @@ const HeaderDefault = ( props ) => {
     return (
         <Box py={2.5} px={5} shadow={5} backgroundColor='#fff'>
             <HStack justifyContent='space-between' alignItems='center'>
-                <Box></Box>
-                <DefText text={headerTitle} style={{marginRight:10, fontSize:20}} />
-                <TouchableOpacity>
+
+                <Box width={width - 40 + 'px'}  alignItems='center' position='absolute' left={0}>
+                <DefText text={headerTitle} style={{fontSize:20}} />
+                </Box>
+                <TouchableOpacity onPress={()=>{navigation.navigate('AlarmList')}}>
                     <Image
                         source={require('../images/appStatusIcon.png')}
                         alt='알림'

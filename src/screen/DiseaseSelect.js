@@ -25,7 +25,7 @@ const DiseaseSelect = (props) => {
         if(schText.length==0){
             console.log('검색어를 입력하세요.');
             return false;
-        }
+        }r
 
         ToastMessage(schText);
     }
@@ -35,7 +35,7 @@ const DiseaseSelect = (props) => {
     }
 
     const diseaseDatasSave = () => {
-        navigation.replace('MedicineForm2', {diseaseDatas:schText, isMedicineDate:route.params.isMedicineDate, scheduleText:route.params.scheduleText});
+        navigation.navigate('MedicineForm2', {diseaseDatas:schText, isMedicineDate:route.params.isMedicineDate, scheduleText:route.params.scheduleText, selectCategory:route.params.selectCategory});
     }
 
     const diseaseDataList1 = diseaseDatas1.map((item, index)=>{
