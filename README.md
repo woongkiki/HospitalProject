@@ -1,11 +1,11 @@
-# HospitalProject
+# 대표의사 프로젝트
 
-우리병원 프로젝트<br>
-<br>
 yarn 명령어로 전체 패키지 설치
+설치 후 ios의 경우 cd ios && pod install
 
-안드로이드 사용 yarn android<br>
-안드로이드 사용 yarn ios<br>
+안드로이드 시뮬레이터 실행 yarn android<br>
+ios 시뮬레이터 실행 yarn ios<br>
+
 
 # node module 수정본
 
