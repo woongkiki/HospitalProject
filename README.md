@@ -9,7 +9,9 @@ yarn 명령어로 전체 패키지 설치
 
 # node module 수정본
 
-# react-native-gifted-chat ⇒ lib⇒ Bubble.js (gift-chat 채팅 말풍선 변경)
+# react-native-gifted-chat ⇒ lib⇒ Bubble.js
+
+# (gift-chat 채팅 말풍선 변경)
 
 ```JS
 import PropTypes from "prop-types";
@@ -463,7 +465,9 @@ Bubble.propTypes = {
 };
 ```
 
-# react-native-gifted-chat ⇒ lib ⇒ Day.js (gift-chat 날짜형식 변경 1)
+# react-native-gifted-chat ⇒ lib ⇒ Day.js
+
+# (gift-chat 날짜형식 변경)
 
 ```JS
     import PropTypes from 'prop-types';
@@ -572,6 +576,276 @@ Bubble.propTypes = {
     textStyle: StylePropType,
     dateFormat: PropTypes.string,
     };
-    //# sourceMappingURL=Day.js.map
+
+```
+
+# react-native-gifted-chat ⇒ lib⇒ MessageText.js
+
+# gift-chat 메시지 텍스트 부분 커스텀
+
+```JS
+    import PropTypes from 'prop-types';
+    import React from 'react';
+    import { Linking, StyleSheet, View, } from 'react-native';
+    // @ts-ignore
+    import ParsedText from 'react-native-parsed-text';
+    import Communications from 'react-native-communications';
+    import { StylePropType } from './utils';
+    import Font from '../../../src/common/Font'; //사용하는 폰트가 있다면
+
+    const WWW_URL_PATTERN = /^www\./i;
+
+    const textStyle = {
+        fontSize: 14,
+        fontFamily:Font.NotoSansLight,
+        lineHeight: 17,
+        marginTop: 5,
+        marginBottom: 5,
+        marginLeft: 8,
+        marginRight: 8,
+    };
+
+    const styles = {
+        left: StyleSheet.create({
+            container: {},
+            text: {
+                color: 'black',
+                ...textStyle,
+            },
+            link: {
+                color: 'black',
+                textDecorationLine: 'underline',
+            },
+        }),
+        right: StyleSheet.create({
+            container: {},
+            text: {
+                color: '#fff',
+                ...textStyle,
+            },
+            link: {
+                color: 'black',
+                textDecorationLine: 'underline',
+            },
+        }),
+    };
+    const DEFAULT_OPTION_TITLES = ['Call', 'Text', 'Cancel'];
+    export default class MessageText extends React.Component {
+        constructor() {
+            super(...arguments);
+            this.onUrlPress = (url) => {
+                // When someone sends a message that includes a website address beginning with "www." (omitting the scheme),
+                // react-native-parsed-text recognizes it as a valid url, but Linking fails to open due to the missing scheme.
+                if (WWW_URL_PATTERN.test(url)) {
+                    this.onUrlPress(`http://${url}`);
+                }
+                else {
+                    Linking.canOpenURL(url).then(supported => {
+                        if (!supported) {
+                            console.error('No handler for URL:', url);
+                        }
+                        else {
+                            Linking.openURL(url);
+                        }
+                    });
+                }
+            };
+            this.onPhonePress = (phone) => {
+                const { optionTitles } = this.props;
+                const options = optionTitles && optionTitles.length > 0
+                    ? optionTitles.slice(0, 3)
+                    : DEFAULT_OPTION_TITLES;
+                const cancelButtonIndex = options.length - 1;
+                this.context.actionSheet().showActionSheetWithOptions({
+                    options,
+                    cancelButtonIndex,
+                }, (buttonIndex) => {
+                    switch (buttonIndex) {
+                        case 0:
+                            Communications.phonecall(phone, true);
+                            break;
+                        case 1:
+                            Communications.text(phone);
+                            break;
+                        default:
+                            break;
+                    }
+                });
+            };
+            this.onEmailPress = (email) => Communications.email([email], null, null, null, null);
+        }
+        shouldComponentUpdate(nextProps) {
+            return (!!this.props.currentMessage &&
+                !!nextProps.currentMessage &&
+                this.props.currentMessage.text !== nextProps.currentMessage.text);
+        }
+        render() {
+            const linkStyle = [
+                styles[this.props.position].link,
+                this.props.linkStyle && this.props.linkStyle[this.props.position],
+            ];
+            return (<View style={[
+                styles[this.props.position].container,
+                this.props.containerStyle &&
+                    this.props.containerStyle[this.props.position],
+            ]}>
+            <ParsedText style={[
+                styles[this.props.position].text,
+                this.props.textStyle && this.props.textStyle[this.props.position],
+                this.props.customTextStyle,
+            ]} parse={[
+                ...this.props.parsePatterns(linkStyle),
+                { type: 'url', style: linkStyle, onPress: this.onUrlPress },
+                { type: 'phone', style: linkStyle, onPress: this.onPhonePress },
+                { type: 'email', style: linkStyle, onPress: this.onEmailPress },
+            ]} childrenProps={{ ...this.props.textProps }}>
+            {this.props.currentMessage.text}
+            </ParsedText>
+        </View>);
+        }
+    }
+    MessageText.contextTypes = {
+        actionSheet: PropTypes.func,
+    };
+    MessageText.defaultProps = {
+        position: 'left',
+        optionTitles: DEFAULT_OPTION_TITLES,
+        currentMessage: {
+            text: '',
+        },
+        containerStyle: {},
+        textStyle: {},
+        linkStyle: {},
+        customTextStyle: {},
+        textProps: {},
+        parsePatterns: () => [],
+    };
+    MessageText.propTypes = {
+        position: PropTypes.oneOf(['left', 'right']),
+        optionTitles: PropTypes.arrayOf(PropTypes.string),
+        currentMessage: PropTypes.object,
+        containerStyle: PropTypes.shape({
+            left: StylePropType,
+            right: StylePropType,
+        }),
+        textStyle: PropTypes.shape({
+            left: StylePropType,
+            right: StylePropType,
+        }),
+        linkStyle: PropTypes.shape({
+            left: StylePropType,
+            right: StylePropType,
+        }),
+        parsePatterns: PropTypes.func,
+        textProps: PropTypes.object,
+        customTextStyle: StylePropType,
+    };
+    //# sourceMappingURL=MessageText.js.map
+
+```
+
+# react-native-gifted-chat ⇒ lib ⇒ Composer.js
+
+# gift-chat 채팅 입력 input 커스텀
+
+```JS
+    import PropTypes from 'prop-types';
+    import React from 'react';
+    import { Platform, StyleSheet, TextInput } from 'react-native';
+    import { MIN_COMPOSER_HEIGHT, DEFAULT_PLACEHOLDER } from './Constant';
+    import Color from './Color';
+    import { StylePropType } from './utils';
+    const styles = StyleSheet.create({
+        textInput: {
+            flex: 1,
+            marginLeft: 10,
+            fontSize: 16,
+            lineHeight: 16,
+            ...Platform.select({
+                web: {
+                    paddingTop: 6,
+                    paddingLeft: 4,
+                },
+            }),
+            marginTop: Platform.select({
+                ios: 6,
+                android: 0,
+                web: 6,
+            }),
+            marginBottom: Platform.select({
+                ios: 5,
+                android: 3,
+                web: 4,
+            }),
+            color:'#333' // 사용자 디바이스가 블랙테마인 경우 input입력시 글씨가 흰색으로 설정됨을 변경
+        },
+    });
+    export default class Composer extends React.Component {
+        constructor() {
+            super(...arguments);
+            this.contentSize = undefined;
+            this.onContentSizeChange = (e) => {
+                const { contentSize } = e.nativeEvent;
+                // Support earlier versions of React Native on Android.
+                if (!contentSize) {
+                    return;
+                }
+                if (!this.contentSize ||
+                    (this.contentSize &&
+                        (this.contentSize.width !== contentSize.width ||
+                            this.contentSize.height !== contentSize.height))) {
+                    this.contentSize = contentSize;
+                    this.props.onInputSizeChanged(this.contentSize);
+                }
+            };
+            this.onChangeText = (text) => {
+                this.props.onTextChanged(text);
+            };
+        }
+        render() {
+            return (<TextInput testID={this.props.placeholder} accessible accessibilityLabel={this.props.placeholder} placeholder={this.props.placeholder} placeholderTextColor={this.props.placeholderTextColor} multiline={this.props.multiline} editable={!this.props.disableComposer} onChange={this.onContentSizeChange} onContentSizeChange={this.onContentSizeChange} onChangeText={this.onChangeText} style={[
+                styles.textInput,
+                this.props.textInputStyle,
+                {
+                    height: this.props.composerHeight,
+                    ...Platform.select({
+                        web: {
+                            outlineWidth: 0,
+                            outlineColor: 'transparent',
+                            outlineOffset: 0,
+                        },
+                    }),
+                },
+            ]} autoFocus={this.props.textInputAutoFocus} value={this.props.text} enablesReturnKeyAutomatically underlineColorAndroid='transparent' keyboardAppearance={this.props.keyboardAppearance} {...this.props.textInputProps}/>);
+        }
+    }
+    Composer.defaultProps = {
+        composerHeight: MIN_COMPOSER_HEIGHT,
+        text: '',
+        placeholderTextColor: Color.defaultColor,
+        placeholder: DEFAULT_PLACEHOLDER,
+        textInputProps: null,
+        multiline: true,
+        disableComposer: false,
+        textInputStyle: {},
+        textInputAutoFocus: false,
+        keyboardAppearance: 'default',
+        onTextChanged: () => { },
+        onInputSizeChanged: () => { },
+    };
+    Composer.propTypes = {
+        composerHeight: PropTypes.number,
+        text: PropTypes.string,
+        placeholder: PropTypes.string,
+        placeholderTextColor: PropTypes.string,
+        textInputProps: PropTypes.object,
+        onTextChanged: PropTypes.func,
+        onInputSizeChanged: PropTypes.func,
+        multiline: PropTypes.bool,
+        disableComposer: PropTypes.bool,
+        textInputStyle: StylePropType,
+        textInputAutoFocus: PropTypes.bool,
+        keyboardAppearance: PropTypes.string,
+    };
 
 ```
