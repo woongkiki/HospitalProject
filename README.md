@@ -11,7 +11,7 @@ yarn 명령어로 전체 패키지 설치
 
 # react-native-gifted-chat ⇒ lib⇒ Bubble.js
 
-```js
+```JS
 import PropTypes from "prop-types";
 import React from "react";
 import {
@@ -30,7 +30,6 @@ import MessageAudio from "./MessageAudio";
 import Time from "./Time";
 import Color from "./Color";
 import { StylePropType, isSameUser, isSameDay } from "./utils";
-//import Fonts from '../../../src/FontW/Fonts';
 import Font from "../../../src/common/Font";
 
 const styles = {
@@ -101,6 +100,7 @@ const styles = {
   },
 };
 const DEFAULT_OPTION_TITLES = ["Copy Text", "Cancel"];
+
 export default class Bubble extends React.Component {
   constructor() {
     super(...arguments);
