@@ -7,14 +7,14 @@ yarn 명령어로 전체 패키지 설치<br>
 ios 시뮬레이터 실행 yarn ios<br>
 
 
-# node module 수정본
+## node module 수정본
 
 gift-chat 커스텀 부분이 node 모듈을 새로 다운할 때 마다 원래 코드로 초기화 됨으로<br>
 아래 경로에 다음 코드를 입력
 
-# react-native-gifted-chat ⇒ lib⇒ Bubble.js
+### react-native-gifted-chat ⇒ lib⇒ Bubble.js
 
-# (gift-chat 채팅 말풍선 변경)
+### (gift-chat 채팅 말풍선 변경)
 
 ```JS
 import PropTypes from "prop-types";
@@ -747,9 +747,9 @@ Bubble.propTypes = {
 
 ```
 
-# react-native-gifted-chat ⇒ lib ⇒ Composer.js
+###   react-native-gifted-chat ⇒ lib ⇒ Composer.js
 
-# gift-chat 채팅 입력 input 커스텀
+###   gift-chat 채팅 입력 input 커스텀
 
 ```JS
     import PropTypes from 'prop-types';
