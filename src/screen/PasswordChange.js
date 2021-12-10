@@ -6,10 +6,16 @@ import ToastMessage from '../components/ToastMessage';
 import HeaderRegister from '../components/HeaderRegister';
 import HeaderComponents from '../components/HeaderComponents';
 import {email_check, phoneFormat} from '../common/dataFunction';
+import Api from '../Api';
+import messaging from '@react-native-firebase/messaging';
 
 const PasswordChange = (props) => {
 
-    const { navigation } = props;
+    const { navigation, route } = props;
+
+    const { params } = route;
+
+    console.log(params);
 
     const {width} = Dimensions.get('window');
 
@@ -43,7 +49,23 @@ const PasswordChange = (props) => {
             return false;
         }
 
-        setPasswordChangeModal(true);
+        Api.send('member_chgPassword', {'id':params.id, 'password':passwordInput, 'password2':rePasswordInput}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+
+               console.log('출력확인..',arrItems);
+               ToastMessage(resultItem.message);
+               setPasswordChangeModal(true);
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        })
+
+        
     }
 
     const _PasswordSubmits = async () => {
@@ -55,58 +77,59 @@ const PasswordChange = (props) => {
         <Box flex={1} backgroundColor='#fff'>
             <ScrollView>
                 <HeaderComponents navigation={navigation} headerTitle='비밀번호 변경' />
-                <Box py={8}>
+                <Box p={5}>
                     <VStack>
                         <DefText text='변경하실 비밀번호를 입력하세요.' style={{textAlign:'center'}} />
                     </VStack>
+               
+                    <VStack mt={5}>
+                        <Box>
+                            <HStack>
+                                <DefText text='비밀번호' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            </HStack>
+                            <Box mt='15px'>
+                                <DefInput 
+                                    placeholderText='비밀번호를 입력해주세요.'
+                                    inputValue = {passwordInput}
+                                    onChangeText = {passwordChange}
+                                    multiline = {false}
+                                    secureTextEntry={true}
+                                />
+                                <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
+                                    <Image 
+                                        source={require('../images/eyes.png')} 
+                                        alt='암호화'
+                                    />
+                                </Box>
+                            </Box>
+                        </Box>
+                        <Box mt={5}>
+                            <HStack>
+                                <DefText text='비밀번호 확인' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            </HStack>
+                            <Box mt='15px'>
+                                <DefInput 
+                                    placeholderText='비밀번호를 다시 입력해주세요.'
+                                    inputValue = {rePasswordInput}
+                                    onChangeText = {rePasswordChange}
+                                    multiline = {false}
+                                    secureTextEntry={true}
+                                />
+                                <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
+                                    <Image 
+                                        source={require('../images/eyes.png')} 
+                                        alt='암호화'
+                                    />
+                                </Box>
+                            </Box>
+                        </Box>
+                        <Box mt='60px'>
+                            <Button onPress={_PasswordChangeSubmit} text='비밀번호 변경' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
+                        </Box>
+                    </VStack>
                 </Box>
-                <VStack px={12}>
-                    <Box>
-                        <HStack>
-                            <DefText text='비밀번호' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
-                        </HStack>
-                        <Box mt='15px'>
-                            <DefInput 
-                                placeholderText='비밀번호를 입력해주세요.'
-                                inputValue = {passwordInput}
-                                onChangeText = {passwordChange}
-                                multiline = {false}
-                                secureTextEntry={true}
-                            />
-                            <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
-                                <Image 
-                                    source={require('../images/eyes.png')} 
-                                    alt='암호화'
-                                />
-                            </Box>
-                        </Box>
-                    </Box>
-                    <Box mt={5}>
-                        <HStack>
-                            <DefText text='비밀번호 확인' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
-                        </HStack>
-                        <Box mt='15px'>
-                            <DefInput 
-                                placeholderText='비밀번호를 다시 입력해주세요.'
-                                inputValue = {rePasswordInput}
-                                onChangeText = {rePasswordChange}
-                                multiline = {false}
-                                secureTextEntry={true}
-                            />
-                            <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
-                                <Image 
-                                    source={require('../images/eyes.png')} 
-                                    alt='암호화'
-                                />
-                            </Box>
-                        </Box>
-                    </Box>
-                    <Box mt='60px'>
-                        <Button onPress={_PasswordChangeSubmit} text='비밀번호 변경' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
-                    </Box>
-                </VStack>
             </ScrollView>
             <Modal isOpen={passwordChangeModal} >
                 <Modal.Content maxWidth={width-100}>

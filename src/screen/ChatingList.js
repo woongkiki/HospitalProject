@@ -5,24 +5,41 @@ import { DefText } from '../common/BOOTSTRAP';
 import HeaderDefault from '../components/HeaderDefault';
 import {myChatList, myChatListComplete, myChatListIng} from '../Utils/DummyData';
 import ToastMessage from '../components/ToastMessage';
+import { StackActions } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import AsyncStorage from '@react-native-community/async-storage';
+import {textLengthOverCut} from '../common/dataFunction';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 const RightContWidth = (width - 40) - 90;
 
 const ChatingList = (props) => {
 
-    const { navigation } = props;
+    const { navigation, userInfo, member_info } = props;
 
     const [chatListLoading, setChatListLoading] = useState(true); // 로딩화면
 
-    const [chatCategorys, setChatCategorys] = useState('전체'); //카테고리
+    const [chatCategorys, setChatCategorys] = useState(''); //카테고리
 
-    const [chatDatas, setChatDatas] = useState(myChatList);// 채팅내역 데이터
+    const [chatDatas, setChatDatas] = useState('');// 채팅내역 데이터
 
-    //카테고리 클릭시 카테고리 변경
-    const ChatCategoryChanges = (category) => {
-        setChatCategorys(category);
-    }
+    const isFocused = useIsFocused();
+ 
+    useEffect(() => {
+      
+      if (isFocused){
+        chatlistReceive();
+        
+      } 
+        
+    }, [isFocused]);
+
+
+    //console.log(userInfo);
+   
 
     //처음 렌더링시 로딩화면 추가
     useEffect(()=>{
@@ -31,28 +48,14 @@ const ChatingList = (props) => {
         //console.log(chatListLoading);
     },[])
 
-    //카테고리에 따른 데이터 변화
-    useEffect(()=>{
-        setChatListLoading(true);
-        if(chatCategorys == '전체'){
-            setChatDatas(myChatList)
-        }
-        if(chatCategorys == '진행중'){
-            setChatDatas(myChatListIng)
-        }
-        if(chatCategorys == '완료'){
-            setChatDatas(myChatListComplete)
-        }
-        setChatListLoading(false);
-    },[chatCategorys])
 
 
     const ChatingButtons = (status) => {
 
-        console.log(status.chatCategory);
+        console.log(status);
 
-        if(status.chatCategory == '완료'){
-            ToastMessage('완료된 채팅입니다.');
+        if(status.status == 'W'){
+            ToastMessage('현재 담당자를 배정 중인 채팅입니다.');
             return false;
         }else{
             navigation.navigate('ChatView', status);
@@ -60,85 +63,132 @@ const ChatingList = (props) => {
 
     }
 
-    //채팅내역 컴포넌트
-    const _renderItem = ({item, index}) => {
-        return(
-            <TouchableOpacity style={[ styles.chatListButton]} onPress={()=>ChatingButtons(item)}>
-                <HStack>
-                    <Image source={{uri:item.imgUrl}} alt={item.chatDoctor} style={{width:70, height:70, resizeMode:'contain'}} />
-                    <VStack width={RightContWidth} px={3} justifyContent='space-around'>
-                        <HStack justifyContent='space-between' width={(width-40)*0.7 + 'px'}>
-                            <HStack alignItems='center'>
-                                <DefText text={item.chatDoctor} style={styles.buttonDoctorName} />
-                                <DefText text='Cure Mentor.' style={styles.buttonMentorText} />
-                            </HStack>
-                            <Box>
-                                <DefText text='09:21' style={styles.buttonLastTime} />
-                            </Box>
-                        </HStack>
-          
-                        <HStack justifyContent='space-between' alignItems='center' width={(width-40)*0.7 + 'px'}>
-                            <VStack>
-                                <Text style={styles.buttonContentText}>
-                                    자문내용 : {item.chatSubject}
-                                </Text>
-                                <Text style={styles.buttonContentText}>
-                                    상담결과 : {item.chatCategory}
-                                </Text>
-                            </VStack>
-                            <Box 
-                                style={[
-                                    styles.buttonCategoryBox,
-                                    item.chatCategory === '완료' &&
-                                    {backgroundColor:'#D2D2D2'}
-                                ]}>
-                                <DefText text={item.chatCategory} style={styles.buttonCategoryText} />
-                            </Box>
-                        </HStack>
-                    </VStack>
-                </HStack>
-            </TouchableOpacity>
-        )
-    }
+
+    //채팅리스트 가져오기
+    const chatlistReceive = async () => {
+
+        await setChatListLoading(true);
+
+
+
+             
+        await Api.send('checklist_list', {'id':userInfo.id,  'token':userInfo.appToken, 'hcode':userInfo.m_hcode, 'status':chatCategorys}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
     
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('채팅리스트: ', arrItems);
+                //ToastMessage(resultItem.message);
+
+                //console.log('채팅리스트1:::', arrItems);
+                setChatDatas(arrItems);
+                setChatListLoading(false);
+                //setReserveList(arrItems)
+            }else{
+                //console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+                
+   
+        await setChatListLoading(false);
+
+  
+        
+    }
+
+    useEffect(()=>{
+        chatlistReceive();
+    }, [])
+    
+
+     //카테고리 클릭시 카테고리 변경
+     const ChatCategoryChanges = (category) => {
+
+        
+        setChatCategorys(category);
+        
+    }
+
+
+    useEffect(()=>{
+        console.log(chatCategorys);
+        chatlistReceive();
+    }, [chatCategorys])
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderDefault headerTitle='채팅내역' navigation={navigation} />
-           
-            <Box p={5}>
-                <DefText text='원하시는 태그를 선택하시면 보다 쉽게 검색이 가능합니다.' style={{fontSize:15, color:'#666'}} />
-                <HStack pt={2.5}>
-                    <TouchableOpacity onPress={()=>ChatCategoryChanges('전체')} style={[styles.chatCategory, chatCategorys === '전체' && {backgroundColor:'#666'} ]}>
-                        <DefText text='전체' style={[styles.chatCategoryText, chatCategorys === '전체' && {color:'#fff'}]} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>ChatCategoryChanges('진행중')} style={[styles.chatCategory, chatCategorys === '진행중' && {backgroundColor:'#666'}]}>
-                        <DefText text='진행중' style={[styles.chatCategoryText, chatCategorys === '진행중' && {color:'#fff'}]} />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>ChatCategoryChanges('완료')}  style={[styles.chatCategory, chatCategorys === '완료' && {backgroundColor:'#666'}]}>
-                        <DefText text='완료' style={[styles.chatCategoryText, chatCategorys === '완료' && {color:'#fff'}]} />
-                    </TouchableOpacity>
-                </HStack>
-                {
-                    chatListLoading ?
-                    <Box justifyContent='center' alignItems='center' height={300}>
-                        <ActivityIndicator size={'large'} color="#333" />
+            {
+                chatListLoading ? 
+                <Box justifyContent='center' alignItems='center' flex={1}>
+                    <ActivityIndicator size={'large'} color="#333" />
+                </Box>
+                :
+                <ScrollView>
+                    <Box p={5}>
+                        <DefText text='원하시는 태그를 선택하시면 보다 쉽게 검색이 가능합니다.' style={{fontSize:15, color:'#666'}} />
+                        <HStack pt={2.5}>
+                            <TouchableOpacity onPress={()=>ChatCategoryChanges('')} style={[styles.chatCategory, chatCategorys === '' && {backgroundColor:'#666'} ]}>
+                                <DefText text='전체' style={[styles.chatCategoryText, chatCategorys === '' && {color:'#fff'}]} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>ChatCategoryChanges('Y')} style={[styles.chatCategory, chatCategorys === 'Y' && {backgroundColor:'#666'}]}>
+                                <DefText text='진행중' style={[styles.chatCategoryText, chatCategorys === 'Y' && {color:'#fff'}]} />
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={()=>ChatCategoryChanges('N')}  style={[styles.chatCategory, chatCategorys === 'N' && {backgroundColor:'#666'}]}>
+                                <DefText text='완료' style={[styles.chatCategoryText, chatCategorys === 'N' && {color:'#fff'}]} />
+                            </TouchableOpacity>
+                        </HStack>
+                        {
+                            chatDatas.length != '0' ?
+                            chatDatas.map((item, index)=>{
+                                return (
+                                    <TouchableOpacity key={index} style={[ styles.chatListButton]} onPress={()=>ChatingButtons(item)}>
+                                        <HStack>
+                                            <Image source={{uri:item.upfile}} alt='123' style={{width:width * 0.2, height:width * 0.2, resizeMode:'cover', borderRadius:10}} />
+                                            <VStack width={RightContWidth} px={3} justifyContent='space-around'>
+                                                <HStack justifyContent='space-between' width={(width-40)*0.7 + 'px'}>
+                                                    <HStack alignItems='center'>
+                                                        <DefText text={item.name} style={styles.buttonDoctorName} />
+                                                        <DefText text='Cure Mentor.' style={styles.buttonMentorText} />
+                                                    </HStack>
+                                                    <Box>
+                                                        <DefText text={item.cdate} style={styles.buttonLastTime} />
+                                                    </Box>
+                                                </HStack>
+                                                <HStack justifyContent='space-between' alignItems='center' width={(width-40)*0.7 + 'px'}>
+                                                    <VStack>
+                                                        <Text style={styles.buttonContentText}>
+                                                            자문내용 : {textLengthOverCut(item.pain, 18)}
+                                                        </Text>
+                                                        <Text style={styles.buttonContentText}>
+                                                            상담결과 : {item.statusStr}
+                                                        </Text>
+                                                    </VStack>
+                                                    {/* <Box 
+                                                        style={[
+                                                            styles.buttonCategoryBox,
+                                                            item.chatCategory === '완료' &&
+                                                            {backgroundColor:'#D2D2D2'}
+                                                        ]}>
+                                                        <DefText text={item.chatCategory} style={styles.buttonCategoryText} />
+                                                    </Box> */}
+                                                </HStack>
+                                            </VStack>
+                                        </HStack>
+                                    </TouchableOpacity>
+                                )
+                            })
+                            
+                            :
+                            <Box justifyContent='center' alignItems='center' height={height- 250}>
+                                <DefText text='채팅내역 목록이 없습니다.' style={{color:'#666'}} />
+                            </Box>
+                        }
                     </Box>
-                    :
-                    <FlatList
-                    data={chatDatas}
-                    renderItem={_renderItem}
-                    keyExtractor={(item, index)=>index.toString()}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                        <Box py={10} alignItems='center'>
-                            <DefText text='채팅내역이 없습니다.' style={{color:'#666'}} />
-                        </Box>                
-                    }
-                />
-                }
-            </Box>
-
+                </ScrollView>
+            }
+            
         </Box>
     );
 };
@@ -198,4 +248,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default ChatingList;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(ChatingList);

@@ -3,16 +3,23 @@ import {Box, VStack, HStack, Image, Modal} from 'native-base';
 import { ScrollView, Dimensions, Alert, TouchableOpacity} from 'react-native';
 import {DefText, DefInput, Button} from '../common/BOOTSTRAP';
 import ToastMessage from '../components/ToastMessage';
-import HeaderRegister from '../components/HeaderRegister';
+import HeaderComponents from '../components/HeaderComponents';
 import {email_check, phoneFormat} from '../common/dataFunction';
+import Api from '../Api';
+import messaging from '@react-native-firebase/messaging';
+
+//시간초 카운터용
+let t1;
+let tcounter;
+let temp;
 
 const PasswordLost = (props) => {
 
     const { navigation } = props;
 
     const {width} = Dimensions.get('window');
-    const phoneInputWidth = width * 0.55 - 48;
-    const phoneCertiButtonWidth = width * 0.4 - 48;
+    const phoneInputWidth = (width - 40) * 0.55;
+    const phoneCertiButtonWidth = (width - 40) * 0.4;
 
     //e-mail 아이디
     const [emailInput, setEmailInput] = useState('');
@@ -67,23 +74,153 @@ const PasswordLost = (props) => {
 
     //버튼 동작
 
-    const smsSendButton = () => {
-        setCertiNumber('111111')
+
+
+    //시간초 스테이트
+    const [timeStamp, setTimeStamp] = useState('');
+    //시간초 반복여부
+    const [phoneIntervel, setPhoneInterval] = useState(false);
+    //랜덤숫자
+    const [ransoo, setRansoo] = useState('');
+
+    //시간초 시작
+    const timer_start = () => {
+        tcounter = 60;
+        t1 = setInterval(Timer, 1000);
+        //console.log(t1);
+    };
+
+    //타이머
+    const Timer = () => {
+        //setPhoneInterval(false);
+        tcounter = tcounter - 1;
+        // temp = Math.floor(tcounter / 60);
+        // temp = temp + (tcounter % 60);
+
+        temp = Math.floor(tcounter/60);
+        if(Math.floor(tcounter/60) < 10)  temp = '0'+temp;								
+        temp = temp + ":";   								
+        if((tcounter % 60) < 10)temp = temp + '0';
+        temp = temp + (tcounter % 60);
+
+        //console.log(temp);
+        setTimeStamp(temp);
+        //setIntervals(true); //실행중
+
+        
+        if (tcounter <= 0) {
+            //timer_stop();
+            setPhoneInterval(false);
+        }
+    };
+
+
+    //test4321@test.com
+    //test1234
+  
+
+    //번호로 문자보내기
+    const smsSendButton = async () => {
+
+        const token = await messaging().getToken();
+
+        if(!emailInput){
+            ToastMessage('이메일을 입력하세요.');
+            return false;
+        }
+
+        if(!nameInput){
+            ToastMessage('이름을 입력하세요.');
+            return false;
+        }
+
+        if(!phoneNumber){
+            ToastMessage('휴대폰 번호를 입력하세요.');
+            return false;
+        }
+
+        if(phoneIntervel){
+            ToastMessage(tcounter + '초 후에 재발송할 수 있습니다.');
+            return false;
+        }
+
+
+        Api.send('member_sms', {'id':emailInput, 'nameInput':nameInput, 'phoneNumber':phoneNumber, 'token':token}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+
+               console.log('출력확인..',arrItems);
+               setRansoo(arrItems);
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                //ToastMessage(resultItem.message);
+            }
+        })
+
+        setPhoneInterval(true);
+       // setCertiNumber('111111')
     }
 
-    const _smsCertiButton = () => {
+    //인증번호 일치 확인
+    const _smsCertiButton = async () => {
+
+        const token = await messaging().getToken();
+
+
         if(!certiNumber){
             ToastMessage('인증번호를 입력하세요.');
             return false;
         }
 
-        ToastMessage('휴대폰인증이 완료되었습니다.');
-        setCertiComplete(true);
-        setCertiStatus(true);
-        setCertiButtonText('인증완료');
+        if(!phoneIntervel){
+            ToastMessage('인증시간이 만료되었습니다. 다시 인증번호를 발송해주세요.');
+            return false;
+        }
+
+        await Api.send('member_smsChk', {'id':emailInput, 'nameInput':nameInput, 'phoneNumber':phoneNumber, 'token':token, 'sms':certiNumber}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+
+               ToastMessage('인증이 완료되었습니다.');
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        })
+
+
+        
+        await setCertiComplete(true);
+        await setCertiStatus(true);
+        await setPhoneInterval(false);
+        await setCertiButtonText('인증완료');
         
     }
 
+
+    useEffect(()=>{
+        if(!phoneIntervel) {timer_stop()}
+        else                {timer_start()}
+    },[phoneIntervel]);
+
+
+    const timer_stop = () => {
+        // setPhoneInterval(true);
+        //console.log(phoneIntervel);
+        //console.log(t1);
+        clearInterval(t1);
+        setTimeStamp('');
+       
+    };
+
+
+    //계정정보 확인하기
     const _PasswordChange = () => {
 
         if(!emailInput){
@@ -115,22 +252,24 @@ const PasswordLost = (props) => {
         //Alert.alert('비밀번호 변경페이지로 이동합니다.');
     }
 
+
     //비밀번호 변경페이지로 이동
     const _PasswordChangeSubmit = async () => {
         await setCertiFormComplete(false);
-        await navigation.navigate('PasswordChange');
+        await navigation.navigate('PasswordChange', {'id':emailInput});
     }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
+             <HeaderComponents navigation={navigation} headerTitle='비밀번호찾기' />
             <ScrollView>
-                <HeaderRegister navigation={navigation} headerText='비밀번호찾기' />
-                <Box py={5}>
+               
+                <Box p={5}>
                     <VStack mb='35px'>
                         <DefText text='계정정보를 입력하신 후' style={{textAlign:'center'}} />
                         <DefText text='문자인증으로 본인확인해주세요.' style={{textAlign:'center'}} />
                     </VStack>
-                    <VStack px={12}>
+                    <VStack>
                         <Box>
                             <HStack>
                                 <DefText text='이메일' style={{fontSize:14}} />
@@ -203,7 +342,11 @@ const PasswordLost = (props) => {
                                     onChangeText = {certiNumberChange}
                                     maxLength={6}
                                     multiline = {false}
+                                    keyboardType='phone-pad'
                                 />
+                                <Box position='absolute' top={0} right={5} height={46} justifyContent='center'>
+                                    <DefText text={timeStamp} style={{color:'#999'}} />
+                                </Box>
                                 <Button 
                                     disabled={certiComplete}
                                     text={certiButtonText} 
@@ -229,12 +372,13 @@ const PasswordLost = (props) => {
                                 />
                             </Box>
                         </Box>
-                        <Box mt='60px'>
-                            <Button onPress={_PasswordChange} text='계정정보 확인' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
-                        </Box>
+                        
                     </VStack>
                 </Box>
             </ScrollView>
+            <Box p={2.5}>
+                <Button onPress={_PasswordChange} text='계정정보 확인' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
+            </Box>
             <Modal isOpen={certiFormComplete} onClose={() => setCertiFormComplete(false)} >
                 <Modal.Content maxWidth={width-100}>
                     <Modal.Body>

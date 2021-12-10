@@ -4,41 +4,98 @@ import { Box, HStack, VStack, Image, Input, Modal } from 'native-base';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderCommunity from '../components/HeaderCommunity';
 import {diseaseDatas1, healthData} from '../Utils/DummyData';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import ToastMessage from '../components/ToastMessage';
+import Api from '../Api';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 const {width, height} = Dimensions.get('window');
 const HealthInfoWidth = (width - 40) - 100;
 
 const CustomCommunity = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo, member_info} = props;
 
+
+    //console.log('유저정보', userInfo);
+
+    //맞춤형 커뮤니티 게시글 찾기
     const [communitySearch, setCommunitySerach] = useState('');
     const SearchTextChagne = (text) => {
         setCommunitySerach(text);
     }
 
-    //맟춤설정용 검색인풋
+    //맟춤설정용 질환검색인풋
     const [customComSearch, setCustomComSearch] = useState('');
     const CustomeSearchChange = ( text ) => {
         setCustomComSearch(text);
     }
 
-    const [schText, setSchText] = useState('');
 
+    const [diseaseLoading, setDiseaseLoading] = useState(true);
+    const [schDisease, setSchDisease] = useState('');
 
-    const diseaseSelectButton = (buttonText) => {
-        setSchText(buttonText);
-        setCustomComSearch(buttonText);
+    const DiseaseSearch = async () => {
+        if(!customComSearch){
+            ToastMessage('검색어를 입력하세요.');
+            return false;
+        }
+
+        setDiseaseLoading(false);
+
+        await Api.send('disease_list', {'id':userInfo.id, 'token':userInfo.appToken, 'schText':customComSearch}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+               console.log('검색으로 찾은 질환정보: ', arrItems);
+
+               setSchDisease(arrItems);
+              
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+
+        setDiseaseLoading(true);
+
     }
 
-    //연령대별 증상
-    const diseaseDataList1 = diseaseDatas1.map((item, index)=>{
-        return(
-            <TouchableOpacity key={index} style={[styles.disButton, schText === item.diseaseName && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.diseaseName)}>
-                <DefText text={item.diseaseName} style={[styles.disText, schText === item.diseaseName && {color:'#fff'}]} />
-            </TouchableOpacity>
-        )
-    })
+
+    const [schText, setSchText] = useState('');
+
+    const [diseaseSelected, setDiseaseSelected] = useState([]);
+
+    const diseaseSelectButton = (buttonText) => {
+        //setSchText(buttonText);
+        //setCustomComSearch(buttonText);
+      
+
+        if(diseaseSelected.includes(buttonText)){
+
+            const findIdx = diseaseSelected.find((e) => e === buttonText); // 배열에 같은값이 있으면 출력
+            const idxs = diseaseSelected.indexOf(findIdx);
+
+            diseaseSelected.splice(idxs, 1)
+
+            setDiseaseSelected([...diseaseSelected]);
+    
+        }else{
+            
+            setDiseaseSelected([...diseaseSelected, buttonText]);
+
+        }
+
+
+    }
+
+    useEffect(()=>{
+        console.log('선택한 질환::::', diseaseSelected);
+    }, [diseaseSelected])
+
+
 
     //최신순 인기순
     const [sortCategory, setSortCategory] = useState('최신순');
@@ -53,6 +110,8 @@ const CustomCommunity = (props) => {
     //최신/인기순 변경
     const sortChangeButton = (sortCategory) => {
         setSortCategory(sortCategory);
+
+        WishDisease();
     }
 
     //맞춤건강정보 게시판 이동
@@ -61,36 +120,58 @@ const CustomCommunity = (props) => {
     }
 
     const ModalSave = () => {
-        setStatusModal(!statusModal);
+
+        if(diseaseSelected.length > 0){
+            ToastMessage('관심 및 질환을 하나 이상 선택하세요.');
+        }
+
+        Api.send('member_interest', {'id':userInfo.id, 'token':userInfo.appToken, 'disease':diseaseSelected.join('^')}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+               //console.log('연령별 주요 질환: ', arrItems);
+
+               //ToastMessage(resultItem.message);
+               setStatusModal(false);
+               WishDisease();
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+
+        
     }
 
     //커뮤니티 데이터 컴포넌트
     const _renderItem = ({item, index}) => {
 
-        let categorys = item.keyword;
+        let categorys = item.tag;
 
         
-        let keywords = categorys.split(',');
+        let keywords = categorys.split('^');
 
         
         const keywordName = keywords.map((keys, idx)=> {
 
             return(
-                <Box key={idx} style={[styles.commnuityKeywordButton, {marginTop:0},idx != 0 && {marginRight:0} ]}>
+                <Box key={idx} style={[styles.commnuityKeywordButton, {marginTop:0, marginRight:0}, idx == keywords.length - 1 ? {marginRight:0} : {marginRight:5} ]}>
                     <DefText text={keys} style={[styles.keywordButtonText]} />
                 </Box>
             )
         })
 
         return(
-            <Box px={5} style={[ {marginBottom:20} ]}>
-                <TouchableOpacity>
+            <Box key={index} px={5} style={[ {marginBottom:20} ]}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('CommunityView', item)}}>
                     <HStack>
-                        <Image source={{uri:item.imgUrl}} alt={item.communityTitle} style={{width:100, height:100, resizeMode:'contain'}} />
+                        <Image source={{uri:item.upfile1}} alt={item.subject} style={{width:100, height:100, resizeMode:'contain'}} />
                         <VStack pl={2.5} width={HealthInfoWidth}  justifyContent='space-around'>
-                            <DefText text={item.communityTitle} style={styles.communityTitle} />
+                            <DefText text={item.subject} style={styles.communityTitle} />
                             <HStack justifyContent='space-between' alignItems='center' >
-                                <DefText text={item.commnuityView + ' reading'} style={styles.communityView} />
+                                <DefText text={item.count + ' reading'} style={styles.communityView} />
                                 <HStack>
                                     {keywordName}
                                 </HStack>
@@ -102,64 +183,158 @@ const CustomCommunity = (props) => {
         )
     }
 
+    const [diseaseAge, setDiseaseAge] = useState('');
+    const [diseaseList, setDiseaseList] = useState('');
+
+    const AgeDiseaseReqeust = () => {
+
+        Api.send('disease_age', {'id':userInfo.id, 'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+              // console.log('연령별 주요 질환: ', arrItems);
+
+               setDiseaseAge(arrItems.age);
+               setDiseaseList(arrItems.disease);
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+
+    const [interestList, setInterestList] = useState('');
+
+    const member_info_handle = async () => {
+        
+
+        const formData = new FormData();
+        formData.append('method', 'member_info');
+        formData.append('id', userInfo.email);
+        formData.append('token', userInfo.appToken);
+        const member_info_list = await member_info(formData);
+
+        //console.log('회원정보를 조회1', member_info_list.result.interestDisease);
+        
+        if(member_info_list.result.interestDisease != null){
+
+            setDiseaseSelected(member_info_list.result.interestDisease.split('^'));
+
+        }else{
+
+            setInterestList([]);
+        }
+
+    };
+
+
+    const [comLoading, setComLoading] = useState(false);
+    const [CommuntyList, setCommunityList] = useState([]);
+
+
+    //관심질환에 맞는 목록 나오기
+    const WishDisease = async () => {
+
+        await setComLoading(false);
+        await Api.send('bbs_interest', {'id':userInfo.id, 'token':userInfo.appToken, 'schText':communitySearch, 'sort':sortCategory}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+               console.log('내 질환에 맞는 커뮤니티 글: ', resultItem);
+
+
+               setCommunityList(arrItems);
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+
+        await setComLoading(true);
+    }
+
+
+    useEffect(()=>{
+        member_info_handle();
+        AgeDiseaseReqeust();
+
+        WishDisease();
+    },[])
+
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderCommunity navigation={navigation} headerTitle='맞춤건강정보' goScreen={goNavi} />
-            <FlatList
-                
-                data={comData}
-                ListHeaderComponent={
-                    <>  
-                        <Box px={5} pt={5}>
-                            <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
-                                <Input
-                                    placeholder='검색하실 내용을 적어주세요.'
-                                    height='45px'
-                                    width={width-80}
-                                    backgroundColor='transparent'
-                                    borderWidth={0}
-                                    value={communitySearch}
-                                    onChangeText={SearchTextChagne}
-                                />
-                                <TouchableOpacity>
-                                    <Image source={require('../images/schIcons.png')} alt='검색' />
-                                </TouchableOpacity>
-                            </HStack>
-                        </Box>
-                        
-                        <Box mt={2.5} mb={5} mt={5}>
-                            <HStack px={5} alignItems='center' justifyContent='space-between'>
-                                <HStack>
-                                    <TouchableOpacity onPress={()=>sortChangeButton('최신순')} style={[styles.commnuityKeywordButton, sortCategory === '최신순' && {backgroundColor:'#666'}]}>
-                                        <DefText text='최신순' style={[styles.keywordButtonText, sortCategory === '최신순' && {color:'#fff'}]} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={()=>sortChangeButton('인기순')} style={[styles.commnuityKeywordButton, sortCategory === '인기순' && {backgroundColor:'#666'}]}>
-                                        <DefText text='인기순' style={[styles.keywordButtonText, sortCategory === '인기순' && {color:'#fff'}]} />
+            {
+                comLoading ?
+                <FlatList
+                    
+                    data={CommuntyList}
+                    ListHeaderComponent={
+                        <>  
+                            <Box px={5} pt={5}>
+                                <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
+                                    <Input
+                                        placeholder='검색하실 내용을 적어주세요.'
+                                        height='45px'
+                                        width={width-80}
+                                        backgroundColor='transparent'
+                                        borderWidth={0}
+                                        value={communitySearch}
+                                        onChangeText={SearchTextChagne}
+                                        
+                                    />
+                                    <TouchableOpacity >
+                                        <Image source={require('../images/schIcons.png')} alt='검색' />
                                     </TouchableOpacity>
                                 </HStack>
-                                <TouchableOpacity onPress={()=>{setStatusModal(!statusModal)}}>
-                                    <Image source={require('../images/customIcons.png')} alt='설정' style={{width:24, height:24}} resizeMode='contain' />
-                                </TouchableOpacity>
-                            </HStack>
-                        </Box>
-                    </>
-                }
-                renderItem={_renderItem}
-                keyExtractor={(item, index)=>index.toString()}
-                showsVerticalScrollIndicator={false}
-                ListEmptyComponent={
-                    <Box py={10} alignItems='center'>
-                        <DefText text='채팅내역이 없습니다.' style={{color:'#666'}} />
-                    </Box>                
-                }
-                
-            />
-            <Modal isOpen={statusModal} style={{flex:1, backgroundColor:'#fff'}}>
-                <SafeAreaView style={{width:'100%', flex:1}}>
-                <Box >
+                            </Box>
+                            
+                            <Box mt={2.5} mb={5} mt={5}>
+                                <HStack px={5} alignItems='center' justifyContent='space-between'>
+                                    <HStack>
+                                        <TouchableOpacity onPress={()=>sortChangeButton('최신순')} style={[styles.commnuityKeywordButton, sortCategory === '최신순' && {backgroundColor:'#666'}]}>
+                                            <DefText text='최신순' style={[styles.keywordButtonText, sortCategory === '최신순' && {color:'#fff'}]} />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={()=>sortChangeButton('인기순')} style={[styles.commnuityKeywordButton, sortCategory === '인기순' && {backgroundColor:'#666'}]}>
+                                            <DefText text='인기순' style={[styles.keywordButtonText, sortCategory === '인기순' && {color:'#fff'}]} />
+                                        </TouchableOpacity>
+                                    </HStack>
+                                    <TouchableOpacity onPress={()=>{setStatusModal(!statusModal)}}>
+                                        <Image source={require('../images/customIcons.png')} alt='설정' style={{width:24, height:24}} resizeMode='contain' />
+                                    </TouchableOpacity>
+                                </HStack>
+                            </Box>
+                        </>
+                    }
+                    renderItem={_renderItem}
+                    keyExtractor={(item, index)=>index.toString()}
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                        <Box py={10} alignItems='center'>
+                            <DefText text='내 관심질환에 맞는 게시물이 없습니다.' style={{color:'#666'}} />
+                        </Box>                
+                    }
+                    
+                    
+                />
+                :
+                <Box flex={1} alignItems='center' justifyContent='center'>
+                    <ActivityIndicator size='large' color='#333' />
+                </Box>
+            }
+            
+            <Modal isOpen={statusModal} style={{flex:1, backgroundColor:'#fff', width:width}}>
+                <SafeAreaView style={{flex:1}}>
+                <Box>
                     <HStack justifyContent='space-between' height='50px' alignItems='center' style={{borderBottomWidth:1, borderBottomColor:'#e3e3e3'}} >
                         
-                        <DefText text='맞춤형설정' style={{fontSize:20, position:'absolute', left:'50%', marginLeft:-40}} />
+                        <DefText text='맞춤형설정' style={{fontSize:20, lineHeight:24, position:'absolute', width:width, textAlign:'center'}} />
                         <TouchableOpacity style={{paddingRight:20}} onPress={()=>{setStatusModal(false)}}>
                             <Image source={require('../images/modalClose.png')} alt='닫기' />
                         </TouchableOpacity>
@@ -167,11 +342,28 @@ const CustomCommunity = (props) => {
                     <Box height={height-50}>
                         <ScrollView>
                             <Box p={5}>
-                                <Box>
+                                <Box mb={5}>
                                     <DefText text='관심 질환 및 테마' style={styles.labelText} />
-                                    <Box py={5} alignItems='center'>
-                                        <DefText text='등록된 관심질환 및 테마가 없습니다.' style={{fontSize:15,color:'#666'}} />
-                                    </Box>
+                       
+                                    {
+                                        diseaseSelected.length > 0 ?
+                                        <HStack flexWrap='wrap'>
+                                            {
+                                                diseaseSelected.map((item, index)=> {
+                                                    return(
+                                                        <Box key={index} style={styles.disButton}>
+                                                            <DefText text={item} />
+                                                        </Box>
+                                                    )
+                                                })
+                                            }
+                                        </HStack>
+                                        :
+                                        <Box mt={2.5}>
+                                            <DefText text='등록된 관심 질환 및 테마가 없습니다.' style={{color:'#666'}} />
+                                        </Box>
+                                    }
+                                    
                                 </Box>
                                 <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
                                     <Input
@@ -182,36 +374,73 @@ const CustomCommunity = (props) => {
                                         borderWidth={0}
                                         value={customComSearch}
                                         onChangeText={CustomeSearchChange}
+                                        _focus='transparent'
+                                        style={{fontSize:14}}
+                                        onSubmitEditing={DiseaseSearch}
                                     />
-                                    <TouchableOpacity>
+                                    <TouchableOpacity onPress={DiseaseSearch}>
                                         <Image source={require('../images/schIcons.png')} alt='검색' />
                                     </TouchableOpacity>
                                 </HStack>
+                                {
+                                    
+                                    schDisease != '' ?
+                                    diseaseLoading ?
+                                        <HStack flexWrap='wrap'>
+                                            {
+                                                    schDisease.map((item, index)=> {
+                                                    return(
+                                                        <TouchableOpacity key={index} style={[styles.disButton, diseaseSelected.includes(item.name) && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name)}>
+                                                            <DefText text={item.name} style={[styles.disText, diseaseSelected.includes(item.name) && {color:'#fff'}]} />
+                                                        </TouchableOpacity>
+                                                    )
+                                                })
+                                            }
+                                        </HStack>
+                                        :
+                                        <Box py={5} alignItems='center'>
+                                            <ActivityIndicator size='large' color='#666' />
+                                        </Box>
+                                    :
+                                    <Box>
+                                    </Box>
+                                }
                                 <Box mt={5}>
                                     <HStack alignItems='flex-end'>
                                         <DefText text='연령별 주요질환' />
-                                        <DefText text='만65세 기준' style={{fontSize:13,color:'#999', marginLeft:10}} />
+                                        {
+                                            diseaseAge != '' &&
+                                            <DefText text={'만'+diseaseAge+'세 기준'} style={{fontSize:13,color:'#999', marginLeft:10}} />
+                                        }
                                     </HStack>
-                                    
-                                    <HStack flexWrap='wrap'>
                                     {
-                                        diseaseDataList1.length>0 && 
-                                        diseaseDataList1
+                                        diseaseList != '' &&
+                                        <HStack flexWrap='wrap'>
+                                            {
+                                                 diseaseList.map((item, index)=> {
+                                                    return(
+                                                        <TouchableOpacity key={index} style={[styles.disButton, diseaseSelected.includes(item.name) && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name)}>
+                                                            <DefText text={item.name} style={[styles.disText, diseaseSelected.includes(item.name) && {color:'#fff'}]} />
+                                                        </TouchableOpacity>
+                                                    )
+                                                })
+                                            }
+                                        </HStack>
                                     }
-                                    </HStack>
                                 </Box>
                             </Box>
+                            <Box height='80px'  alignItems='center' pt='8px'>
+                                <TouchableOpacity onPress={ModalSave} style={styles.medicineButtons}>
+                                    <DefText text='저장' style={styles.medicineButtonsText} />
+                                </TouchableOpacity>
+                            </Box>
                         </ScrollView>
+                        
                     </Box>
                 </Box>
-       
+
                 </SafeAreaView>
-             
-                <Box px={5} py={2.5}>
-                    <TouchableOpacity onPress={ModalSave} style={styles.medicineButtons}>
-                        <DefText text='저장' style={styles.medicineButtonsText} />
-                    </TouchableOpacity>
-                </Box>
+               
             </Modal>
             
         </Box>
@@ -275,7 +504,7 @@ const styles = StyleSheet.create({
         alignItems:'center',
         justifyContent:'center',
         height: 40,
-        width:width-40
+        width:width-40,
     },
     medicineButtonsText: {
         fontSize:15,
@@ -283,4 +512,13 @@ const styles = StyleSheet.create({
     },
 })
 
-export default CustomCommunity;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        member_logout: (user) => dispatch(UserAction.member_logout(user)), //로그아웃
+    })
+)(CustomCommunity);

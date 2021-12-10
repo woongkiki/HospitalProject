@@ -23,7 +23,7 @@ const HeaderRegister = (props) => {
                 <Box>
                     <DefText 
                         text={headerText} 
-                        style={{fontSize:18, color:'#1E3354', fontWeight:'bold'}} 
+                        style={{fontSize:20, lineHeight:23,color:'#1E3354', fontWeight:'bold'}} 
                     />
                 </Box>
                 <Box style={{width:9}}></Box>

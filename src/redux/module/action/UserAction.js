@@ -11,8 +11,32 @@ export const WISH_LIST_FLEX = 'user/WISH_LIST_FLEX';
 export const MEMBER_PUSH_LIST = 'user/MEMBER_PUSH_LIST';
 export const MEMBER_KEYWORD_LIST = 'user/MEMBER_KEYWORD_LIST';
 export const MEMBER_LOGOUT = 'user/MEMBER_LOGOUT';
+export const MEMBER_HOSPITAL = 'user/MEMBER_HOSPITAL';
 
 export const actionCreators = {
+  //회원권 정보
+  member_hospital: (user) => async (dispatch) => {
+    try {
+      const response = await UserApi.member_hospital(user);
+      // console.log('member_info ::: ', response);
+
+      if (response.result) {
+        await dispatch({
+          type: MEMBER_HOSPITAL,
+          payload: response.data,
+        });
+        return { state: true, result: response.data, msg:response.msg };
+      } else {
+        await dispatch({
+          type: MEMBER_HOSPITAL,
+          payload: null,
+        });
+        return { state: false, msg: response.msg, nick: '' };
+      }
+    } catch (error) {
+      return { state: false, msg: '', nick: '' };
+    }
+  },
   //회원 로그인
   member_login: (user) => async (dispatch) => {
     try {
@@ -25,8 +49,35 @@ export const actionCreators = {
           payload: response.data,
         });
 
-        
-       // AsyncStorage.setItem('flex_id', response.data.id);
+        //console.log(response.data.id);
+        //console.log('저장', response.data.auto_logins);
+
+        const saves = await response.data.auto_logins;
+
+        AsyncStorage.setItem('flex_id', response.data.email);
+
+
+        console.log('1231231231',saves);
+
+        if(saves=='true'){
+            console.log('저장');
+            AsyncStorage.setItem('save_id', response.data.email);
+        }else{
+            console.log('노 저장');
+        }
+
+        // if(response.data.auto_logins){
+
+        //     await console.log('저장완료...', response.data.auto_logins);
+        //     // await AsyncStorage.setItem('save_id', 
+        //     //   JSON.stringify({
+        //     //     'id': response.data.email,
+        //     //     'appToken': response.data.appToken
+        //     //   })
+        //     // );
+        // }else if(!response.data.auto_logins){
+        //     await console.log('세션저장 노..', response.data.auto_logins);
+        // }
        
         return {
           state: true,
@@ -93,7 +144,7 @@ export const actionCreators = {
           type: MEBMER_LOGIN,
           payload: response.data,
         });
-        return { state: true, nick: response.data.nick };
+        return { state: true, result: response.data, msg:response.msg };
       } else {
         await dispatch({
           type: MEBMER_LOGIN,
@@ -272,7 +323,8 @@ export const actionCreators = {
     try {
       const response = await UserApi.member_logout(data);
       // console.log('member_logout :::', response);
-      //AsyncStorage.removeItem('flex_id');
+      AsyncStorage.removeItem('flex_id');
+      AsyncStorage.removeItem('save_id');
 
       await dispatch({
         type: MEMBER_LOGOUT,
@@ -288,7 +340,8 @@ export const actionCreators = {
     try {
       const response = await UserApi.member_out(data);
       // console.log('member_out :::', response);
-      //AsyncStorage.removeItem('flex_id');
+      AsyncStorage.removeItem('flex_id');
+      AsyncStorage.removeItem('save_id');
 
       await dispatch({
         type: MEMBER_LOGOUT,

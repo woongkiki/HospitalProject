@@ -16,7 +16,7 @@ const HeaderFood = ( props ) => {
                 >
                     <Image source={require('../images/headerArr.png')} alt='뒤로가기' />
                 </TouchableOpacity>
-                <DefText text={headerTitle} style={{fontSize:20, position:'absolute', left:'50%', marginLeft:-40}} />
+                <DefText text={headerTitle} style={{fontSize:20, lineHeight:23,position:'absolute', left:'50%', marginLeft:-40}} />
                 <HStack alignItems='center'>
                     <TouchableOpacity onPress={diaryButton}>
                         <Image

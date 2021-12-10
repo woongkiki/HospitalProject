@@ -1,18 +1,27 @@
 import React, {useState, useEffect} from 'react';
 import { Box, VStack, HStack, Image } from 'native-base';
-import { TouchableOpacity, Dimensions, ScrollView, StyleSheet } from 'react-native';
+import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
 import {DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import LinearGradient from 'react-native-linear-gradient';
+import { StackActions } from '@react-navigation/native';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import AsyncStorage from '@react-native-community/async-storage';
+import ToastMessage from '../components/ToastMessage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const {width} = Dimensions.get('window');
 
 const Inbody = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
+
+   //console.log(userInfo);
 
     const fatDis = 25.5;
-    const fatpercent = 18;
+    //const fatpercent = 18;
     const fatSto = 0.7;
 
     const fatStoSum = fatSto * 10;
@@ -20,195 +29,513 @@ const Inbody = (props) => {
     const navigationMove = () => {
         navigation.navigate('Tab_Navigation', {
             screen: 'Community',
-            
+            params: 'inbody'
         });
     }
+
+
+    const [inbodyLoading, setInbodyLoading] = useState(true);
+
+    const [allInbody, setAllInbody] = useState('');
+
+    //체중정보
+    const [weight, setWeight] = useState('');
+    //골격근량
+    const [muscle, setMuscle] = useState('');
+    //체지방
+    const [fatKg, setFatKg] = useState('');
+
+    //비만 동반질환 위험도
+    const [bmiAlert, setBmiAlert] = useState('');
+    //유형분석
+    const [bodyStatus, setBodyStatus] = useState('');    
+
+    //bmi 수치
+    const [bmiData, setBmiData] = useState('0');
+    //체지방률
+    const [fatPercent, setFatPercent] = useState('');
+    //복부지방수치
+    const [adbFat, setAdbfat] = useState('');
+
+    const BodyProfileReceive = async () => {
+        await setInbodyLoading(true);
+        
+        await Api.send('bodyProfile_info', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+
+                console.log('내 바디프로필 정보::::::: ', arrItems);
+
+                setAllInbody(arrItems);
+
+                setWeight(arrItems.weight);
+                setMuscle(arrItems.muscle);
+                setFatKg(arrItems.fat_kg);
+                
+                setBmiAlert(arrItems.fat_alert);
+                setBodyStatus(arrItems.body_category);
+                setFatPercent(arrItems.fat_per)
+                setBmiData(arrItems.bmi);
+                setAdbfat(arrItems.adb_fat)
+               // ToastMessage(resultItem.message);
+               
+            }else{
+                
+                console.log(resultItem);
+                //ToastMessage(resultItem.message);
+            }
+        });
+
+        await setInbodyLoading(false);
+    }
+
+    // useEffect(()=>{
+    //     console.log('복부지방수치::::::::',adbFat);
+    // }, [adbFat])
+
+    useEffect(()=>{
+        BodyProfileReceive();
+    }, [])
+
+
+    useFocusEffect(
+        React.useCallback(()=>{
+            // screen is focused
+            BodyProfileReceive();
+
+            return () => {
+                // screen is unfocused
+                console.log('포커스 nono');
+            };
+        },[])
+    );
+
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='체성분' navigation={navigation} />
-            <ScrollView>
-                <Box p={5}>
-                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box width={(width * 0.65) + 'px'}>
-                            <DefText text='체성분 이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='중요한 건강지표 "체성분"에 관해 알아보세요.' style={{fontSize:14, }} />
-                            <TouchableOpacity
-                                style={{
-                                    width:100,
-                                    height:30,
-                                    backgroundColor:'#696968',
-                                    borderRadius:10,
-                                    alignItems:'center',
-                                    justifyContent:'center',
-                                    marginTop:10 
-                                }}
-                                onPress={navigationMove}
-                            >
-                                <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
-                            </TouchableOpacity>
+            {
+                !inbodyLoading ?
+                <>
+                    {
+                        allInbody != '' ? 
+                        <ScrollView>
+                            <Box p={5}>
+                                <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                                    <Box width={(width * 0.65) + 'px'}>
+                                        <DefText text='체성분 이야기' style={{fontSize:16, fontWeight:'bold'}} />
+                                        <DefText text='중요한 건강지표 "체성분"에 관해 알아보세요.' style={{fontSize:14, }} />
+                                        <TouchableOpacity
+                                            style={{
+                                                width:100,
+                                                height:30,
+                                                backgroundColor:'#696968',
+                                                borderRadius:10,
+                                                alignItems:'center',
+                                                justifyContent:'center',
+                                                marginTop:10 
+                                            }}
+                                            onPress={navigationMove}
+                                        >
+                                            <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                        </TouchableOpacity>
+                                    </Box>
+                                    <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
+                                </HStack>
+                                <Box mt={5}>
+                                    <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} />
+                                    <Box p={5}  backgroundColor='#f1f1f1' borderRadius={10}>
+                                        <HStack justifyContent='space-between' mb={5}>
+                                            <DefText text='비만 동반질환 위험도' style={[styles.graphText]} />
+                                            {
+                                                bmiAlert != '' &&
+                                                <DefText text={bmiAlert[1]} style={[styles.graphText]} />
+                                            }
+                                        </HStack>
+                                        <LinearGradient height={30} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#34EB00', '#967A00', '#FF0000']} style={[{borderRadius:5, marginTop:10}]}>
+                                            <Box style={[{position:'absolute', bottom:20, left:fatDis+'%'}, bmiAlert != '' && {left:(bmiAlert[0]*10)+'%'}]}>
+                                                <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                            </Box> 
+                                        </LinearGradient>
+                                    </Box>
+                                </Box>
+                                <Box mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                    <HStack justifyContent='space-between'>
+                                        <DefText text='유형분석' style={[styles.graphText]}  />
+                                        {
+                                            bodyStatus != '' &&
+                                            <DefText text={bodyStatus.category} style={[styles.graphText]}  />
+                                        }
+                                    
+                                    </HStack>
+                                    {/* <DefText text='근육이 발달한 단단한 건강체질입니다.' style={{fontSize:14, marginTop:10 }} /> */}
+                                    <VStack mt={2.5}>
+                                        <HStack py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
+                                            <Box width={(width-80)*0.25}></Box>
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='표준이하' style={[styles.tableThText]} />
+                                            </Box>
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='표준' style={[styles.tableThText]} />
+                                            </Box>
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='표준이상' style={[styles.tableThText]} />
+                                            </Box>
+                                        </HStack>
+                                        <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999' >
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='체중' style={[styles.tableTdText]} />
+                                            </Box>
+                                            {
+                                                bodyStatus != '' &&
+                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                    {
+                                                        bodyStatus.weight_score == 0 &&
+                                                        <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.weight_score == 1 &&
+                                                        <Box width={ '50%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.weight_score == 2 &&
+                                                        <Box width={ '90%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                </Box>
+                                            }
+                                        </HStack>
+                                        <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='골격근량' style={[styles.tableTdText]} />
+                                            </Box>
+                                            {
+                                                bodyStatus != '' &&
+                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                    {
+                                                        bodyStatus.muscle_score == 0 &&
+                                                        <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.muscle_score == 1 &&
+                                                        <Box width={ '50%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.muscle_score == 2 &&
+                                                        <Box width={ '90%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                </Box>
+                                            }
+                                        </HStack>
+                                        <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
+                                            <Box width={(width-80)*0.25}>
+                                                <DefText text='체지방량' style={[styles.tableTdText]} />
+                                            </Box>
+                                            {
+                                                bodyStatus != '' &&
+                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                    {
+                                                        bodyStatus.fat_score == 1 &&
+                                                        <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.fat_score == 2 &&
+                                                        <Box width={ '50%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                    {
+                                                        bodyStatus.fat_score == 3 &&
+                                                        <Box width={ '90%' } height='20px' backgroundColor='#696968' /> 
+                                                    }
+                                                </Box>
+                                            }
+                                        </HStack>
+                                    </VStack>
+                                </Box>
+                                <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                    <HStack justifyContent='space-between' alignItems='center'>
+                                        <DefText text='체중' style={[styles.graphText]}  />
+                                        {
+                                            weight != '' ?
+                                            <DefText text={weight+'kg'} style={[styles.graphText, {fontSize:18}]}  />
+                                            :
+                                            <DefText text='-' />
+                                        }
+                                        
+                                    </HStack>
+                                    <HStack justifyContent='space-between' alignItems='center' mt={2.5}>
+                                        <DefText text='골격근량' style={[styles.graphText]}  />
+                                        {
+                                            muscle != '' ?
+                                            <DefText text={muscle + 'kg'} style={[styles.graphText, {fontSize:18}]} />
+                                            :
+                                            <DefText text='-' />
+                                        }
+                                    </HStack>
+                                    <HStack justifyContent='space-between' alignItems='center' mt={2.5}>
+                                        <DefText text='체지방량' style={[styles.graphText]}  />
+                                        {
+                                            fatKg != '' ?
+                                            <DefText text={fatKg +'kg'} style={[styles.graphText, {fontSize:18}]}  />
+                                            :
+                                            <DefText text='-' />
+                                        }
+                                    
+                                    </HStack>
+                                </Box>
+                                <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                    <Box>
+                                        <HStack justifyContent='space-between' alignItems='center'>
+                                            <DefText text='BMI' style={[styles.graphText]}  />
+                                            {
+                                                bmiData != '0' &&
+                                                <DefText text={bmiData[0]} style={[styles.graphText, {fontSize:18}]}  />
+                                            }
+                                            
+                                        </HStack>
+                                        <HStack justifyContent='space-between' mt={'20px'}>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#E5E587'}]}>
+                                                <DefText text='저체중' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#11FF00'}]}>
+                                                <DefText text='정상' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#FFA7A7'}]}>
+                                                <DefText text='비만전' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#FF8686'}]}>
+                                                <DefText text='1단계' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#FF5656'}]}>
+                                                <DefText text='2단계' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, {backgroundColor:'#FF0000'}]}>
+                                                <DefText text='3단계' style={styles.graphBoxText} />
+                                            </Box>
+                                            {
+                                                bmiData != '0' &&
+                                                <>
+                                                    {
+                                                        bmiData[1] == 1 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '4%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        bmiData[1] == 2 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '20%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        bmiData[1] == 3 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '37%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        bmiData[1] == 4 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '53%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        bmiData[1] == 5 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '70%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        bmiData[1] == 6 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left: '87%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                </>
+                                            }
+                                            
+                                        </HStack>
+                                    </Box>   
+                                    <Box mt={5}>
+                                        <HStack justifyContent='space-between' alignItems='center'>
+                                            <DefText text='체지방률' style={[styles.graphText]}  />
+                                            {
+                                                fatPercent != '' &&
+                                                <DefText text={fatPercent[0] + '%'} style={[styles.graphText, {fontSize:18}]}  />
+                                            }
+                                        </HStack>
+                                        <HStack justifyContent='space-between' mt={'20px'}>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                                <DefText text='저체중' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                                <DefText text='정상' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                                <DefText text='경비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                                <DefText text='중비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                                <DefText text='과비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            {
+                                                fatPercent != '' && userInfo.sex =='M' &&
+                                                <>
+                                                {
+                                                    fatPercent[0] < 17.1 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 17.1 && fatPercent[0] < 23 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 23 && fatPercent[0] < 28 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 28 && fatPercent[0] < 38 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 38 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                </>
+                                            }
+
+                                            {
+                                                fatPercent != '' && userInfo.sex =='W' &&
+                                                <>
+                                                {
+                                                    fatPercent[0] < 20.1 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 20.1 && fatPercent[0] < 27 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 27 && fatPercent[0] < 33 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 33 && fatPercent[0] < 43 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                {
+                                                    fatPercent[0] >= 43 &&
+                                                    <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                    </Box> 
+                                                }
+                                                </>
+                                            }
+                                            
+                                        </HStack>
+                                    </Box>    
+                                    <Box mt={5}>
+                                        <HStack justifyContent='space-between' alignItems='center'>
+                                            <DefText text='복부지방수치' style={[styles.graphText]}  />
+                                            {
+                                                adbFat != '' &&
+                                                <DefText text={adbFat[0]} style={[styles.graphText, {fontSize:18}]}  />
+                                            }
+                                            
+                                        </HStack>
+                                        <HStack justifyContent='space-between' mt={'20px'}>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                                <DefText text='저체중' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                                <DefText text='정상' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                                <DefText text='경비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                                <DefText text='중도비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                                <DefText text='고도비만' style={styles.graphBoxText} />
+                                            </Box>
+                                            {
+                                                adbFat != '' &&
+                                                <>
+                                                    {
+                                                        adbFat[1] == 1 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }  
+                                                    {
+                                                        adbFat[1] == 2 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }
+                                                    {
+                                                        adbFat[1] == 4 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }   
+                                                    {
+                                                        adbFat[1] == 5 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    } 
+                                                    {
+                                                        adbFat[1] == 6 &&
+                                                        <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        </Box> 
+                                                    }   
+                                                </>
+                                            }
+                                            
+                                        </HStack>
+                                    </Box>
+                                </Box>
+                            </Box>
+                        </ScrollView>
+                        :
+                        <Box justifyContent='center' alignItems='center' flex={1}>
+                            <Image source={require('../images/inbodyIconG.png')} alt={'복약을 관리하세요'} />
+                            <DefText text='체성분정보를 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                            {/* <ActivityIndicator size='large' color='#333' /> */}
                         </Box>
-                        <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
-                    </HStack>
-                    <Box mt={5}>
-                        <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} />
-                        <Box p={5}  backgroundColor='#f1f1f1' borderRadius={10}>
-                            <HStack justifyContent='space-between' mb={5}>
-                                <DefText text='비만 동반질환 위험도' style={[styles.graphText]} />
-                                <DefText text='약간 높음' style={[styles.graphText]} />
-                            </HStack>
-                            <LinearGradient height={30} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#34EB00', '#967A00', '#FF0000']} style={[{borderRadius:5, marginTop:10}]}>
-                                <Box style={[{position:'absolute', bottom:20, left:fatDis+'%'}]}>
-                                    <Image source={require('../images/fatPosition.png')} alt='수치' />
-                                </Box> 
-                            </LinearGradient>
-                        </Box>
-                    </Box>
-                    <Box mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
-                        <HStack justifyContent='space-between'>
-                            <DefText text='유형분석' style={[styles.graphText]}  />
-                            <DefText text='표준체중 강인형' style={[styles.graphText]}  />
-                        </HStack>
-                        <DefText text='근육이 발달한 단단한 건강체질입니다.' style={{fontSize:14, marginTop:10 }} />
-                        <VStack mt={2.5}>
-                            <HStack py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width-80)*0.25}></Box>
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='표준이하' style={[styles.tableThText]} />
-                                </Box>
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='표준' style={[styles.tableThText]} />
-                                </Box>
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='표준이상' style={[styles.tableThText]} />
-                                </Box>
-                            </HStack>
-                            <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999' >
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='체중' style={[styles.tableTdText]} />
-                                </Box>
-                                <Box width={(width-80)*0.7}  px={2.5}>
-                                    <Box width={ ((width-80)*0.75) * 0.6 } height='20px' backgroundColor='#696968' /> 
-                                </Box>
-                            </HStack>
-                            <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='골격근량' style={[styles.tableTdText]} />
-                                </Box>
-                                <Box width={(width-80)*0.75} px={2.5} >
-                                    <Box width={ ((width-80)*0.75) * 0.7 } height='20px' backgroundColor='#696968' /> 
-                                </Box>
-                            </HStack>
-                            <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                <Box width={(width-80)*0.25}>
-                                    <DefText text='체지방량' style={[styles.tableTdText]} />
-                                </Box>
-                                <Box width={(width-80)*0.75} px={2.5}  >
-                                    <Box width={ ((width-80)*0.75) * 0.35 } height='20px' backgroundColor='#696968' /> 
-                                </Box>
-                            </HStack>
-                        </VStack>
-                    </Box>
-                    <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
-                        <HStack justifyContent='space-between' alignItems='center'>
-                            <DefText text='체중' style={[styles.graphText]}  />
-                            <DefText text='76.0kg' style={[styles.graphText, {fontSize:18}]}  />
-                        </HStack>
-                        <HStack justifyContent='space-between' alignItems='center' mt={2.5}>
-                            <DefText text='골격근량' style={[styles.graphText]}  />
-                            <DefText text='37.4kg' style={[styles.graphText, {fontSize:18}]}  />
-                        </HStack>
-                        <HStack justifyContent='space-between' alignItems='center' mt={2.5}>
-                            <DefText text='체지방량' style={[styles.graphText]}  />
-                            <DefText text='9.3kg' style={[styles.graphText, {fontSize:18}]}  />
-                        </HStack>
-                    </Box>
-                    <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
-                        <Box>
-                            <HStack justifyContent='space-between' alignItems='center'>
-                                <DefText text='BMI' style={[styles.graphText]}  />
-                                <DefText text={fatDis} style={[styles.graphText, {fontSize:18}]}  />
-                            </HStack>
-                            <HStack justifyContent='space-between' mt={'20px'}>
-                                <Box style={[styles.graphBox, {backgroundColor:'#E5E587'}]}>
-                                    <DefText text='저체중' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, {backgroundColor:'#11FF00'}]}>
-                                    <DefText text='정상' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, {backgroundColor:'#FFA7A7'}]}>
-                                    <DefText text='비만전' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, {backgroundColor:'#FF8686'}]}>
-                                    <DefText text='1단계' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, {backgroundColor:'#FF5656'}]}>
-                                    <DefText text='2단계' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, {backgroundColor:'#FF0000'}]}>
-                                    <DefText text='3단계' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[{position:'absolute', bottom:20, left:fatDis+'%'}]}>
-                                    <Image source={require('../images/fatPosition.png')} alt='수치' />
-                                </Box> 
-                            </HStack>
-                        </Box>   
-                        <Box mt={5}>
-                            <HStack justifyContent='space-between' alignItems='center'>
-                                <DefText text='체지방률' style={[styles.graphText]}  />
-                                <DefText text={fatpercent + '%'} style={[styles.graphText, {fontSize:18}]}  />
-                                
-                            </HStack>
-                            <HStack justifyContent='space-between' mt={'20px'}>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
-                                    <DefText text='저체중' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
-                                    <DefText text='정상' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
-                                    <DefText text='경비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
-                                    <DefText text='중비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
-                                    <DefText text='과비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[{position:'absolute', bottom:20, left:fatpercent+'%'}]}>
-                                    <Image source={require('../images/fatPosition.png')} alt='수치' />
-                                </Box> 
-                            </HStack>
-                        </Box>    
-                        <Box mt={5}>
-                            <HStack justifyContent='space-between' alignItems='center'>
-                                <DefText text='복부지방수치' style={[styles.graphText]}  />
-                                <DefText text={fatSto} style={[styles.graphText, {fontSize:18}]}  />
-                            </HStack>
-                            <HStack justifyContent='space-between' mt={'20px'}>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
-                                    <DefText text='저체중' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
-                                    <DefText text='정상' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
-                                    <DefText text='경비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
-                                    <DefText text='중도비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[styles.graphBox, styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
-                                    <DefText text='고도비만' style={styles.graphBoxText} />
-                                </Box>
-                                <Box style={[{position:'absolute', bottom:20, left:fatStoSum+'%'}]}>
-                                    <Image source={require('../images/fatPosition.png')} alt='수치' />
-                                </Box> 
-                            </HStack>
-                        </Box>
-                    </Box>
+                    }
+                    
+                </>
+                
+                :
+                <Box flex={1} alignItems='center' justifyContent='center'>
+                    <ActivityIndicator size='large' color='#333' />
                 </Box>
-            </ScrollView>
+            }
+            
             <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{navigation.navigate('InbodyAdd')}} style={[styles.buttonDef]}>
                    <DefText text='체성분 정보 추가' style={styles.buttonDefText} />
@@ -278,4 +605,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Inbody;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(Inbody);

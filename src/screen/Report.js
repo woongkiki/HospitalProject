@@ -6,6 +6,11 @@ import HeaderDefault from '../components/HeaderDefault';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import LinearGradient from 'react-native-linear-gradient';
 import {LineChart, ProgressChart} from 'react-native-chart-kit'
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import ToastMessage from '../components/ToastMessage';
 
 const {width} = Dimensions.get('window');
 
@@ -15,13 +20,15 @@ const firstChartWidth = (width - 80) * 0.5;
 
 const secondChartWidth = (width - 80) * 0.45;
 
-console.log(width);
-console.log(firstChartWidth);
-console.log(secondChartWidth);
+//console.log(width);
+//console.log(firstChartWidth);
+//console.log(secondChartWidth);
 
 const Report = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
+
+    //console.log(userInfo);
 
     //공복혈당
     const bloodNumber = 45;
@@ -42,23 +49,102 @@ const Report = (props) => {
     //console.log(bloodValue);
 
 
+    const [bloodSugarGraph, setBloodSugarGraph] = useState('');
+    const [bloodSugarAvgBefore, setBloodSugarAvgBefore] = useState(-1);
+    const [bloodSugarAvgAfter, setBloodSugarAvgAfter] = useState(-1);
+    const [bloodSugarGraphData, setBloodSugarGraphData] = useState('');
+
+    const [bloodSugarKeyData, setBloodSugarKeyData] = useState([]);
+    const [bloodSugarData, setBloodSugarData] = useState([130, 0, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+    const ReportDataReceive = () => {
+        Api.send('report_week', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('결과 정보: ', Object.values(arrItems.sugar_graph));
+
+               
+                setBloodSugarGraph(arrItems);
+                
+
+                //공복혈당 평균
+                let beforeBsData = arrItems.avg_sugar1;
+                if(beforeBsData <= 95){ // 95이하는 정상
+                    setBloodSugarAvgBefore(0);
+                }else if(beforeBsData > 130){ //130이상은 당뇨
+                    setBloodSugarAvgBefore(92);
+                }else if(beforeBsData == 0){ // 0은 수치없음
+                    setBloodSugarAvgBefore(-1);
+                }else{
+                    beforeBsData = (beforeBsData - 95) * 1.3;
+                    //console.log('공복혈당 평균:::', beforeBsData);
+                    setBloodSugarAvgBefore(beforeBsData);
+                }
+
+
+                //식후혈당 평균
+                let afterBsData = arrItems.avg_sugar2;
+                if(afterBsData == 0){ // 95이하는 정상
+                    setBloodSugarAvgAfter(-1);
+                }else if(afterBsData > 130){ //130이상은 당뇨
+                    setBloodSugarAvgAfter(92);
+                }else if(afterBsData <= 95 ){ // 0은 수치없음
+                    setBloodSugarAvgAfter(0);
+                }else{
+                    afterBsData = (afterBsData - 95) * 1.3;
+                    //console.log('공복혈당 평균:::', beforeBsData);
+                    setBloodSugarAvgAfter(afterBsData);
+                }
+
+                let graph_keys = Object.keys(arrItems.sugar_graph);
+
+                let graphKeysDatas = [];
+                graph_keys.map((e, i)=> {
+                    graphKeysDatas[i] = graph_keys[i].split('_')[0].substring(5,9) + '일 ' + graph_keys[i].split('_')[1]+'시';
+                })
+                //console.log('123123', graph_keys[0].split('_')[1]);
+
+
+                console.log('3444', graphKeysDatas);
+
+                //키값저장
+                setBloodSugarKeyData(graphKeysDatas);
+                //setBloodSugarKeyData(graphKeysDatas)
+
+                setBloodSugarData(Object.values(arrItems.sugar_graph));
+              
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               //ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    useEffect(()=>{
+        ReportDataReceive();
+    }, [])
+
+    // useEffect(()=>{
+    //     console.log('bloodSugarAvgAfter:::', bloodSugarAvgAfter);
+    // }, [bloodSugarAvgAfter])
+
+
+    
 
     const data = {
-        labels: ["10시", "11시", "12시", "13시", "14시", "15시", "16시", "17시", "18시", "19시"],
+        labels: bloodSugarKeyData,
         datasets: [
+          
           {
-            data: [100, 80,90, 80, 90, 80, 90, 80, 70, 120],
+            data: bloodSugarData,
             color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // optional
-            strokeWidth: 2, // optional
-           
-          },
-          {
-            data: [60, 50, 60, 70, 60, 70, 60, 70, 50, 55],
-            color: (opacity = 1) => `rgba(0, 0, 255, ${opacity})`, // optional
             strokeWidth: 2 // optional
           }
         ],
-        legend: ["당뇨인","정상인"], // optional
+        //legend: ["당뇨인"], // optional
         fromZero : false
       };
 
@@ -72,7 +158,7 @@ const Report = (props) => {
         barPercentage: 0.5,
         useShadowColorFromDataset: false, // optional
         decimalPlaces: 0 
-      };
+    };
 
 
       const dataBlood = {
@@ -221,9 +307,12 @@ const Report = (props) => {
                                 <DefText text='공복혈당' style={styles.reportLabelSmall} />
                                
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                                    <Box style={[{position:'absolute', bottom:1, left:bloodPercent+'%'}]}>
-                                        <Image source={require('../images/smileIcons.png')} alt='수치' />
-                                    </Box> 
+                                    {
+                                        bloodSugarAvgBefore > -1 &&
+                                        <Box style={[{position:'absolute', bottom:1, left:bloodSugarAvgBefore+'%'}]}>
+                                            <Image source={require('../images/smileIcons.png')} alt='수치' />
+                                        </Box> 
+                                    }
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
                                         <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                         <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
@@ -231,19 +320,20 @@ const Report = (props) => {
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
-                                    <DefText text='120' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='130' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='140' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='160' style={[styles.reportChartText, {color:'#333'}]} />
+                                    <DefText text='100' style={[styles.reportChartText, {color:'#333'}]} />
+                                    <DefText text='125' style={[styles.reportChartText, {color:'#333'}]} />
                                 </HStack>
                             </VStack>
                             <VStack mt={2.5}>
                                 <DefText text='식후혈당' style={styles.reportLabelSmall} />
                                
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                                    <Box style={[{position:'absolute', bottom:1, left:foodBloodPer+'%'}]}>
-                                        <Image source={require('../images/smileIcons.png')} alt='수치' />
-                                    </Box>
+                                    {
+                                        bloodSugarAvgAfter > -1 &&
+                                        <Box style={[{position:'absolute', bottom:1, left:bloodSugarAvgAfter+'%'}]}>
+                                            <Image source={require('../images/smileIcons.png')} alt='수치' />
+                                        </Box>
+                                    }
                                     <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
                                         <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                                         <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
@@ -251,27 +341,31 @@ const Report = (props) => {
                                     </HStack>
                                 </LinearGradient>
                                 <HStack justifyContent='space-around' height='35px' mt={1}>
-                                    <DefText text='120' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='130' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='140' style={[styles.reportChartText, {color:'#333'}]} />
-                                    <DefText text='160' style={[styles.reportChartText, {color:'#333'}]} />
+                                    <DefText text='100' style={[styles.reportChartText, {color:'#333'}]} />
+                                    <DefText text='125' style={[styles.reportChartText, {color:'#333'}]} />
                                 </HStack>
                             </VStack>
-                            <Box mt={5} alignItems='center'>
-                                <LineChart
-                                    data={data}
-                                    width={width - 40}
-                                    height={300}
-                                    chartConfig={chartConfig}
-                                    bezier
-                                    fromZero={true} //0 부터시작 기본 false
-                                    withShadow={false} // 선그림자 여부 기본 true
-                                    yLabelsOffset={20} //y축 그래프 사이 여백
-                                    segments={5} //y축 수치 세그먼트 기본 4
-                                    style={{marginLeft:-10}}
-                                    />
+                            <Box mt={5}>
+                                <Box>
+                                    <ScrollView
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    >
+                                        <LineChart
+                                            data={data}
+                                            width={width + 3000}
+                                            height={235}
+                                            chartConfig={chartConfig}
+                                            bezier
+                                            fromZero={true} //0 부터시작 기본 false
+                                            withShadow={false} // 선그림자 여부 기본 true
+                                            yLabelsOffset={20} //y축 그래프 사이 여백
+                                            segments={5} //y축 수치 세그먼트 기본 4
+                                            style={{marginLeft:-20}}
+                                        />
+                                    </ScrollView>
+                                </Box>
                             </Box>
-
                             <Box mt={2.5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
                                 <DefText text='정상혈당 달성도' style={[styles.reportLabel], {marginBottom:10}} />
                                 <VStack>
@@ -1185,4 +1279,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Report;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(Report);

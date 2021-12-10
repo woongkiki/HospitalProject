@@ -3,18 +3,30 @@ import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList } 
 import { Box, Image, HStack } from 'native-base';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
+import HTML from 'react-native-render-html';
+import StyleHtml from '../common/StyleHtml';
 
 const ServiceTerm = (props) => {
 
-    const {navigation} = props;
+    const {navigation, route} = props;
+
+    const {params} = route;
 
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-             <HeaderComponents headerTitle='서비스 이용약관' navigation={navigation} />
+             <HeaderComponents headerTitle={params.title} navigation={navigation} />
              <ScrollView>
                  <Box p={5}>
-                    <DefText text='서비스 이용약관을 입력하세요.' style={styles.titles} />
+                    <HTML 
+                        ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontFamily', 'br']}
+                        ignoredTags={['head', 'script', 'src']}
+                        imagesMaxWidth={Dimensions.get('window').width - 40}
+                        source={{html: params.content}} 
+                        tagsStyles={StyleHtml}
+                        containerStyle={{ flex: 1, }}
+                        contentWidth={Dimensions.get('window').width}  
+                    />
                  </Box>
              </ScrollView>
         </Box>

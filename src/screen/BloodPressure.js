@@ -1,15 +1,20 @@
-import React from 'react';
-import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet } from 'react-native';
-import { Box, VStack, HStack, Image } from 'native-base';
+import React, { useEffect, useState } from 'react';
+import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet, Linking, ActivityIndicator } from 'react-native';
+import { Box, VStack, HStack, Image, Center } from 'native-base';
 import HeaderComponents from '../components/HeaderComponents';
 import { DefText } from '../common/BOOTSTRAP';
 import LinearGradient from 'react-native-linear-gradient';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { textAlign } from 'styled-system';
 
 const {width} = Dimensions.get('window');
 
 const BloodPressure = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
 
     //최고혈압
     const bloodNumber = 22;
@@ -27,119 +32,261 @@ const BloodPressure = (props) => {
 
     const HeartLate = 77;
 
+
+    const [bloodPLoading, BloodPLoading] = useState(false);
+
+
+    const [bloodPressureData, setBloodPressureData] = useState('');
+    const [bloodPressureAlert, setBloodPressureAlert] = useState([]);
+
+    const [bloodPressureHigh, setBloodPressureHigh] = useState(-1);
+    const [bloodPressureLow, setBloodPressureLow] = useState(-1);
+
+    const [bloodPressureHighOr, setBloodPressureHighOr] = useState(-1);
+    const [bloodPressureLowOr, setBloodPressureLowOr] = useState(-1);
+    
+    const [bloodHeartLate, setBloodHeartLate] = useState(0);
+
+    //혈압정보 가져오기
+    const bloodPressureApi = async () => {
+
+        await BloodPLoading(false);
+
+        await Api.send('bloodPressure_info', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                
+                console.log(arrItems);
+            
+                setBloodPressureData(arrItems);
+                setBloodPressureAlert(arrItems.alert);
+
+                //console.log(arrItems.alert);
+
+                let bloodHighs = arrItems.high;
+                let boxWidths  = 0;
+             
+                if(bloodHighs < 100)   bloodHighs = 100;
+                if(bloodHighs > 180)   bloodHighs = 180;
+                if(bloodHighs >= 100 && bloodHighs < 120) boxWidths = 0;
+                if(bloodHighs >= 120 && bloodHighs < 130) boxWidths = 25;
+                if(bloodHighs >= 130 && bloodHighs < 140) boxWidths = 50;
+                if(bloodHighs >= 140 && bloodHighs < 160) boxWidths = 75;
+                if(bloodHighs >= 160)   boxWidths = 95;
+                boxWidths = boxWidths * 0.92;
+
+                
+                setBloodPressureHigh(boxWidths)
+
+
+
+                let bloodLows = arrItems.low ;
+                console.log('최저', bloodLows);
+                if(bloodLows < 60)   bloodLows = 60;
+                if(bloodLows > 110)   bloodLows = 110;
+
+                bloodLows = (bloodLows * 1 - 60) * 2 * 0.92;
+                console.log('최저', bloodLows);
+                setBloodPressureLow(bloodLows);
+                
+
+                setBloodPressureHighOr(arrItems.high);
+                setBloodPressureLowOr(arrItems.low);
+
+                setBloodHeartLate(arrItems.heartRate);
+
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        });
+
+        await BloodPLoading(true);
+    }
+
+
+    useEffect(()=>{
+        bloodPressureApi();
+    }, [])
+
+
     const navigationMove = () => {
         navigation.navigate('Tab_Navigation', {
             screen: 'Community',
-            
+            params: 'bloodp'
         });
     }
+
+    useFocusEffect(
+        React.useCallback(()=>{
+            // screen is focused
+            bloodPressureApi();
+
+            return () => {
+                // screen is unfocused
+                console.log('포커스 nono');
+            };
+        },[])
+    );
+
+
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='혈압' navigation={navigation} />
-            <ScrollView>
-                <Box p={5}>
-                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box width={(width * 0.60) + 'px'}>
-                            <DefText text='혈압이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='중요한 건강지표 "혈압"에 관해 알아보세요.' style={{fontSize:14, }} />
-                            <TouchableOpacity
-                                style={{
-                                    width:100,
-                                    height:30,
-                                    backgroundColor:'#696968',
-                                    borderRadius:10,
-                                    alignItems:'center',
-                                    justifyContent:'center',
-                                    marginTop:10 
-                                }}
-                                onPress={navigationMove}
-                            >
-                                <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
-                            </TouchableOpacity>
-                        </Box>
-                        <Image source={require('../images/heartRateIcon.png')} alt='체크이미지' />
-                    </HStack>
-                    <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
-                        <HStack alignItems='center'>
-                            <DefText text='! 고혈압 전 단계로 건강관리가 필요합니다.' style={{fontSize:14,color:'#999'}} />
-                            <TouchableOpacity >
-                
-                                <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
-                                    <DefText text='더보기' style={{fontSize:14,color:'#999'}} />
+            {
+                bloodPLoading ?
+                <>
+                {
+                    bloodPressureData != '' ?
+                    <ScrollView>
+                        <Box p={5}>
+                            <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                                <Box width={(width * 0.60) + 'px'}>
+                                    <DefText text='혈압이야기' style={{fontSize:16, fontWeight:'bold'}} />
+                                    <DefText text='중요한 건강지표 "혈압"에 관해 알아보세요.' style={{fontSize:14, }} />
+                                    <TouchableOpacity
+                                        style={{
+                                            width:100,
+                                            height:30,
+                                            backgroundColor:'#696968',
+                                            borderRadius:10,
+                                            alignItems:'center',
+                                            justifyContent:'center',
+                                            marginTop:10 
+                                        }}
+                                        onPress={navigationMove}
+                                    >
+                                        <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                    </TouchableOpacity>
                                 </Box>
-        
-                            </TouchableOpacity>
-                        </HStack>
-                    </Box>
-                    <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
-                        <HStack alignItems='center'>
-                            <DefText text='! 전문의료진께 한번 상담받기를 권해드립니다.' style={{fontSize:14,color:'#999'}} />
-                        </HStack>
-                    </Box>
-                    <VStack mt={2.5}>
-                        <DefText text='최고혈압' style={styles.BloodPreSmallText} />
-                        
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            <Box style={[{position:'absolute', bottom:1, left:bloodPercent+'%'}]}>
-                                <Image source={require('../images/smileIcons.png')} alt='수치' />
-                            </Box> 
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
+                                <Image source={require('../images/heartRateIcon.png')} alt='체크이미지' />
                             </HStack>
-                        </LinearGradient>
-                        <HStack justifyContent='space-around' height='35px' mt={1}>
-                            <DefText text='80' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='90' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='100' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='120' style={[styles.BloodPreText, {color:'#333'}]} />
-                        </HStack>
-                    </VStack>
-                    <VStack>
-                        <DefText text='최저혈압' style={styles.BloodPreSmallText} />
-                        
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            <Box style={[{position:'absolute', bottom:1, left:bloodPercent2+'%'}]}>
-                                <Image source={require('../images/smileIcons.png')} alt='수치' />
-                            </Box> 
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='저혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='저혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='저혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold'}]} />
-                            </HStack>
-                        </LinearGradient>
-                        <HStack justifyContent='space-around' height='35px' mt={1}>
-                            <DefText text='80' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='90' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='100' style={[styles.BloodPreText, {color:'#333'}]} />
-                            <DefText text='120' style={[styles.BloodPreText, {color:'#333'}]} />
-                        </HStack>
-                    </VStack>
-                    <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
-                        <DefText text='혈압(mmHg)' />
-                        <HStack>
-                            <DefText text={'수축기 : ' + bloodNumberSelect1} />
-                            <DefText text={'이완기 : ' + bloodNumberSelect2} style={{marginLeft:10}} />
-                        </HStack>
-                    </HStack>
-                    <HStack mt={2.5} py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
-                        <DefText text='심박수(bpm)' />
-                        <HStack>
-                            <DefText text={HeartLate} />
-                        </HStack>
-                    </HStack>
-                </Box>
-            </ScrollView>
+                            {
+                                bloodPressureAlert != "" &&
+                                
+                                <Box>
+                                
+                                    <Box py={2.5} px={5}  backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
+                                        <HStack alignItems='center' flexWrap='wrap' justifyContent='space-between'>
+                                            
+                                            <Box>
+                                            <DefText text={bloodPressureAlert[0]} style={{fontSize:14,color:'#999'}} />
+                                            </Box>
+                                            {
+                                                bloodPressureAlert[1] != '' &&
+                                                <TouchableOpacity style={{marginTop:10}} onPress={()=>Linking.openURL(bloodPressureAlert[1])}>
+                                                    <DefText text='더보기' style={{fontSize:14,color:'#999'}} />
+                                                </TouchableOpacity>
+                                            }
+                                        </HStack>
+                                    </Box>
+                                </Box>
+                      
+                                
+                            }
+                            <VStack mt={2.5}>
+                                <DefText text='최고혈압' style={styles.BloodPreSmallText} />
+                                
+                                <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
+                                    {
+                                        bloodPressureHigh > -1 && 
+                                        <Box style={[{position:'absolute', bottom:1, left:bloodPressureHigh+'%'}]}>
+                                            <Image source={require('../images/smileIcons.png')} alt='수치' />
+                                        </Box> 
+                                    }
+                                    
+                                    <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
+                                        <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
+                                        <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1, marginLeft:-10}]} />
+                                        <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
+                                        <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1, marginRight:-5}]} />
+                                        <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
+                                    </HStack>
+                                </LinearGradient>
+                                <HStack justifyContent='space-between' height='35px' mt={1} pl={'25px'} pr={'30px'}>
 
+                                    <DefText text='120' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text='130' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text='140' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text='160' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+
+                                </HStack>
+                            </VStack>
+                            <VStack>
+                                <DefText text='최저혈압' style={styles.BloodPreSmallText} />
+                                
+                                <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
+                                    {
+                                        bloodPressureLow > -1 && 
+                                        <Box style={[{position:'absolute', bottom:1, left: bloodPressureLow + '%'}]}>
+                                            <Image source={require('../images/smileIcons.png')} alt='수치' />
+                                        </Box> 
+                                    }
+                                        
+                                    
+                                    
+                                    <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
+                                        <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:2, textAlign:'center'}]} />
+                                        <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
+                                        <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
+                                        <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
+                                    </HStack>
+                                </LinearGradient>
+                                <HStack justifyContent='space-around' height='35px' mt={1}>
+                                    <DefText text=' ' style={[styles.BloodPreText, {color:'#333', flex:2.25}]} />
+                                    <DefText text='80' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text='90' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text='100' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                                    <DefText text=' ' style={[styles.BloodPreText, {color:'#333', flex:1}]} />
+                                </HStack>
+                            </VStack>
+                            <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                                <DefText text='혈압(mmHg)' />
+                                <HStack>
+                                    {
+                                        bloodPressureHighOr > -1 &&
+                                        <DefText text={'수축기 : ' + bloodPressureHighOr} />
+                                    }
+                                    {
+                                        bloodPressureLowOr > -1 &&
+                                        <DefText text={'이완기 : ' + bloodPressureLowOr} style={{marginLeft:10}} />
+                                    }
+                                    
+                                    
+                                </HStack>
+                            </HStack>
+                            {
+                                bloodHeartLate > 0 && 
+                                <HStack mt={2.5} py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                                    <DefText text='심박수(bpm)' />
+                                    <HStack>
+                                        <DefText text={bloodHeartLate} />
+                                    </HStack>
+                                </HStack>
+                            }
+                            
+                        </Box>
+                    </ScrollView>
+                    :
+                    <Box justifyContent='center' alignItems='center'  flex={1}>
+                        <Image source={require('../images/heartRateIcon.png')} alt='체크이미지' />
+                        <DefText text='혈압을 기록하여 건강을 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                        {/* <ActivityIndicator size='large' color='#333' /> */}
+                    </Box>
+                }
+                </>
+                :
+                <Box flex={1} alignItems='center' justifyContent='center'>
+                    <ActivityIndicator size='large' color='#333' />
+                </Box>
+            }
             <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{navigation.navigate('BloodPressureAdd')}} style={[styles.buttonDef]}>
-                   <DefText text='혈당기록 추가' style={styles.buttonDefText} />
+                   <DefText text='혈압기록 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
             </Box>
         </Box>
@@ -152,8 +299,9 @@ const styles = StyleSheet.create({
         color:'#666'
     },
     BloodPreText: {
-        fontSize:14,
-        color:'#fff'
+        fontSize: width > 360 ? 13 : 12,
+        color:'#fff',
+        textAlign:'center'
     },
     buttonDef:{
         height:40,
@@ -168,4 +316,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default BloodPressure;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(BloodPressure);

@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">우리병원</string>
+    <string name="app_name">대표의사</string>
+    <string name="kakao_app_key">8bf14c69ff30f2814723118d34b74f77</string>
 </resources>

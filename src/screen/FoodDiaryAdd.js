@@ -8,6 +8,11 @@ import HeaderComponents from '../components/HeaderComponents';
 import ImagePicker from 'react-native-image-crop-picker';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { textLengthOverCut } from '../common/dataFunction';
 
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
@@ -40,14 +45,108 @@ const {width} = Dimensions.get('window');
 
 const FoodDiaryAdd = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo, route} = props;
+
+    const {params} = route;
+
+
+    const isFocused = useIsFocused();
+
+    const [foods, setFoods] = useState([]);
+    const [foodIdx, setFoodIdx] = useState([]);
+    const [tagDataList, setTagDataList] = useState([]);
+
+    console.log(params);
+
+    useEffect(()=>{
+        //console.log(foods);
+        if(isFocused){
+           
+            //태그
+            if(tagDataList == ''){
+                setTagDataList(params.tagList);
+            }else{
+                setTagDataList(params.tagList)
+            }
+            
+            //음식    
+            if(foods == ''){
+
+                if(Array.isArray(params.foodName)){
+                    setFoods(params.foodName);
+                }else{
+                    setFoods([params.foodName]);
+                }
+
+            }else{
+
+               // console.log('ok',Array.isArray(params.foodName));
+
+                if(foodIdx.includes(params.foods)){
+                    //console.log('이미 있는 파라미터값1');
+                    
+                }else{
+                    
+                    if(Array.isArray(params.foodName)){
+                        setFoods(params.foodName);
+                    }else{
+                        setFoods([...foods, params.foodName]);
+                    }
+                    
+                }
+            }
+
+
+            //음식 인덱스
+            if(foodIdx == ''){
+                if(Array.isArray(params.foods)){
+                    setFoodIdx(params.foods);
+                }else{
+                    setFoodIdx([params.foods]);
+                }
+            }else{
+
+                if(foodIdx.includes(params.foods)){
+                    //console.log('이미 있는 파라미터값2');
+                }else{
+                    if(Array.isArray(params.foods)){
+                        setFoodIdx(params.foods);
+                    }else{
+                        setFoodIdx([...foodIdx, params.foods]);
+                    }
+                        
+                    
+                }
+
+            }
+          
+            
+     
+            
+        }
+    }, [isFocused])
+
+
+
+    //귀리
+    useEffect(()=>{
+        console.log('넘어온 음식정보::',foods, '/ 넘어온 음식정보 idx::' , foodIdx, '태그정보', tagDataList);
+
+    }, [foods, tagDataList]);
+
+
+    const [foodNameInput, setFoodNameInput] = useState('');
+    const foodNameChange = (food) => {
+        setFoodNameInput(food);
+    }
+
 
     const [profileImgs, setProfileImgs] = useState('');
     const _changeProfileImg = () =>{
       // console.log('이미지 변경');
         ImagePicker.openPicker({
-            width: 110,
-            height: 100,
+            width: 400,
+            height: 400,
             cropping: true,
             cropperCircleOverlay: true
           }).then(image => {
@@ -68,6 +167,7 @@ const FoodDiaryAdd = (props) => {
 
     //날짜 선택..
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
+    const [isTimePickerVisible, setTimePickerVisibility] = useState(false);
 
     let today = new Date(); // today 객체에 Date()의 결과를 넣어줬다
     let time = {
@@ -80,7 +180,7 @@ const FoodDiaryAdd = (props) => {
 
     
 
-    let todayText = time.year + '년 ' + time.month + '월 ' + time.date +'일';
+    let todayText = today.format('yyyy-MM-dd');
 
     const [dateTimeText, setDateTimeText] = useState(todayText);
 
@@ -95,13 +195,29 @@ const FoodDiaryAdd = (props) => {
     const handleConfirm = (date) => {
         //console.log("A date has been picked: ", date);
         hideDatePicker();
-        setDateTimeText(date.format("yyyy년 MM월 dd일"))
+        setDateTimeText(date.format("yyyy-MM-dd"))
     };
 
-    const [timeInput, setTimeInput] = useState('');
-    const timeInputChange = (time) => {
-        setTimeInput(time);
-    }
+
+    let todayTimes = today.format('HH:mm');
+
+    const [timeInput, setTimeInput] = useState(todayTimes);
+
+    const showTimePicker = () => {
+        setTimePickerVisibility(true);
+    };
+
+    const hideTimePicker = () => {
+        setTimePickerVisibility(false);
+    };
+
+    const handleConfirmTime = (date) => {
+        //console.log("A date has been picked: ", date);
+        hideTimePicker();
+        setTimeInput(date.format("HH:mm"))
+    };
+
+
 
     const [starSelect, setStarSelect] = useState('');
     const starChange = (star) => {
@@ -113,46 +229,10 @@ const FoodDiaryAdd = (props) => {
     const positionChange = (position) => {
         setPositionSelect(position);
     }
-
-
-    const [foodAddModal, setFoodAddModal] = useState(false);
-
-    const [foodSearch, setFoodSearch] = useState('메밀국수');
-    const foodSearchChange = (sch) => {
-        setFoodSearch(sch);
-    }
-
-    const [foodSearchRes, setFoodSearchRes] = useState([]);
-
-    const foodSearchBtn = () => {
-        if(foodSearch.length == 0){
-            ToastMessage('검색어를 입력하세요.');
-            return false;
-        }
-
-        if(foodSearch == '메밀국수'){
-            setFoodSearchRes(foodSearchData);
-        }
-
-    }
-
-
-    const [foodSelects, setFoodSelects] = useState('');
-    const [foods, setFoods] = useState('');
-
-    const foodSelectBtn = (food, items) => {
-        setFoodSelects(food);
-        
-    }
-
-    useEffect(()=>{
-        if(foodSelects != ''){
-            setFoods(foodSelects);
-        }
-    },[foodSelects])
-
-    const foodSaveBtn = () => {
-        setFoodAddModal(false);
+  
+    const [foodMemo, setFoodMemo] = useState('');
+    const foodMemoChange = (text)=> {
+        setFoodMemo(text);
     }
 
 
@@ -160,9 +240,12 @@ const FoodDiaryAdd = (props) => {
 
     const [selectDisease, setSelectDisease] = useState('');
 
-    const [schText, setSchText] = useState('');
-
     const [tags, setTags] = useState('');
+
+    const [tagInsert, setTagInsert] = useState('');
+    const tagChanges = (tags) => {
+        setTagInsert(tags);
+    }
 
     const diseaseSelectButton = (buttonText) => {
         setSelectDisease('#'+buttonText);
@@ -195,29 +278,127 @@ const FoodDiaryAdd = (props) => {
         setTagVisible(false);
     }
 
-    const diseaseDataList1 = foodCategoryLists.map((item, index)=>{
-        return(
-            <TouchableOpacity key={index} style={[styles.disButton, selectDisease === item && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item)}>
-                <DefText text={'#'+item} style={[styles.disText, selectDisease === item && {color:'#fff'}]} />
-            </TouchableOpacity>
-        )
-    })
 
     const foodDiarySaves = () => {
-        navigation.navigate('FoodDiary');
-        ToastMessage('식단일기가 입력되었습니다.');
+
+        if(!foodNameInput){
+            ToastMessage('음식명을 입력하세요.');
+            return false;
+        }
+
+        if(!dateTimeText){
+            ToastMessage('섭취날짜를 입력하세요.');
+            return false;
+        }
+
+        if(!timeInput){
+            ToastMessage('섭취시간을 입력하세요.');
+            return false;
+        }
+
+        if(!foods){
+            ToastMessage('음식을 선택하세요.');
+            return false;
+        }
+
+        let params = {'id':userInfo.id, 'token':userInfo.appToken, 'foods':"",'tag':"", 'fdate':dateTimeText, 'ftime':timeInput, 'upfile':profileImgs, 'score':starSelect, 'place':positionSelect, 'memo':foodMemo, 'fname':foodNameInput };
+        let newFoods = foods;
+        newFoods.map((e)=>{
+            params.foods += JSON.stringify(e) + "^^";
+        });
+
+        
+        params.tag = tagDataList.join("^");
+     
+        console.log(params);
+        
+        Api.send('food_insert', params, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('식단정보 등록: ', resultItem);
+                
+                ToastMessage(resultItem.message);
+                navigation.navigate('FoodDiary');
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        })        
+
+        //navigation.navigate('FoodDiary');
+        //ToastMessage('식단일기가 입력되었습니다.');
     }
 
-    const foodSearchResults = foodSearchRes.map((item, index)=>{
-        return(
-            <TouchableOpacity onPress={()=>foodSelectBtn(item.foodName, item)} key={index} style={[ index != 0 && {marginTop:10} ]}>
-                <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}, foodSelects === item.foodName && {backgroundColor:'#aaa'} ]} justifyContent='space-between' alignItems='center' px={5}>
-                    <DefText text={item.foodName} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />
-                    <DefText text={item.foodKcal + 'kcal, ' + item.foodSize} style={{fontSize:13,color:'#666'}}/>
-                </HStack>
-            </TouchableOpacity>
-        )
-    })
+  
+    //음식 카운트 +
+    const handleFoodQty = (i) => {
+        //console.log(foods[i]);
+        let newFood = {...foods[i]};
+        newFood.fqty += 0.2;
+        newFood.fqty = Math.round(newFood.fqty*100)/100;
+        newFood.fkcal =  Math.round( (newFood.fqty * newFood.kcalReal) * 100 ) / 100;
+
+        newFood.fcost =  Math.round( (newFood.fqty * newFood.costReal) * 100 ) / 100;
+
+        
+        let newFoods    = [...foods];
+        newFoods[i]     = newFood;
+        setFoods(newFoods);
+
+     
+    }
+
+    //음식 카운트 -
+    const handleFoodQtyMinus = (i) => {
+
+        let newFood = {...foods[i]};
+
+        if(newFood.fqty == 0.2){
+            ToastMessage('더이상 감소할 수 없습니다.');
+            return false;
+        }
+
+        newFood.fqty -= 0.2;
+        newFood.fqty = Math.round(newFood.fqty*100)/100;
+        newFood.fkcal =  Math.round( (newFood.fqty * newFood.kcalReal) * 100 ) / 100;
+
+        newFood.fcost =  Math.round( (newFood.fqty * newFood.costReal) * 100 ) / 100;
+
+        
+        let newFoods    = [...foods];
+        newFoods[i]     = newFood;
+        setFoods(newFoods);
+    }
+
+    //푸드 등록 태그
+    const [foodTagSubmit, setFoodTagSubmit] = useState([]);
+    
+    const foodTagSubmitList = () => {
+        Api.send('food_tagList', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('등록된 태그 정보: ', arrItems);
+                
+                setFoodTagSubmit(arrItems);
+                //console.log(arrItems);
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        });
+    }
+//메밀
+    useEffect(()=>{
+        foodTagSubmitList();
+    }, [])
+
+
+    
 
     return (
         <Box flex={1} backgroundColor='#fff'>
@@ -225,6 +406,21 @@ const FoodDiaryAdd = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <Box>
+                        <DefText text='음식명' style={[styles.reportLabel, {marginBottom:10}]} />
+                        <Input 
+                            placeholder='음식명을 입력하세요'
+                            height='45px'
+                            width='100%'
+                            backgroundColor='transparent'
+                            
+                            //onSubmitEditing={schButtons}
+                            value={foodNameInput}
+                            onChangeText={foodNameChange}
+                            style={{fontSize:14}}
+                            _focus='transparent'
+                        />
+                    </Box>
+                    <Box mt={5} >
                         <Box>
                             <DefText text='대표이미지를 등록해주세요.' style={styles.reportLabel} />
                         </Box>
@@ -233,7 +429,7 @@ const FoodDiaryAdd = (props) => {
                                 <Box alignItems='center'>
                                     {
                                         profileImgs ?
-                                        <Image source={{uri:profileImgs.uri}} alt='이미지 선택' style={{width:70, height:70, borderRadius:35}} resizeMode='contain' />
+                                        <Image source={{uri:profileImgs.uri}} alt='이미지 선택' style={{width:70, height:70, borderRadius:35}} resizeMode='cover' />
                                         :
                                         <Image source={require('../images/noImage.png')} alt='이미지 선택' />
                                     }
@@ -245,7 +441,7 @@ const FoodDiaryAdd = (props) => {
                     <HStack mt={5} justifyContent='space-between'>
                         <Box width={(width-40)*0.47} >
                             <DefText text='일자' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <HStack justifyContent='center' alignItems='center' width='100%' backgroundColor='#ff0' py='5px'  backgroundColor='#f1f1f1' borderRadius={20} >
+                            <HStack justifyContent='space-between' alignItems='center' width='100%' backgroundColor='#ff0' height='45px' py='5px'  backgroundColor='#f1f1f1' borderRadius={20} px={5} >
                                 <DefText text={dateTimeText} style={{fontSize:14}} />
                                 <TouchableOpacity onPress={showDatePicker}>
                                     <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
@@ -254,38 +450,53 @@ const FoodDiaryAdd = (props) => {
                         </Box>
                         <Box width={(width-40)*0.47} >
                             <DefText text='시간' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <Box width='100%' backgroundColor='#ff0'  backgroundColor='#f1f1f1' borderRadius={20}>
-                                <Input
-                                    placeholder='시간입력'
-                                    height='45px'
-                                    width='100%'
-                                    backgroundColor='transparent'
-                                    borderWidth={0}
-                                    //onSubmitEditing={schButtons}
-                                    value={timeInput}
-                                    onChangeText={timeInputChange}
-                                    style={{fontSize:14}}
-                                />
-                            </Box>
+                            <HStack justifyContent='space-between' alignItems='center' width='100%' backgroundColor='#ff0' height='45px' backgroundColor='#f1f1f1' borderRadius={20} px={5} >
+                                <TouchableOpacity onPress={showTimePicker}>
+                                    <DefText text={timeInput} style={{fontSize:14}} />
+                                </TouchableOpacity>
+                            </HStack>
                         </Box>
                     </HStack>
+
+                    {/* onPress={()=>setFoodAddModal(true)} */}
                     <Box mt={5}>
                         <Box>
                             <HStack alignItems='center' justifyContent='space-between' mb={2.5}>
                                 <DefText text='음식명 또는 설명' style={[styles.reportLabel]} />
-                                <TouchableOpacity onPress={()=>setFoodAddModal(true)} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
+                                <TouchableOpacity onPress={()=>navigation.navigate('FoodAdd', {'foodsIdxSend':foodIdx, 'tagList':tagDataList})} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
                                     <DefText text='음식추가' style={{fontSize:13, color:'#fff'}} />
                                 </TouchableOpacity>
                             </HStack>
                            {
                                foods != '' ?
-                               <HStack>
-                                    <Box>
-                                        <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px={5}>
-                                            <DefText text={foods} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />  
-                                        </HStack>
-                                    </Box>
-                                </HStack>
+                               foods.map((item, index)=>{
+
+                                   let costs = foods[index.toString()].fcost;
+                                   costs = Math.floor(costs);
+                                   //costs = Math.costs.floor();
+                                   
+
+
+                                    return (
+                                        <Box key={index} style={[ index != 0 && {marginTop:10} ]}>
+                                            <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px='15px'>
+                                                <DefText text={ textLengthOverCut(item.fname, 10) } style={{fontSize:14, color:'#333', fontWeight:'bold'}} />
+                                                <HStack alignItems='center'>
+                                                    <DefText text={item.fkcal + 'kcal, ' + item.fqty+'인분 '+ costs +item.fstd} style={{fontSize:13,color:'#666', marginRight:10}}/>
+
+                                                    <TouchableOpacity onPress={ ()=>handleFoodQty(index) } style={{marginRight:5}}>
+                                                        <Image source={require('../images/plusFood.png')} alt='음식추가' style={{width:24, height:24, resizeMode:'contain'}} />
+                                                    </TouchableOpacity>
+
+
+                                                    <TouchableOpacity onPress={()=>handleFoodQtyMinus(index)}>
+                                                        <Image source={require('../images/minusFood.png')} alt='음식빼기' style={{width:24, height:24, resizeMode:'contain'}} />
+                                                    </TouchableOpacity>
+                                                </HStack>
+                                            </HStack>
+                                        </Box>
+                                    )
+                                })
                                :
                                 <Box justifyContent='center' alignItems='center' height={50}>
                                     <DefText text='음식을 추가하세요.' style={{fontSize:14, color:'#666'}} />
@@ -298,19 +509,27 @@ const FoodDiaryAdd = (props) => {
                         <Box>
                             <HStack alignItems='center' justifyContent='space-between' mb={2.5}>
                                 <DefText text='태그' style={[styles.reportLabel]} />
-                                <TouchableOpacity onPress={()=>setTagVisible(true)} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
+                                <TouchableOpacity onPress={()=>navigation.navigate('FoodDiaryTag', {'foods':foodIdx, 'foodName':foods})} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
                                     <DefText text='추가' style={{fontSize:13, color:'#fff'}} />
                                 </TouchableOpacity>
                             </HStack>
+                           
                             {
-                                tags != '' ?
-                                
+                                tagDataList ?
                                 <HStack>
-                                    <Box>
-                                        <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px={5}>
-                                            <DefText text={tags} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />  
-                                        </HStack>
-                                    </Box>
+                                {
+                                    tagDataList.map((tag, index)=>{
+                                        return(
+                                            
+                                            <Box key={index} style={[ index != 0 && {marginLeft:10}]}>
+                                                <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px={5}>
+                                                    <DefText text={tag} style={{fontSize:14, color:'#333', fontWeight:'bold'}} />  
+                                                </HStack>
+                                            </Box>
+                                        
+                                        )
+                                    })
+                                }
                                 </HStack>
                                 :
                                 <Box justifyContent='center' alignItems='center' height={50}>
@@ -378,6 +597,7 @@ const FoodDiaryAdd = (props) => {
                                 value={positionSelect}
                                 onChangeText={positionChange}
                                 style={{fontSize:14}}
+                                _focus='transparent'
                             />
                         </Box>
                     </Box>
@@ -392,9 +612,10 @@ const FoodDiaryAdd = (props) => {
                                 multiline={true}
                                 textAlignVertical='top'
                                 //onSubmitEditing={schButtons}
-                                value={positionSelect}
-                                onChangeText={positionChange}
+                                value={foodMemo}
+                                onChangeText={foodMemoChange}
                                 style={{fontSize:14}}
+                                _focus='transparent'
                             />
                         </Box>
                     </Box>
@@ -410,57 +631,13 @@ const FoodDiaryAdd = (props) => {
                 onCancel={hideDatePicker}
             />
 
-            {/* 음식추가 */}
-            <Modal isOpen={foodAddModal} style={{flex:1, backgroundColor:'#fff'}}>
-                <SafeAreaView style={{width:'100%', flex:1}}>
-                <Box >
-                    <HStack height='50px' alignItems='center' style={{borderBottomWidth:1, borderBottomColor:'#e3e3e3'}} >
-                        <Box width={width} height={50} alignItems='center' justifyContent='center' position='absolute' top={0} left={0} >
-                            <DefText text='음식추가' style={{fontSize:20}} />
-                        </Box>
-                        <TouchableOpacity style={{paddingLeft:20}} onPress={()=>{setFoodAddModal(false)}}>
-                            <Image source={require('../images/map_close.png')} alt='닫기' />
-                        </TouchableOpacity>
-                    </HStack>
-                    <ScrollView>
-                        <Box p={5}>
-                            <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
-                                <Input
-                                    placeholder='음식 이름을 입력하세요.'
-                                    height='45px'
-                                    width={width-80}
-                                    backgroundColor='transparent'
-                                    borderWidth={0}
-                                    onSubmitEditing={foodSearchBtn}
-                                    value={foodSearch}
-                                    onChangeText={foodSearchChange}
-                                />
-                                <TouchableOpacity onPress={foodSearchBtn}>
-                                    <Image source={require('../images/schIcons.png')} alt='검색' />
-                                </TouchableOpacity>
-                            </HStack>
-                            <Box mt={5}>
-                                {
-                                    foodSearchRes.length > 0 ?
-                                    foodSearchResults
-                                    :
-                                    <Box justifyContent='center' alignItems='center' height={50}>
-                                        <DefText text='검색된 음식 목록이 없습니다.' style={{fontSize:14, color:'#666'}} />
-                                    </Box>
-                                }
-                            </Box>
-                        </Box>
-                    </ScrollView>
-                    <Box p={2.5} px={5}>
-                        <TouchableOpacity onPress={foodSaveBtn} style={[styles.buttonDef]}>
-                        <DefText text='음식 추가' style={styles.buttonDefText} />
-                        </TouchableOpacity>
-                    </Box>
-                    
-                </Box>
-                </SafeAreaView>
-            </Modal>
-
+            <DateTimePickerModal
+                isVisible={isTimePickerVisible}
+                mode="time"
+                onConfirm={handleConfirmTime}
+                onCancel={hideTimePicker}
+            />
+         
 
             {/* 태그추가 */}
             <Modal isOpen={tagVisible} style={{flex:1, backgroundColor:'#fff'}}>
@@ -468,7 +645,7 @@ const FoodDiaryAdd = (props) => {
                 <Box>
                     <HStack height='50px' alignItems='center' style={{borderBottomWidth:1, borderBottomColor:'#e3e3e3'}} >
                         <Box width={width} height={50} alignItems='center' justifyContent='center' position='absolute' top={0} left={0} >
-                            <DefText text='태그추가' style={{fontSize:20}} />
+                            <DefText text='태그추가' style={{fontSize:20, lineHeight:24}} />
                         </Box>
                         <TouchableOpacity style={{paddingLeft:20}} onPress={()=>{setTagVisible(false)}}>
                             <Image source={require('../images/map_close.png')} alt='닫기' />
@@ -497,15 +674,38 @@ const FoodDiaryAdd = (props) => {
                             <Box mt={5}>
                                 <DefText text='등록태그' />
       
-                                <HStack flexWrap='wrap'>
                                 {
-                                    diseaseDataList1.length>0 && 
-                                    diseaseDataList1
+                                     foodTagSubmit != "" ?
+                                     <HStack flexWrap='wrap'>
+                                         {
+                                             foodTagSubmit.map((item, index)=>{
+                                                return(
+                                                    <TouchableOpacity key={index} style={[styles.disButton, selectDisease === item && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item)}>
+                                                        <DefText text={'#'+item} style={[styles.disText, selectDisease === item && {color:'#fff'}]} />
+                                                    </TouchableOpacity>
+                                                )
+                                             })
+                                         }
+                                     </HStack>
+                                     :
+                                     <Box py={5} alignItems='center' justifyContent='center'>
+                                        <DefText text='등록된 태그가 없습니다.' style={{fontSize:14,color:'#666'}} />
+                                    </Box>
                                 }
-                                </HStack>
+                                
                             </Box>
+                            <Input 
+                                placeholder='등록하실 태그명을 입력하세요..'
+                                height='40px'
+                                width={width-40}
+                                backgroundColor='transparent'
+                                borderWidth={1}
+                                style={{fontSize:14, marginTop:10}}
+                                value={tagInsert}
+                                onChangeText={tagChanges}
+                            />
                             <TouchableOpacity style={[styles.inputEnters]}>
-                                <DefText text='기타질환을 직접 입력해주세요.' />
+                                <DefText text='태그등록' style={{color:'#fff'}} />
                             </TouchableOpacity>
                         </Box>
                     </ScrollView>
@@ -550,7 +750,7 @@ const styles = StyleSheet.create({
         alignItems:'center',
         backgroundColor:'#70A86E',
         borderRadius:10,
-        marginTop:20
+        marginTop:10
     },
     disButton: {
         paddingVertical:5,
@@ -568,4 +768,13 @@ const styles = StyleSheet.create({
     },
 })
 
-export default FoodDiaryAdd;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(FoodDiaryAdd);

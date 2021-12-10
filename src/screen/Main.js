@@ -9,8 +9,11 @@ import {Provider} from 'react-redux';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { SafeAreaView, View, Dimensions, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 
+import Intro from './Intro';
+
 import Login from '../screen/Login';
 import Register from '../screen/Register';
+import RegisterSns from './RegisterSns';
 import PasswordLost from '../screen/PasswordLost';
 import PasswordChange from '../screen/PasswordChange';
 
@@ -57,6 +60,8 @@ import FoodDiary from '../screen/FoodDiary';
 import FoodDiaryList from './FoodDiaryList';
 import FoodDiaryView from './FoodDiaryView';
 import FoodDiaryAdd from './FoodDiaryAdd';
+import FoodDiaryTag from './FoodDiaryTag';
+import FoodAdd from './FoodAdd';
 import CommunityView from '../screen/CommunityView';
 import HealthReport from '../screen/HealthReport';
 import MyDiseaseReport from '../screen/MyDiseaseReport';
@@ -69,9 +74,17 @@ import Inbody from './Inbody';
 import InbodyAdd from './InbodyAdd';
 import AlarmList from './AlarmList';
 import HealthCheckList from './HealthCheckList';
+import Reservation from './Reservation';
+import ReservationAdd from './ReservationAdd';
+import HospitalAdd from './HospitalAdd';
+import ReportWeek from './ReportWeek';
+import FoodReportWeek from './FoodReportWeek';
+import FoodReportMonth from './FoodReportMonth';
 
 import Toast from 'react-native-toast-message';
 import Font from '../common/Font';
+import ClinicViews from '../screen/ClinicViews';
+
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -86,7 +99,7 @@ function CustomTabBar(props){
 
     const {state, navigation, optionsNum} = props;
 
-
+   // console.log('메인::::',props.state.routes[1]);
     //const focusedOptions = descriptors[state.routes[state.index].key];
  
     const screenName = state.routes[state.index].name;
@@ -99,7 +112,12 @@ function CustomTabBar(props){
      }
  
      const navigateToCommunity=()=>{
-         navigation.navigate('Community');
+         //navigation.navigate('Community');
+
+         navigation.navigate('Tab_Navigation', {
+            screen: 'Community',
+            params: ''
+        });
      }
  
      const navigateToChatingList=()=>{
@@ -107,7 +125,7 @@ function CustomTabBar(props){
      }
  
      const navigateToReport = () => {
-         navigation.navigate('Report');
+         navigation.navigate('ReportWeek');
      }
 
      const navigateToMypage = () => {
@@ -117,7 +135,7 @@ function CustomTabBar(props){
 
  
      return(
-         <View style={styles.TabBarMainContainer}>
+         <View style={[styles.TabBarMainContainer]} >
              <TouchableOpacity activeOpacity={0.8} onPress={navigateToHome} style={styles.button}>
                  {
                      screenName === 'Home' ?
@@ -156,7 +174,7 @@ function CustomTabBar(props){
              </TouchableOpacity>
              <TouchableOpacity activeOpacity={0.8} onPress={navigateToReport} style={styles.button}>
                  {
-                     screenName === 'Report' ?
+                     screenName === 'ReportWeek' ?
                      <>
                          <Image source={require('../images/tab04_on.png')} alt='tabon' />
                      </>
@@ -196,7 +214,7 @@ function Tab_Navigation(props){
             <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="Community" component={Community} />
             <Tab.Screen name="ChatingList" component={ChatingList} />
-            <Tab.Screen name="Report" component={Report} />
+            <Tab.Screen name="ReportWeek" component={ReportWeek} />
             <Tab.Screen name="Mypage" component={Mypage} />
         </Tab.Navigator>
     )
@@ -204,6 +222,7 @@ function Tab_Navigation(props){
 
 const Main = (props) => {
 
+    
     const toastConfig = {
         custom_type: (internalState) => (
           <View
@@ -237,14 +256,17 @@ const Main = (props) => {
                     <NavigationContainer >
                         <SafeAreaView style={{flex:1}}>
                             <Stack.Navigator
-                                initialRouteName="Login"
+                                initialRouteName="Intro"
                                 screenOptions={{
                                     headerShown:false,
                                 }}
                             >
+                                <Stack.Screen name="Intro" component={Intro} />
+
                                 <Stack.Screen name="Login" component={Login} />
                                 <Stack.Screen name="Tab_Navigation" component={Tab_Navigation} />
                                 <Stack.Screen name="Register" component={Register} />
+                                <Stack.Screen name="RegisterSns" component={RegisterSns} />
                                 <Stack.Screen name="PasswordLost" component={PasswordLost} />
                                 <Stack.Screen name="PasswordChange" component={PasswordChange} />
                                 <Stack.Screen name="HospitalInfo" component={HospitalInfo} />
@@ -276,12 +298,15 @@ const Main = (props) => {
                                 <Stack.Screen name="BoardView" component={BoardView} />
                                 <Stack.Screen name="Clinic" component={Clinic} />
                                 <Stack.Screen name="ClinicView" component={ClinicView} />
+                                <Stack.Screen name="ClinicViews" component={ClinicViews} />
                                 <Stack.Screen name="OrderForm" component={OrderForm} />
                                 <Stack.Screen name="OrderComplete" component={OrderComplete} />
                                 <Stack.Screen name="FoodDiary" component={FoodDiary} />
                                 <Stack.Screen name="FoodDiaryList" component={FoodDiaryList} />
                                 <Stack.Screen name="FoodDiaryView" component={FoodDiaryView} />
                                 <Stack.Screen name="FoodDiaryAdd" component={FoodDiaryAdd} />
+                                <Stack.Screen name="FoodDiaryTag" component={FoodDiaryTag} />
+                                <Stack.Screen name="FoodAdd" component={FoodAdd} />
                                 <Stack.Screen name="CommunityView" component={CommunityView} />
                                 <Stack.Screen name="HealthReport" component={HealthReport} />
                                 <Stack.Screen name="MyDiseaseReport" component={MyDiseaseReport} />
@@ -297,6 +322,12 @@ const Main = (props) => {
                                 <Stack.Screen name="ChatView" component={ChatView} />
                                 <Stack.Screen name="MedicineAdd" component={MedicineAdd} />
                                 <Stack.Screen name="MedicineView" component={MedicineView} />
+                                <Stack.Screen name="Reservation" component={Reservation} />
+                                <Stack.Screen name="ReservationAdd" component={ReservationAdd} />
+                                <Stack.Screen name="HospitalAdd" component={HospitalAdd} />
+                                <Stack.Screen name="ReportWeek" component={ReportWeek} />
+                                <Stack.Screen name="FoodReportWeek" component={FoodReportWeek} />
+                                <Stack.Screen name="FoodReportMonth" component={FoodReportMonth} />
                                 
                             </Stack.Navigator>
                         </SafeAreaView>

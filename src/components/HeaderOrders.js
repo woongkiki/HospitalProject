@@ -11,7 +11,7 @@ const HeaderOrders = (props) => {
         <Box py={2.5} px={5} shadow={5} backgroundColor='#fff'>
             <HStack justifyContent='space-between' alignItems='center'>
                 <Box></Box>
-                <DefText text={headerTitle} style={{ fontSize:20}} />
+                <DefText text={headerTitle} style={{ fontSize:20, lineHeight:23}} />
                 <Box></Box>
             </HStack>
         </Box>

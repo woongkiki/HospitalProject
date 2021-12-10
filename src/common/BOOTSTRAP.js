@@ -1,11 +1,14 @@
 import React from 'react';
-import { TouchableOpacity, TextInput, Platform } from 'react-native';
+import { TouchableOpacity, TextInput, Platform, Dimensions } from 'react-native';
 import { Box, Text, Image, Input, HStack} from 'native-base';
 import Font from '../common/Font';
 
+
+const {width} = Dimensions.get('window');
+
 export const DefText = ({text, style}) => {
     return (
-        <Text  style={[{fontSize:15, color:'#000'}, style]}>{text}</Text>
+        <Text  style={[{fontSize:width > 360 ? 14 : 13, lineHeight:20,color:'#000', fontFamily:Font.NotoSansRegular}, style]}>{text}</Text>
     )
 }
 

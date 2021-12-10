@@ -11,7 +11,7 @@ const HeaderCommunity = ( props ) => {
 
     return (
         <Box height='45px' px={5} shadow={5} backgroundColor='#fff' justifyContent='center'>
-            <DefText text={headerTitle} style={{fontSize:20, position:'absolute', width:width, textAlign:'center'}} />
+            <DefText text={headerTitle} style={{fontSize:20, lineHeight:23,position:'absolute', width:width, textAlign:'center'}} />
             <HStack justifyContent='space-between' alignItems='center'>
                 <TouchableOpacity
                     onPress={()=>{navigation.goBack()}}

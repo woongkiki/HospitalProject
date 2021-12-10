@@ -9,7 +9,7 @@ class Api {
         
         this.state = {
             isLoading   : false,
-            url         : 'https://cnj06.cafe24.com',
+            url         : 'https://khict0107.cafe24.com',
             path        : '/adm/api/',
             option  : {
                 method: 'POST',

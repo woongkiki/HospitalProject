@@ -16,7 +16,7 @@ const HeaderHospital = ( props ) => {
                 >
                     <Image source={require('../images/headerArr.png')} alt='뒤로가기' />
                 </TouchableOpacity>
-                <DefText text={headerTitle} style={{marginRight:10, fontSize:20}} />
+                <DefText text={headerTitle} style={{marginRight:10, fontSize:20, lineHeight:23}} />
                 <TouchableOpacity>
                     <Image
                         source={require('../images/appStatusIcon.png')}

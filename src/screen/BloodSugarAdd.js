@@ -5,6 +5,9 @@ import HeaderComponents from '../components/HeaderComponents';
 import { DefText, DefInput } from '../common/BOOTSTRAP';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
 
 const {width} = Dimensions.get('window');
 
@@ -37,7 +40,7 @@ Number.prototype.zf = function(len){return this.toString().zf(len);};
 
 const BloodSugarAdd = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
 
     //날짜 선택..
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -53,7 +56,7 @@ const BloodSugarAdd = (props) => {
 
     
 
-    let todayText = time.month + '월 ' + time.date +'일';
+    let todayText = today.format("yyyy-MM-dd");
 
     const [dateTimeText, setDateTimeText] = useState(todayText);
 
@@ -68,7 +71,7 @@ const BloodSugarAdd = (props) => {
     const handleConfirm = (date) => {
         //console.log("A date has been picked: ", date);
         hideDatePicker();
-        setDateTimeText(date.format("MM월 dd일"))
+        setDateTimeText(date.format("yyyy-MM-dd"))
     };
 
     const [select, setSelect] = useState('');
@@ -78,9 +81,43 @@ const BloodSugarAdd = (props) => {
         setBloodSugar(text);
     }
 
+
+    console.log(userInfo);
+
     const SavesBtn = () => {
-        navigation.navigate('BloodSugar');
-        ToastMessage('혈당기록이 입력되었습니다.');
+       // navigation.navigate('BloodSugar');
+        //ToastMessage('혈당기록이 입력되었습니다.');
+        if(!dateTimeText){
+            ToastMessage('측정일자를 입력하세요.');
+            return false;
+        }
+
+        if(!select){
+            ToastMessage('측정시간을 입력하세요.');
+            return false;
+        }
+
+        if(!bloodSugar){
+            ToastMessage('혈당수치를 입력하세요.');
+            return false;
+        }
+
+        
+        Api.send('bloodSugar_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'btime':select, 'level':bloodSugar}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('결과 정보: ', arrItems);
+
+                ToastMessage('혈당정보가 등록되었습니다.');
+                navigation.navigate('BloodSugar');
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        });
     }
 
     return (
@@ -108,9 +145,7 @@ const BloodSugarAdd = (props) => {
                         </Box>
                         <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
                     </HStack>
-                    <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
-                        <DefText text='! 전문의료진께 한번 상담받기를 권해드립니다.' style={{fontSize:14,color:'#999'}} />
-                    </Box>
+
                     <HStack mt={5} p={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between' alignItems='center'>
                         <DefText text='측정일자' />
                         <HStack alignItems='center' >
@@ -131,12 +166,12 @@ const BloodSugarAdd = (props) => {
                                 placeholder='측정시간'
                                 onValueChange={(itemValue) => setSelect(itemValue)}
                             >
-                                <Select.Item label="아침식전" value='아침식전' /> 
-                                <Select.Item label="아침식후" value='아침식후' /> 
-                                <Select.Item label="점심식전" value='점심식전' /> 
-                                <Select.Item label="점심식후" value='점심식후' /> 
-                                <Select.Item label="저녁식전" value='저녁식전' /> 
-                                <Select.Item label="저녁식후" value='저녁식후' /> 
+                                <Select.Item label="아침식전" value='1' /> 
+                                <Select.Item label="아침식후" value='2' /> 
+                                <Select.Item label="점심식전" value='3' /> 
+                                <Select.Item label="점심식후" value='4' /> 
+                                <Select.Item label="저녁식전" value='5' /> 
+                                <Select.Item label="저녁식후" value='6' /> 
 
     
                             </Select>
@@ -191,4 +226,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default BloodSugarAdd;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(BloodSugarAdd);

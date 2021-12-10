@@ -1,18 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import {Box, VStack, Image, Input, CheckIcon, HStack, Select} from 'native-base';
-import { ScrollView, Dimensions, Alert, TouchableOpacity} from 'react-native';
+import {Box, VStack, Image, Input, CheckIcon, HStack, Select, Modal} from 'native-base';
+import { ScrollView, Dimensions, Alert, TouchableOpacity, JSON, SafeAreaView} from 'react-native';
 import {DefText, Button, Button2, DefInput} from '../common/BOOTSTRAP';
 import {email_check, phoneFormat} from '../common/dataFunction';
 import ToastMessage from '../components/ToastMessage';
-
 import HeaderRegister from '../components/HeaderRegister';
+import Api from '../Api';
+import HeaderComponents from '../components/HeaderComponents';
+import ImagePicker from 'react-native-image-crop-picker';
+import Postcode from '@actbase/react-daum-postcode';
+import messaging from '@react-native-firebase/messaging';
 
 const Register = (props) => {
 
     const {navigation} = props;
 
     const {width} = Dimensions.get('window');
-    const halfWidth = width * 0.48 - 48;
+    const halfWidth = (width - 40) * 0.48;
+
+    const [profileImgs, setProfileImgs] = useState('');
+    const _changeProfileImg = () =>{
+        //console.log('이미지 변경');
+        ImagePicker.openPicker({
+            width: 110,
+            height: 110,
+            cropping: true,
+            cropperCircleOverlay: true
+          }).then(image => {
+            //console.log(image);
+
+            const my_photo = {
+                idx : 1,
+                uri : image.path,
+                type : image.mime,
+                data : image.data,
+                name : 'profile_img.jpg'
+            }
+
+            setProfileImgs(my_photo);
+          });
+    }
 
     //e-mail 아이디
     const [emailInput, setEmailInput] = useState('');
@@ -38,6 +65,36 @@ const Register = (props) => {
         setRePasswordInput(password);
     }
 
+    //주소 
+    const [baesongInfo, setBaesongInfo] = useState('');
+    const baesongChange = (baesong) => {
+        setBaesongInfo(baesong);
+    }
+
+    //주소정보
+    const [addrText, setAddrText] = useState('');
+    const addrChange = (addr) => {
+        setAddrText(addr);
+    }
+
+    //추가주소정보
+    const [addrText2, setAddrText2] = useState('');
+    const addrTextChange2 = (addr2) => {
+        setAddrText2(addr2);
+    }
+
+    const addrSumits = (addrZip, addr1) => {
+        setBaesongInfo(addrZip);
+        setAddrText(addr1);
+        //setAddrText2(addr2);
+    }
+
+    //자문번호
+    const [counselNumber, setCounselNumber] = useState('');
+    const counselNumberChange = (number) => {
+        setCounselNumber(number);
+    }
+
     //휴대폰번호 입력
     const [phoneNumber, setPhoneNumber] = useState('');
     const phoneNumberChange = (number) => {
@@ -61,7 +118,14 @@ const Register = (props) => {
 
     const [agree, setAgree] = useState(false);
 
-    const _RegisterCompleteButton = () => {
+
+    const [addrModal, setAddrModal] = useState(false);
+
+
+
+    const _RegisterCompleteButton = async () => {
+
+        const token = await messaging().getToken();
 
         if(!emailInput){
             ToastMessage('이메일을 입력하세요');
@@ -93,17 +157,86 @@ const Register = (props) => {
             return false;
         }
 
-        ToastMessage('회원가입 완료..');
+        if(!baesongInfo){
+            ToastMessage('주소를 입력하세요.');
+            return false;
+        }
+
+        if(!counselNumber){
+            ToastMessage('자문코드를 입력하세요.');
+            return false;
+        }
+
+        if(!phoneNumber){
+            ToastMessage('휴대폰번호를 입력하세요.');
+            return false;
+        }
+
+        if(!birthDay){
+            ToastMessage('생년월일을 입력하세요.');
+            return false;
+        }
+
+        if(!gender){
+            ToastMessage('성별을 선택하세요');
+            return false;
+        }
+
+        if(!joinCode){
+            ToastMessage('가입코드를 입력하세요.');
+            return false;
+        }
+
+        if(!agree){
+            ToastMessage('이용약관에 동의해주세요.');
+            return false;
+        }
+
+        Api.send('member_join', {'id':emailInput, 'password':passwordInput, 'nameInput':nameInput, 'counselNumber':counselNumber,'phoneNumber':phoneNumber, 'birthDay':birthDay, 'gender':gender, 'joinCode':joinCode, 'post':baesongInfo, 'address1':addrText, 'address2': addrText2, 'photo':profileImgs, 'token':token}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('로그인 정보: ', resultItem);
+                ToastMessage(resultItem.message);
+                navigation.goBack();
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+
+        //ToastMessage('회원가입 완료..');
     }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            
+            <HeaderComponents navigation={navigation} headerTitle='회원가입' />
             <ScrollView>
-                <HeaderRegister navigation={navigation} headerText='회원가입' />
-                <Box py={5}>
-                    <VStack px={12}>
+                
+                <Box p={5}>
+                    <VStack >
                         <Box>
+                            <HStack>
+                                <DefText text='프로필 이미지' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            </HStack>
+                            <Box justifyContent='center' alignItems='center' mt={5}>
+                                <TouchableOpacity  onPress={_changeProfileImg}>
+                                    <Box alignItems='center'>
+                                        {
+                                            profileImgs ?
+                                            <Image source={{uri:profileImgs.uri}} alt='이미지 선택' style={{width:100, height:100, borderRadius:50}} resizeMode='contain' />
+                                            :
+                                            <Image source={require('../images/noImage.png')} alt='이미지 선택' />
+                                        }
+                                        
+                                    </Box>
+                                </TouchableOpacity>
+                            </Box>
+                        </Box>
+                        <Box mt={5}>
                             <HStack>
                                 <DefText text='이메일' style={{fontSize:14}} />
                                 <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
@@ -150,6 +283,7 @@ const Register = (props) => {
                                 </Box>
                             </Box>
                         </Box>
+
                         <Box mt={5}>
                             <HStack>
                                 <DefText text='비밀번호 확인' style={{fontSize:14}} />
@@ -169,8 +303,52 @@ const Register = (props) => {
                                         alt='암호화'
                                     />
                                 </Box>
+                                {
+                                    passwordInput!=rePasswordInput &&
+                                    <DefText text='비밀번호가 일치하지 않습니다.' style={{fontSize:12, color:"#f00", marginTop:10}} />
+                                }
                             </Box>
                         </Box>
+
+                        <Box mt={5}>
+                            <HStack>
+                                <DefText text='주소' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            </HStack>
+                            <HStack justifyContent='space-between' mt={2.5}>
+                                <DefInput
+                                    placeholderText='지번'
+                                
+                                    multiline = {false}
+                                    inputValue={baesongInfo}
+                                    onChangeText={baesongChange}
+                                        inputStyle={{width:(width-40)*0.6}}
+                                />
+                                <TouchableOpacity onPress={() => setAddrModal(true)} style={{width:(width-40)*0.37, height:45, alignItems:'center', justifyContent:'center', borderRadius:5, borderWidth:1,borderColor:'#999'}}>
+                                    <DefText text='주소찾기' style={{fontSize:14}} />
+                                </TouchableOpacity>
+                            </HStack>
+                            <Box mt={2.5}>
+                            <DefInput 
+                                placeholderText='상세주소를 입력하세요.'
+                                multiline = {false}
+                                inputValue={addrText}
+                                onChangeText={addrChange}
+                                
+                            />
+                            </Box>
+                            <Box mt={2.5}>
+                            <DefInput 
+                                placeholderText='추가주소를 입력하세요.'
+                                multiline = {false}
+                                inputValue={addrText2}
+                                onChangeText={addrTextChange2}
+                                
+                            />
+                            </Box>
+                        </Box>
+                        
+                        
                         <Box mt={5}>
                             <HStack>
                                 <DefText text='휴대폰번호' style={{fontSize:14}} />
@@ -187,7 +365,7 @@ const Register = (props) => {
                             />
                         </Box>
                         <HStack mt={5} justifyContent='space-between'>
-                            <Box width={halfWidth}>
+                            <Box width={halfWidth + 'px'}>
                                 <HStack>
                                     <DefText text='생년월일' style={{fontSize:14}} />
                                     <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
@@ -202,7 +380,7 @@ const Register = (props) => {
                                     keyboardType='phone-pad'
                                 />
                             </Box>
-                            <Box width={halfWidth}>
+                            <Box width={halfWidth + 'px'}>
                                 <HStack>
                                     <DefText text='성별' style={{fontSize:14}} />
                                     <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
@@ -230,7 +408,24 @@ const Register = (props) => {
                                 onChangeText = {joinCodeChange}
                                 multiline = {false}
                                 inputStyle={{marginTop:15}}
+                                keyboardType='phone-pad'
                             />
+                        </Box>
+                        <Box mt={5}>
+                            <HStack>
+                                <DefText text='자문코드' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            </HStack>
+                            <Box mt='15px'>
+                                <DefInput 
+                                    placeholderText='자문요청시 본인확인을 위한 코드를 입력하세요.'
+                                    inputValue = {counselNumber}
+                                    onChangeText = {counselNumberChange}
+                                    multiline = {false}
+                                    //secureTextEntry={true}
+                                />
+                                
+                            </Box>
                         </Box>
                         <HStack mt={3}>
                             <TouchableOpacity onPress={()=>{setAgree(!agree)}} activeOpacity={1}>
@@ -256,6 +451,30 @@ const Register = (props) => {
                     </VStack>
                 </Box>
             </ScrollView>
+            <Modal isOpen={addrModal} onClose={() => setAddrModal(false)} flex={1}>
+                <SafeAreaView style={{width:'100%', flex:1}}>
+                    <HStack justifyContent='space-between' height='50px' alignItems='center' style={{borderBottomWidth:1, borderBottomColor:'#e3e3e3', backgroundColor:'#fff'}} >
+                        <TouchableOpacity style={{paddingLeft:20}} onPress={()=>{setAddrModal(false)}}>
+                            <Image source={require('../images/map_close.png')} alt='닫기' />
+                        </TouchableOpacity>
+                        <DefText text='다음주소찾기' style={{fontSize:20}} />
+                        <DefText text='' style={{width:40}} />
+                    </HStack>
+
+                    <Postcode
+                    style={{ width: width, height: 320, flex:1 }}
+                    jsOptions={{ animation: true, hideMapBtn: true }}
+                    onSelected={data => {
+                        console.log(data);
+                        addrSumits(data.zonecode, data.address)
+                        setAddrModal(false);
+                    }}
+                    onError={e=>console.log(e)}
+                    />
+
+                </SafeAreaView>
+
+            </Modal>
         </Box>
     );
 };

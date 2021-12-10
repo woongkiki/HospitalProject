@@ -41,8 +41,7 @@ const DiseaseSchedule = (props) => {
     const {params} = route;
     const [par, setPar] = useState({});
 
-    useEffect(async()=>{await setPar(params); await console.log("route.params222 ::: ", par);},[])
-    //console.log('데이터정보...',route);
+    console.log(params);
 
     const [scheduleCate, setScheduleCate] = useState('매일');
 
@@ -78,7 +77,7 @@ const DiseaseSchedule = (props) => {
       minutes: today.getMinutes(), //현재 분
     };
 
-    let todayText = time.year + '년 ' + time.month + '월 ' + time.date +'일';
+    let todayText = today.format("yyyy-MM-dd");
 
     const [dateTimeText, setDateTimeText] = useState(todayText);
     const dateTimeChange = (text) => {
@@ -96,7 +95,7 @@ const DiseaseSchedule = (props) => {
     const handleConfirm = (date) => {
         //console.log("A date has been picked: ", date);
         hideDatePicker();
-        setDateTimeText(date.format("yyyy년 MM월 dd일"))
+        setDateTimeText(date.format("yyyy-MM-dd"))
     };
 
     const [isMedicineDate, setIsMedicineDate] = useState('계속');
@@ -138,8 +137,14 @@ const DiseaseSchedule = (props) => {
             return false;
         }
 
-        //console.log(scheduleText, dateTimeText, isMedicineDate);
-        navigation.replace('MedicineForm2', {diseaseDatas: route.params.diseaseDatas, scheduleText:scheduleText, dateTimeText:dateTimeText, isMedicineDate:isMedicineDate, selectCategory});
+        if(selectCategory.length == 0) {
+            ToastMessage('복약시기를 선택하세요.')
+            return false;
+        }
+
+        console.log(scheduleText, dateTimeText, isMedicineDate, selectCategory);
+        navigation.navigate('MedicineForm2', {'scheduleText':scheduleText, 'dateTimeText':dateTimeText, 'isMedicineDate':isMedicineDate, 'selectCategory':selectCategory, 'selectIdxCategory':selectIdx, 'medicineArray':params.medicineArray, 'medicineIdxArray':params.medicineIdxArray});
+       // navigation.navigate('MedicineForm2', {'diseaseDatas':params.diseaseDatas, 'scheduleText':scheduleText, 'isMedicineDate':isMedicineDate, 'selectCategory':selectCategory, 'medicine':params.medicine});
     }
 
    
@@ -150,13 +155,14 @@ const DiseaseSchedule = (props) => {
 
     const [medicineTimesArr, setMedicineTimesArr] = useState([]);
     const [selectCategory, setSelectCategory] = useState([]);
+    const [selectIdx, setSelectIdx] = useState([]);
 
-    const medicineAdds = (category) => {
+    const medicineAdds = (category, idx) => {
 
         
         let medicineStatus = selectCategory.includes(category);
 
-        console.log(medicineStatus);
+        //console.log(medicineStatus);
 
         if(!medicineStatus){
             selectCategory.push(category);
@@ -169,11 +175,33 @@ const DiseaseSchedule = (props) => {
 
         }
 
-        
         setSelectCategory([...selectCategory])
+
+
+        //////
+        let medicineIdxStatus = selectIdx.includes(idx);
+
+        //console.log(medicineStatus);
+
+        if(!medicineIdxStatus){
+            selectIdx.push(idx);
+        }else{
+            const findIdx2 = selectIdx.find((f) => f === idx);
+            const idxs2 = selectIdx.indexOf(findIdx2);
+
+            selectIdx.splice(idxs2, 1)
+            //console.log(findIdx);
+
+        }
+
+        setSelectIdx([...selectIdx]);
  
         
     }
+
+    useEffect(()=>{
+        console.log(selectIdx);
+    },[selectIdx])
 
 
 
@@ -271,7 +299,7 @@ const DiseaseSchedule = (props) => {
                                 <Box width='78%'>
                                     <Box>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사전') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사전', 1)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사전') && {backgroundColor:'#666'}]}>
                                                 <DefText text='아침식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('아침식사전') && {color:'#fff'} ]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -284,7 +312,7 @@ const DiseaseSchedule = (props) => {
                                     </Box>
                                     <Box mt={2.5}>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사후') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('아침식사후', 2)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('아침식사후') && {backgroundColor:'#666'}]}>
                                                 <DefText text='아침식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('아침식사후') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -298,7 +326,7 @@ const DiseaseSchedule = (props) => {
                                 <Box width='78%'>
                                     <Box>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사전') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사전', 3)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사전') && {backgroundColor:'#666'}]}>
                                                 <DefText text='점심식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('점심식사전') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -311,7 +339,7 @@ const DiseaseSchedule = (props) => {
                                     </Box>
                                     <Box mt={2.5}>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사후') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('점심식사후', 4)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('점심식사후') && {backgroundColor:'#666'}]}>
                                                 <DefText text='점심식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('점심식사후') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -325,7 +353,7 @@ const DiseaseSchedule = (props) => {
                                 <Box width='78%'>
                                     <Box>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사전')}  style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사전') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사전', 5)}  style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사전') && {backgroundColor:'#666'}]}>
                                                 <DefText text='저녁식사 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('저녁식사전') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -338,7 +366,7 @@ const DiseaseSchedule = (props) => {
                                     </Box>
                                     <Box mt={2.5}>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사후')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사후') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('저녁식사후', 6)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('저녁식사후') && {backgroundColor:'#666'}]}>
                                                 <DefText text='저녁식사 후' style={[{fontSize:14,color:'#666'}, selectCategory.includes('저녁식사후') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>
@@ -352,7 +380,7 @@ const DiseaseSchedule = (props) => {
                                 <Box width='78%'>
                                     <Box>
                                         <HStack>
-                                            <TouchableOpacity onPress={()=>medicineAdds('잠들기전')} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('잠들기전') && {backgroundColor:'#666'}]}>
+                                            <TouchableOpacity onPress={()=>medicineAdds('잠들기전', 7)} style={[{paddingVertical:5, paddingHorizontal: 25, backgroundColor:'#f1f1f1', borderRadius:10}, selectCategory.includes('잠들기전') && {backgroundColor:'#666'}]}>
                                                 <DefText text='잠들기 전' style={[{fontSize:14,color:'#666'}, selectCategory.includes('잠들기전') && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         </HStack>

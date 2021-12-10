@@ -6,28 +6,55 @@ import HeaderMedicine from '../components/HeaderMedicine';
 import HeaderComponents from '../components/HeaderComponents';
 import ToastMessage from '../components/ToastMessage';
 import {diseaseDatas1, diseaseDatas2} from '../Utils/DummyData';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+
 
 const {width} = Dimensions.get('window');
 
 const DiseaseSelect = (props) => {
 
-    const {navigation, route} = props;
-    
-    console.log(route);
+    const {navigation, route, userInfo} = props;
 
+    const {params} = route;
+
+    console.log(params);
+    
+    //console.log(userInfo);
+    const [schTextInput, setSchTextInput] = useState('');
     const [schText, setSchText] = useState('');
 
     const schTextChange = (text) => {
-        setSchText(text);
+        setSchTextInput(text);
     }
 
-    const schButtons = () => {
-        if(schText.length==0){
-            console.log('검색어를 입력하세요.');
-            return false;
-        }r
+    const [schDisLoading, setSchDisLoading] = useState(false);
+    const [schDisData, setSchDisData] = useState([]);
 
-        ToastMessage(schText);
+    const schButtons = async () => {
+        if(schTextInput.length==0){
+            ToastMessage('검색어를 입력하세요.');
+            return false;
+        }
+
+        await setSchDisLoading(false);
+        await Api.send('disease_list', {'id':userInfo.id,  'token':userInfo.appToken, 'schText':schTextInput}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('복약 스케줄 정보: ', resultItem);
+                console.log(arrItems);
+                setSchDisData(arrItems);
+                //setReserveList(arrItems)
+            }else{
+                //console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+        await setSchDisLoading(true);
+        //ToastMessage(schText);
     }
 
     const diseaseSelectButton = (buttonText) => {
@@ -35,24 +62,36 @@ const DiseaseSelect = (props) => {
     }
 
     const diseaseDatasSave = () => {
-        navigation.navigate('MedicineForm2', {diseaseDatas:schText, isMedicineDate:route.params.isMedicineDate, scheduleText:route.params.scheduleText, selectCategory:route.params.selectCategory});
+        navigation.navigate('MedicineForm2', {'diseaseDatas':schText, 'scheduleText':params.scheduleText, 'isMedicineDate':params.isMedicineDate, 'selectCategory':params.selectCategory, 'medicine':params.medicine});
     }
 
-    const diseaseDataList1 = diseaseDatas1.map((item, index)=>{
-        return(
-            <TouchableOpacity key={index} style={[styles.disButton, schText === item.diseaseName && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.diseaseName)}>
-                <DefText text={item.diseaseName} style={[styles.disText, schText === item.diseaseName && {color:'#fff'}]} />
-            </TouchableOpacity>
-        )
-    })
+    //콜레라
+    const [diseaseData, setDiseaseData] = useState('');
 
-    const diseaseDataList2 = diseaseDatas2.map((item, index)=>{
-        return(
-            <TouchableOpacity key={index} style={[styles.disButton, schText === item.diseaseName && {backgroundColor:'#666'}]} onPress={()=>diseaseSelectButton(item.diseaseName)}>
-                <DefText text={item.diseaseName} style={[styles.disText, schText === item.diseaseName && {color:'#fff'}]} />
-            </TouchableOpacity>
-        )
-    })
+    const [diseaseAge, setDiseaseAge] = useState('');
+
+    const diseaseAgeHandler = () => {
+        Api.send('disease_age', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('복약 스케줄 정보: ', resultItem);
+                console.log(arrItems.disease);
+                setDiseaseData(arrItems.disease);
+                setDiseaseAge(arrItems.age);
+                //setReserveList(arrItems)
+            }else{
+                //console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+
+    useEffect(()=>{
+        diseaseAgeHandler();
+    },[])
 
     return (
         <Box flex={1} backgroundColor='#fff'>
@@ -61,11 +100,18 @@ const DiseaseSelect = (props) => {
                 <Box p={5}>
                     <Box>
                         <DefText text='선택한 질환' />
-                        <HStack mt={2.5}>
-                            <Box py={1} px={4} backgroundColor='#696968' borderRadius={4}>
-                                <DefText text='2형 당뇨병' style={{fontSize:14, color:'#fff'}} />
-                            </Box>
-                        </HStack>
+                        {
+                            schText ?
+                            <HStack mt={2.5}>
+                                <Box py={1} px={4} backgroundColor='#696968' borderRadius={4}>
+                                    <DefText text={schText} style={{fontSize:14, color:'#fff'}} />
+                                    
+                                </Box>
+                            </HStack>
+                            :
+                            <DefText text='질환을 선택하세요.' style={{fontSize:14, color:'#666', marginTop:10}} />
+                        }
+                        
                     </Box>
                     <Box mt={5}>
                         <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
@@ -76,7 +122,7 @@ const DiseaseSelect = (props) => {
                                 backgroundColor='transparent'
                                 borderWidth={0}
                                 onSubmitEditing={schButtons}
-                                value={schText}
+                                value={schTextInput}
                                 onChangeText={schTextChange}
                             />
                             <TouchableOpacity onPress={schButtons}>
@@ -84,32 +130,47 @@ const DiseaseSelect = (props) => {
                             </TouchableOpacity>
                         </HStack>
                     </Box>
+                    {   //콜레라
+                        schDisData.length > 0 && 
+                        <Box mt={5}>
+                            <HStack alignItems='flex-end'>
+                                <DefText text={schTextInput + '의 질병 검색결과'}/>
+                            </HStack>
+                            <HStack flexWrap='wrap'>
+                                {
+                                    schDisData.map((item, index)=>{
+                                        return(
+                                            <TouchableOpacity key={index} style={[styles.disButton, schText === item.name && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name)}>
+                                                <DefText text={item.name} style={[styles.disText, schText === item.name && {color:'#fff'}]} />
+                                            </TouchableOpacity>
+                                        )
+                                    })
+                                }
+                            </HStack>
+                        </Box>
+                    }
+                    <Box>
+                    </Box>
                     <Box mt={5}>
                         <HStack alignItems='flex-end'>
                             <DefText text='연령별 주요질환' />
-                            <DefText text='만65세 기준' style={{fontSize:13,color:'#999', marginLeft:10}} />
+                            <DefText text={diseaseAge + '대 기준'} style={{fontSize:13,color:'#999', marginLeft:10}} />
                         </HStack>
                         
                         <HStack flexWrap='wrap'>
                         {
-                            diseaseDataList1.length>0 && 
-                            diseaseDataList1
+                            diseaseData.length>0 && 
+                            diseaseData.map((item, index)=>{
+                                return (
+                                    <TouchableOpacity key={index} style={[styles.disButton, schText === item.name && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name)}>
+                                        <DefText text={item.name} style={[styles.disText, schText === item.name && {color:'#fff'}]} />
+                                    </TouchableOpacity>
+                                )
+                            })
                         }
                         </HStack>
                     </Box>
-                    <Box mt={5}>
-                        <HStack alignItems='flex-end'>
-                            <DefText text='유행성 주요질환' />
-                           
-                        </HStack>
-                        
-                        <HStack flexWrap='wrap'>
-                        {
-                            diseaseDataList2.length>0 && 
-                            diseaseDataList2
-                        }
-                        </HStack>
-                    </Box>
+                    
                 </Box>
             </ScrollView>
             <Box p={2.5}>
@@ -128,7 +189,7 @@ const styles = StyleSheet.create({
         borderRadius:10,
         height:30,
         backgroundColor:'#f1f1f1',
-        marginRight:10,
+        marginRight:5,
         marginTop:10
     },
     disText: {
@@ -150,4 +211,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default DiseaseSelect;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(DiseaseSelect);

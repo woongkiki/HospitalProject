@@ -3,10 +3,14 @@ import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet } from 'reac
 import { Box, Image, HStack } from 'native-base';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderDefault from '../components/HeaderDefault';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 
 const Mypage = (props) => {
 
-    const { navigation } = props;
+    const { navigation, userInfo } = props;
+
+    
 
     return (
         <Box flex={1} backgroundColor='#fff'>
@@ -31,18 +35,29 @@ const Mypage = (props) => {
                             <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
                         </HStack>
                     </TouchableOpacity>
-                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>{navigation.navigate('AcountInfo')}} >
+                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>{navigation.navigate('AcountInfo', {'userInfo':userInfo})}} >
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='계정 설정' style={styles.mypageButtonText} />
                             <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
                         </HStack>
                     </TouchableOpacity>
+                    
+                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>{navigation.navigate('Reservation')}}>
+                        <HStack alignItems='center' height='43px' justifyContent='space-between'>
+                            <DefText text='병원 예약 내역' style={styles.mypageButtonText} />
+                            <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                        </HStack>
+                    </TouchableOpacity>
+
                     <TouchableOpacity style={[styles.mypageButton]} onPress={()=>{navigation.navigate('OrderList')}}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='주문 내역' style={styles.mypageButtonText} />
                             <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
                         </HStack>
                     </TouchableOpacity>
+
+
+
                     <TouchableOpacity style={[styles.mypageButton]} onPress={()=>{navigation.navigate('Point')}}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='포인트 내역' style={styles.mypageButtonText} />
@@ -82,4 +97,15 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Mypage;
+
+
+export default connect(
+({ User }) => ({
+    userInfo: User.userInfo, //회원정보
+}),
+(dispatch) => ({
+    member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+    member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+    
+})
+)(Mypage);

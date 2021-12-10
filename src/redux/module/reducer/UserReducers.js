@@ -9,6 +9,7 @@ import {
     MEMBER_PUSH_LIST,
     MEMBER_KEYWORD_LIST,
     WISH_LIST_FLEX,
+    MEMBER_HOSPITAL
   } from '../action/UserAction.js';
   const initialState = {
     userInfo: null, // user
@@ -17,6 +18,7 @@ import {
     user_wish_list_flex: [], // 회원 관신목록 리스트 FLEX
     user_push_info: null, //푸시정보 리스트
     user_keyword_info: null, //키워드 정보
+    user_hospital : null // 병원 회원권 정보
   };
   
   export default (
@@ -24,6 +26,11 @@ import {
     { type, payload, code = '', count = 1 }
   ) => {
     switch (type) {
+      case MEMBER_HOSPITAL:
+        return {
+          ...state,
+          user_hospital: payload,
+        };
       case MEBMER_LOGIN:
         return {
           ...state,

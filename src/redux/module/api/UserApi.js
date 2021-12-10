@@ -7,6 +7,12 @@
  const $http = new ApiManager();
  export default {
    //회원 로그인
+   member_hospital: async (data) => {
+    const url = `${BASE_URL}/adm/api/`;
+    //method : member_sendSms
+    return await $http.multipart(url, data);
+  },
+   //회원 로그인
    member_login: async (data) => {
      const url = `${BASE_URL}/adm/api/`;
      //method : member_sendSms

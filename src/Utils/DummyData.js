@@ -574,19 +574,28 @@ export const dnaReport = [
     {
         
         diseaseName : '고혈압',
-        disParent : 1,
-        disFamily : 1,
+        disGrandFather : 1,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 1,
+        disFamily : 0,
     },
     {
     
         diseaseName : '탈모',
-        disParent : 1,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 1,
+        disParentMom : 1,
         disFamily : 0,
     },
     {
  
         diseaseName : '대장암',
-        disParent : 1,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 1,
         disFamily : 0,
     },
 ]
@@ -595,67 +604,100 @@ export const dnaDataList = [
     {
 
         diseaseName : '고혈압',
-        disParent : 1,
+        disGrandFather : 1,
+        disGrandMother : 1,
+        disParentDaddy : 1,
+        disParentMom : 1,
         disFamily : 1,
     },
     {
        
         diseaseName : '당뇨병',
-        disParent : 0,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 1,
         disFamily : 0,
     },
     {
         
         diseaseName : '고지혈증',
-        disParent : 0,
-        disFamily : 0,
+        disGrandFather : 0,
+        disGrandMother : 1,
+        disParentDaddy : 0,
+        disParentMom : 0,
+        disFamily : 1,
     },
     {
   
         diseaseName : '골다공증',
-        disParent : 0,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
     {
 
         diseaseName : '심장병',
-        disParent : 0,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
     {
    
         diseaseName : '탈모',
-        disParent : 1,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 1,
+        disParentMom : 1,
         disFamily : 0,
     },
     {
     
         diseaseName : '유방암',
-        disParent : 0,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
     {
        
         diseaseName : '대장암',
-        disParent : 1,
+        disGrandFather : 0,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 1,
         disFamily : 0,
     },
     {
    
         diseaseName : '폐암',
-        disParent : 0,
+        disGrandFather : 1,
+        disGrandMother : 1,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
     {
        
         diseaseName : '갑상선암',
-        disParent : 0,
+        disGrandFather : 1,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
     {
 
         diseaseName : '위암',
-        disParent : 0,
+        disGrandFather : 1,
+        disGrandMother : 0,
+        disParentDaddy : 0,
+        disParentMom : 0,
         disFamily : 0,
     },
 ]

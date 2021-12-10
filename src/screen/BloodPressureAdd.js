@@ -1,11 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet } from 'react-native';
-import { Box, VStack, HStack, Image, Select } from 'native-base';
+import { Box, VStack, HStack, Image, Select, Input } from 'native-base';
 import HeaderComponents from '../components/HeaderComponents';
 import { DefText } from '../common/BOOTSTRAP';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
-
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
 
 const {width} = Dimensions.get('window');
 
@@ -38,7 +40,7 @@ Number.prototype.zf = function(len){return this.toString().zf(len);};
 
 const BloodPressureAdd = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
 
 
     //날짜 선택..
@@ -55,7 +57,7 @@ const BloodPressureAdd = (props) => {
 
     
 
-    let todayText = time.month + '월 ' + time.date +'일';
+    let todayText = today.format("yyyy-MM-dd");
 
     const [dateTimeText, setDateTimeText] = useState(todayText);
 
@@ -70,17 +72,62 @@ const BloodPressureAdd = (props) => {
     const handleConfirm = (date) => {
         //console.log("A date has been picked: ", date);
         hideDatePicker();
-        setDateTimeText(date.format("MM월 dd일"))
+        setDateTimeText(date.format("yyyy-MM-dd"))
     };
 
-    const [select1, setSelect1] = useState('100');
-    const [select2, setSelect2] = useState('100');
-    const [select3, setSelect3] = useState('100');
+    const [select1, setSelect1] = useState('');
+    const select1Change = (text) => {
+        setSelect1(text);
+    }
+    const [select2, setSelect2] = useState('');
+    const select2Change = (text) => {
+        setSelect2(text);
+    }
+    
+    const [select3, setSelect3] = useState('');
+    const select3Change = (text) => {
+        setSelect3(text);
+    }
 
 
     const SavesBtn = () => {
-        navigation.navigate('BloodPressure');
-        ToastMessage('혈압기록이 입력되었습니다.');
+       // navigation.navigate('BloodPressure');
+        //ToastMessage('혈압기록이 입력되었습니다.');
+        if(!dateTimeText){
+            ToastMessage('측정일자를 입력하세요.');
+            return false;
+        }
+
+        if(!select1){
+            ToastMessage('수축기 측정 값을 입력하세요.');
+            return false;
+        }
+
+        if(!select2){
+            ToastMessage('이완기 측정 값을 입력하세요.');
+            return false;
+        }
+
+        if(!select3){
+            ToastMessage('심박수 측정 값을 입력하세요.');
+            return false;
+        }
+
+        Api.send('bloodPressure_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'high':select1, 'low':select2, 'heartRate':select3}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('결과 정보: ', arrItems);
+
+                ToastMessage(resultItem.message);
+                navigation.navigate('BloodPressure');
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        });
     }
 
 
@@ -121,61 +168,53 @@ const BloodPressureAdd = (props) => {
                     <Box mt={5}>
                         <HStack alignItems='center' justifyContent='space-between'>
                             <DefText text='수축기(mmHg)' style={styles.selectLabel} />
-                            <Select
-                                selectedValue={select1} 
-                                width={200}
-                                height={46}
-                                backgroundColor='#fff'
-                                placeholder='수축기'
-                                onValueChange={(itemValue) => setSelect1(itemValue)}
-                            >
-                                <Select.Item label="100" value='100' />
-                                <Select.Item label="90" value='90' />
-                                <Select.Item label="80" value='80' />
-                                <Select.Item label="70" value='70' />
-                                <Select.Item label="60" value='60' />
-    
-                            </Select>
+                            <Input 
+                                 placeholder='수축기를 입력하세요.'
+                                 height='45px'
+                                 width={width * 0.5}
+                                 backgroundColor='transparent'
+                                 _focus='transparent'
+                                 //onSubmitEditing={schButtons}
+                                 value={select1}
+                                 onChangeText={select1Change}
+                                 style={{fontSize:14}}
+                                 keyboardType='number-pad'
+                            />
+                            
                         </HStack>
                     </Box>
                     <Box mt={5}>
                         <HStack alignItems='center' justifyContent='space-between'>
                             <DefText text='이완기(mmHg)' style={styles.selectLabel} />
-                            <Select
-                                selectedValue={select2} 
-                                width={200}
-                                height={46}
-                                backgroundColor='#fff'
-                                placeholder='수축기'
-                                onValueChange={(itemValue) => setSelect2(itemValue)}
-                            >
-                                <Select.Item label="100" value='100' />
-                                <Select.Item label="90" value='90' />
-                                <Select.Item label="80" value='80' />
-                                <Select.Item label="70" value='70' />
-                                <Select.Item label="60" value='60' />
-    
-                            </Select>
+                            <Input 
+                                 placeholder='이완기를 입력하세요.'
+                                 height='45px'
+                                 width={width * 0.5}
+                                 backgroundColor='transparent'
+                                 _focus='transparent'
+                                 //onSubmitEditing={schButtons}
+                                 value={select2}
+                                 onChangeText={select2Change}
+                                 style={{fontSize:14}}
+                                 keyboardType='number-pad'
+                            />
                         </HStack>
                     </Box>
                     <Box mt={5}>
                         <HStack alignItems='center' justifyContent='space-between'>
                             <DefText text='심박수(bpm)' style={styles.selectLabel}  />
-                            <Select
-                                selectedValue={select3} 
-                                width={200}
-                                height={46}
-                                backgroundColor='#fff'
-                                placeholder='수축기'
-                                onValueChange={(itemValue) => setSelect3(itemValue)}
-                            >
-                                <Select.Item label="100" value='100' />
-                                <Select.Item label="90" value='90' />
-                                <Select.Item label="80" value='80' />
-                                <Select.Item label="70" value='70' />
-                                <Select.Item label="60" value='60' />
-    
-                            </Select>
+                            <Input 
+                                 placeholder='심박수를 입력하세요.'
+                                 height='45px'
+                                 width={width * 0.5}
+                                 backgroundColor='transparent'
+                                 _focus='transparent'
+                                 //onSubmitEditing={schButtons}
+                                 value={select3}
+                                 onChangeText={select3Change}
+                                 style={{fontSize:14}}
+                                 keyboardType='number-pad'
+                            />
                         </HStack>
                     </Box>
                 </Box>
@@ -225,4 +264,13 @@ const styles = StyleSheet.create({
     }
 })
 
-export default BloodPressureAdd;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(BloodPressureAdd);

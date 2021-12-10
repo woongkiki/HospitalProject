@@ -1,15 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Box, VStack, HStack, Image, Modal } from 'native-base';
-import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View } from 'react-native';
+import { Box, VStack, HStack, Image, Modal, CheckIcon } from 'native-base';
+import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, ActivityIndicator } from 'react-native';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderMedicine from '../components/HeaderMedicine';
-
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+import { useFocusEffect } from '@react-navigation/native';
+import ToastMessage from '../components/ToastMessage';
 
 const {width} = Dimensions.get('window');
 
 const Medicine = (props) => {
 
-    const { navigation } = props;
+    const { navigation, userInfo } = props;
+
+    //console.log(userInfo);
+
+
+    const [medicineLoading, setMedicineLoading] = useState(false);
 
     const [medicineModal, setMedicineModal] = useState(false);
 
@@ -19,112 +28,546 @@ const Medicine = (props) => {
 
     const MedicineFormReplace = async () => {
         await setMedicineModal(false);
-        await navigation.navigate('MedicineForm');
+        await navigation.navigate('MedicineForm', {'dateTimeText':'', 'scheduleText':'', 'isMedicineDate':'', 'selectCategory':'', 'selectIdxCategory':''});
     }
 
     const MedicineFormReplace2 = async () => {
         await setMedicineModal(false);
-        await navigation.navigate('MedicineForm2');
+        await navigation.navigate('MedicineForm2',{'diseaseDatas':'', 'scheduleText':'', 'isMedicineDate':'', 'selectCategory':'', 'medicine':'', 'medicineIdx':''});
     }
+
+    //복약순응동 전체
+    const [drugSchedulePercent, setSchedulePercent] = useState('');
+
+    //복약 리스트
+    const [drugScheduleData, setDrugScheduleData] = useState('');
+
+    //아침
+    const [drugScheduleMoringBefore, setDrugScheduleMorningBefore] = useState([]);
+    const [drugScheduleMoringAfter, setDrugScheduleMorningAfter] = useState([]);
+
+    //점심
+    const [drugScheduleLunchBefore, setDrugScheduleLunchBefore] = useState([]);
+    const [drugScheduleLunchAfter, setDrugScheduleLunchAfter] = useState([]);
+
+    //저녁
+    const [drugScheduleDinnerBefore, setDrugScheduleDinnerBefore] = useState([]);
+    const [drugScheduleDinnerAfter, setDrugScheduleDinnerAfter] = useState([]);
+
+    //잠들기 전
+    const [drugScheduleNightBefore, setDrugScheduleNightBefore] = useState([]);
+
+
+    //email@email.com
+    const drugScheduleHandler = async () => {
+        await setMedicineLoading(false);
+        await Api.send('drug_percent', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('복약 스케줄 정보: ', arrItems);
+                setSchedulePercent(arrItems);
+                
+                console.log(arrItems);
+            }else{
+                console.log('결과 출력 실패!1', resultItem);
+               
+            }
+        });
+
+        await Api.send('drug_schedule', {'id':userInfo.id,  'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('복약 스케줄 정보: ', arrItems);
+                setDrugScheduleData(arrItems);
+                
+                console.log(arrItems);
+            }else{
+                console.log('결과 출력 실패!2', resultItem);
+               
+            }
+        });
+
+        await setMedicineLoading(true);
+    }
+    
+
+    useEffect(()=>{
+        drugScheduleHandler();
+    }, [])
+
+
+    useEffect(()=>{
+       // setDrugScheduleMorningBefore(drugScheduleData[1]);
+       setDrugScheduleMorningBefore(drugScheduleData[1]);
+       setDrugScheduleMorningAfter(drugScheduleData[2]);
+
+       setDrugScheduleLunchBefore(drugScheduleData[3]);
+       setDrugScheduleLunchAfter(drugScheduleData[4]);
+
+       setDrugScheduleDinnerBefore(drugScheduleData[5]);
+       setDrugScheduleDinnerAfter(drugScheduleData[6]);
+
+       setDrugScheduleNightBefore(drugScheduleData[7]);
+
+        
+    }, [drugScheduleData])
+
+   useEffect(()=>{
+       // console.log(drugSchedulePercent);    
+   }, [drugSchedulePercent])
+
+
+   useFocusEffect(
+        React.useCallback(()=>{
+            // screen is focused
+            drugScheduleHandler();
+
+            return () => {
+                // screen is unfocused
+                console.log('포커스 nono');
+            };
+        },[])
+    );
 
 
     const navigationMove = () => {
         navigation.navigate('Tab_Navigation', {
             screen: 'Community',
-            
+            params: 'drug'
         });
+    }
+
+    const [medicineCheckModal, setMedicineCheckModal] = useState(false);
+    const [checkDatas, setCheckDatas] = useState('');
+
+
+    const drugDataCheck = (item) => {
+
+        if(item.check){
+            ToastMessage('이미 복약체크된 약입니다.');
+            return false;
+        }
+        //console.log('아침식전 데이터', item);
+        setCheckDatas(item);
+        setMedicineCheckModal(true);
+    }
+
+
+    useEffect(()=>{
+        console.log(checkDatas);
+
+        
+
+    }, [checkDatas])
+
+
+    const medicineCheckSubmit = () => {
+        
+        Api.send('drug_check', {'id':userInfo.id,  'token':userInfo.appToken, 'sidx':checkDatas.sidx, 'timer':checkDatas.timer}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('복약 스케줄 정보: ', arrItems);
+             
+                ToastMessage(resultItem.message);
+                setMedicineCheckModal(false);
+                drugScheduleHandler();
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               
+            }
+        });
+        
     }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderMedicine navigation={navigation} headerTitle='복약관리' medicineList={MedicineListButton} />
-            <ScrollView>
-                <Box px={5} py={5}>
-                    <HStack height='150px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
-                        <Box width={(width * 0.65) + 'px'}>
-                            <DefText text='약먹기이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='약을 잘먹으면 큰병을 예방할 수 있습니다.' style={{fontSize:15}} />
-                            <TouchableOpacity
-                                style={{
-                                    width:100,
-                                    height:30,
-                                    backgroundColor:'#696968',
-                                    borderRadius:10,
-                                    alignItems:'center',
-                                    justifyContent:'center',
-                                    marginTop:20
-                                }}
-                                onPress={navigationMove}
-                            >
-                                <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
-                            </TouchableOpacity>
+            {
+                medicineLoading ? 
+                <>
+                    {
+                        drugScheduleData == '' ?
+                        <Box justifyContent='center' alignItems='center' flex={1}>
+                            <Image source={require('../images/medicineIconsG.png')} alt={'복약을 관리하세요'} />
+                            <DefText text='복약사항을 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                            {/* <ActivityIndicator size='large' color='#333' /> */}
                         </Box>
-                        <Image source={require('../images/checkIcons.png')} alt='복약관리체크' />
-                    </HStack>
-                    <Box mt={5} backgroundColor='#F1F1F1' borderRadius='30px' height='30px' justifyContent='center' px={4} >
-                        <DefText text='복약순응도 (전체) : 88%' style={{fontSize:14,color:'#696968'}} />
-                    </Box>
-                    <VStack mt={8}>
-                        <Box> 
-                            <HStack>
-                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
-                                    <DefText text='8:00 AM' style={{fontSize:12, color:'#77838F'}} />
-                                </Box>
-                                <Box width='70%'>
-                                    <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
-                                        <HStack alignItems='center'>
-                                            <Image source={require('../images/medicineIcon1.png')} alt='약 복용' />
-                                            <Box style={{marginLeft:15}}>
-                                                <DefText text='대들보의원 처방약' style={{fontSize:14}} />
-                                                <DefText text='2형 당뇨병' style={{fontSize:14, color:'#77838F'}} />
-                                            </Box>
-                                        </HStack>
-                                        
+                        :
+                        <ScrollView>
+                            <Box p={5}>
+                                <HStack height='150px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                                    <Box width={(width * 0.65) + 'px'}>
+                                        <DefText text='약먹기이야기' style={{fontSize:16, fontWeight:'bold'}} />
+                                        <DefText text='약을 잘먹으면 큰병을 예방할 수 있어요.' style={{fontSize:15}} />
+                                        <TouchableOpacity
+                                            style={{
+                                                width:100,
+                                                height:30,
+                                                backgroundColor:'#696968',
+                                                borderRadius:10,
+                                                alignItems:'center',
+                                                justifyContent:'center',
+                                                marginTop:20
+                                            }}
+                                            onPress={navigationMove}
+                                        >
+                                            <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                        </TouchableOpacity>
                                     </Box>
-                                    <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
-                                        <HStack alignItems='center'>
-                                            <Image source={require('../images/medicineIcon1.png')} alt='약 복용' />
-                                            <Box style={{marginLeft:15}}>
-                                                <DefText text='대들보의원 처방약' style={{fontSize:14}} />
-                                                <DefText text='2형 당뇨병' style={{fontSize:14, color:'#77838F'}} />
-                                            </Box>
-                                        </HStack>
-                                        
-                                    </Box>
+                                    <Image source={require('../images/checkIcons.png')} alt='복약관리체크' />
+                                </HStack>
+                                <Box mt={5} backgroundColor='#F1F1F1' borderRadius='30px' height='30px' justifyContent='center' px={4} >
+                                    <DefText text={'복약순응도 (전체) : ' + drugSchedulePercent.percent + '%'} style={{fontSize:14,color:'#696968'}} />
                                 </Box>
-                            </HStack>
+                
+                                <VStack>
+                                    <Box>
+                                        {/* 아침 식전 */}
+                                        {
+                                            /* 아침식전 */
+                                            drugScheduleMoringBefore &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%' flexWrap='wrap'>
+                                                {
+                                                    drugScheduleMoringBefore.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' flexWrap='wrap' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                        
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
+                                        {/* 아침 */}
+                                        <HStack alignItems='center' justifyContent='space-between' mt={5}>
+                                            <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
+                                                <DefText text='8:00 AM' style={{fontSize:12, color:'#77838F'}} />
+                                            </Box>
+                                            <HStack width='72%' alignItems='center'>
+                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                                <DefText text={drugScheduleData[1.5]} style={{fontSize:14, color:'#666'}} />
+                                            </HStack>
+                                        </HStack>
+                                        {
+                                            /* 아침식후 */
+                                            drugScheduleMoringAfter &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleMoringAfter.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
 
-                            <HStack mt={5} paddingBottom={5}>
-                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
-                                    <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
-                                </Box>
-                                <Box width='70%'>
-                                    <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} >
-                                        <HStack alignItems='center'>
-                                            <Image source={require('../images/medicineIcon1.png')} alt='약 복용' />
-                                            <Box style={{marginLeft:15}}>
-                                                <DefText text='대들보의원 처방약' style={{fontSize:14}} />
-                                                <DefText text='2형 당뇨병' style={{fontSize:14, color:'#77838F'}} />
-                                            </Box>
-                                        </HStack>
-                                        
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
                                     </Box>
-                                    <Box p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
-                                        <HStack alignItems='center'>
-                                            <Image source={require('../images/medicineIcon2.png')} alt='약 복용' />
-                                            <Box style={{marginLeft:15}}>
-                                                <DefText text='항생제' style={{fontSize:14}} />
-                                                <DefText text='1 capsule, (50 mg)' style={{fontSize:14, color:'#77838F'}} />
+                                    <Box>
+                                        {/* 점심 */}
+                                        {/* 점심 식전 */}
+                                        {
+                                            /* 점심 식전 */
+                                            drugScheduleLunchBefore &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleLunchBefore.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
+                                        <HStack alignItems='center' justifyContent='space-between' mt={5}>
+                                            <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
+                                                <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
                                             </Box>
+                                            <HStack width='72%' alignItems='center'>
+                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                                <DefText text={drugScheduleData[3.5]} style={{fontSize:14, color:'#666'}} />
+                                            </HStack>
                                         </HStack>
-                                        
+                                        {/* 점심 식후 */}
+                                        {
+                                            /* 점심 식후 */
+                                            drugScheduleLunchAfter &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleLunchAfter.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
                                     </Box>
-                                </Box>
-                            </HStack>
-                        </Box>
-                    </VStack>
+                                    <Box>
+                                        {/* 저녁 식전 */}
+                                        {
+                                            /* 저녁 식후 */
+                                            drugScheduleDinnerBefore &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleDinnerBefore.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
+                                        <HStack alignItems='center' justifyContent='space-between' mt={5}>
+                                            <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
+                                                <DefText text='6:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                            </Box>
+                                            <HStack width='72%' alignItems='center'>
+                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
+                                                <DefText text={drugScheduleData[5.5]} style={{fontSize:14, color:'#666'}} />
+                                            </HStack>
+                                        </HStack>
+                                        {
+                                            /* 저녁 식후 */
+                                            drugScheduleDinnerAfter &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleDinnerAfter.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
+                                    </Box>
+                                    <Box>
+                                        {/* 잠들기 전 */}
+                                        {
+                                            /* 잠들기 전 */
+                                            drugScheduleNightBefore &&
+                                            <HStack justifyContent='flex-end'>
+                                                <Box width='72%'>
+                                                {
+                                                    drugScheduleNightBefore.map((item, index)=>{
+                                                        return(
+                                                            <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
+                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                    <HStack alignItems='center' justifyContent='space-between'>
+                                                                        <Box width='25%'>
+                                                                            {
+                                                                                item.type == 'P' ?
+                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                :
+                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                            }
+                                                                        
+                                                                        </Box>
+                                                                        <Box style={{marginLeft:0, width:'70%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                            <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        </Box>
+                                                                        {
+                                                                            item.check && 
+                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
+                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            </Box>
+                                                                        }
+                                                                    </HStack>
+                                                                </Box>
+                                                            </TouchableOpacity>
+                                                        )
+                                                        })
+                                                    }
+                                                </Box>
+                                            </HStack>
+                                        }
+                                        <HStack alignItems='center' justifyContent='space-between' mt={5} >
+                                            <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
+                                                <DefText text='11:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                            </Box>
+                                            <HStack width='72%' alignItems='center' backgroundColor='#f1f1f1' p={2.5} borderRadius={5}>
+                                                
+                                                <DefText text={'잠들기 전'} style={{fontSize:14, color:'#666'}} />
+                                            </HStack>
+                                        </HStack>
+                                    </Box>
+                                </VStack>
+                            </Box>
+                        </ScrollView>
+                    }
+                    
+                </>
+                :
+                <Box flex={1} alignItems='center' justifyContent='center'>
+                    <ActivityIndicator size='large' color='#333' />
                 </Box>
-            </ScrollView>
+            }
+           
+
             <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{setMedicineModal(!medicineModal)}} style={[styles.buttonDef]}>
                    <DefText text='복약관리 추가' style={styles.buttonDefText} />
@@ -139,7 +582,7 @@ const Medicine = (props) => {
                         조제약과 건강보조식품 중{'\n'}
                         어떤 것을 기록하실 건가요?
                         </Text>
-                        <VStack px={10}>
+                        <VStack px={8}>
                             <TouchableOpacity style={styles.modalButtons} onPress={MedicineFormReplace2}>
                                 <DefText text='조제약(의사 처방이 필요한 약)' style={styles.modalButtonsText} />
                             </TouchableOpacity>
@@ -147,6 +590,28 @@ const Medicine = (props) => {
                                 <DefText text='건강보조식품(영양제)' style={styles.modalButtonsText} />
                             </TouchableOpacity>
                         </VStack>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
+
+            <Modal isOpen={medicineCheckModal} onClose={() => setMedicineCheckModal(false)}>
+            
+                <Modal.Content maxWidth={width-40}>
+                    <Modal.Body>
+                        {
+                            checkDatas != '' && 
+                            <Box justifyContent='center' alignItems='center' mb={2.5}>
+                                <DefText text={checkDatas.time_str + '의 약을 섭취하셨나요?'} />
+                            </Box>
+                        }
+                        <HStack justifyContent='space-between'>
+                            <TouchableOpacity style={[styles.modalButtons, {width:(width-80) * 0.45}]} onPress={medicineCheckSubmit}>
+                                <DefText text='예' style={styles.modalButtonsText} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={[styles.modalButtons, {width:(width-80) * 0.45}]} onPress={()=>setMedicineCheckModal(false)}>
+                                <DefText text='아니오' style={styles.modalButtonsText} />
+                            </TouchableOpacity>
+                        </HStack>
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
@@ -180,4 +645,14 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Medicine;
+
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        
+    })
+)(Medicine);

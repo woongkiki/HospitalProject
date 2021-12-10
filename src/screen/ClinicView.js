@@ -14,7 +14,7 @@ const ClinicView = (props) => {
 
     const {params} = route;
 
-    console.log(params);
+    //console.log(params);
 
     const [viewCates, setViewCates] = useState('');
 
@@ -24,21 +24,11 @@ const ClinicView = (props) => {
 
     useEffect(()=>{
         if(params != undefined){
-            setViewCates(params.category.split(','))
-            setIsPrice(params.price);
-            setIsPriceFix(params.price);
+            //setViewCates(params.category.split(','))
+            setIsPrice(params.conprice);
+            setIsPriceFix(params.sellprice);
         }
     },[])
-
-   //console.log(viewCates);
-
-   const viewCateList = params.category.split(',').map((item, index)=>{
-       return(
-            <Box key={index} style={styles.clinicCate}>
-                <DefText text={item} style={styles.clinicCateText} />
-            </Box>
-       )
-   })
 
    const [sellModal, setSellModal] = useState(false);
 
@@ -65,36 +55,8 @@ const ClinicView = (props) => {
        
    }
 
-   const _optionSelect = (options, optionPrice) => {
-        setCheckBox(options)
-        setIsPrice(isPrice + optionPrice);
-        setSelectOptionPrice(optionPrice)
-   }
+   
 
-   const optionList = params.option.map((item, index)=> {
-
-       return(
-           <Box key={index}>
-                <HStack  style={[ index != 0 && {marginTop:10} ]} justifyContent='space-between'>
-                    <TouchableOpacity onPress={()=>{_optionSelect(item.optionName, item.optionPrice)}} activeOpacity={0.9}>
-                        <HStack alignItems='center'>
-                                <Box style={[{width:20, height:20, borderWidth:1, justifyContent:'center', borderColor:'#999', alignItems:'center', borderRadius:3}, checkbox == item.optionName && {borderColor:'#f00'}]}>
-                                    {
-                                        checkbox == item.optionName && 
-                                        <CheckIcon width={12} color='#f00' />
-                                    }
-                                    
-                                </Box>
-                                <DefText text={item.optionName} style={{fontSize:14, color:'#333', marginLeft:10}} />
-                            </HStack>
-                    </TouchableOpacity>
-                    <Box>
-                        <DefText text={ "+" + numberFormat(item.optionPrice) + "원"} style={{fontSize:14, color:'#333', marginLeft:10}} />
-                    </Box>
-                </HStack>
-           </Box>
-       )
-   })
 
     return (
         <Box flex={1} backgroundColor='#fff'>
@@ -112,12 +74,12 @@ const ClinicView = (props) => {
                     <Box mt='5px' alignItems='flex-end'>
                         <DefText text={'회원가 ' + numberFormat(params.price) + '원'} style={styles.price} />
                     </Box>
-                    {
+                    {/* {
                         params.category != '' &&
                         <HStack>
                             {viewCateList}
                         </HStack>
-                    }
+                    } */}
                     
                     <Box mt={2.5}>
                         <DefText text={params.commentOne} style={styles.clinicViewText} />
@@ -137,7 +99,7 @@ const ClinicView = (props) => {
             
                 <Modal.Content maxWidth={width-40}>
                     <Modal.Body>
-                        {
+                        {/* {
                             params.option.length > 0 && 
                             <Box mb={5}>
                                 <DefText text='옵션 추가' style={{fontSize:16, marginBottom:20, color:'#000', fontWeight:'bold'}} />
@@ -145,7 +107,7 @@ const ClinicView = (props) => {
                                     {optionList}
                                 </VStack>
                             </Box>
-                        }
+                        } */}
                         
                         <Box >
                             <HStack justifyContent='space-between'>

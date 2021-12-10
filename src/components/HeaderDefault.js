@@ -5,6 +5,7 @@ import { DefText } from '../common/BOOTSTRAP';
 
 const {width} = Dimensions.get('window');
 
+
 const HeaderDefault = ( props ) => {
 
     const {navigation, headerTitle} = props;
@@ -14,7 +15,7 @@ const HeaderDefault = ( props ) => {
             <HStack justifyContent='space-between' alignItems='center'>
 
                 <Box width={width - 40 + 'px'}  alignItems='center' position='absolute' left={0}>
-                <DefText text={headerTitle} style={{fontSize:20}} />
+                <DefText text={headerTitle} style={{fontSize:20, lineHeight:23}} />
                 </Box>
                 <TouchableOpacity onPress={()=>{navigation.navigate('AlarmList')}}>
                     <Image

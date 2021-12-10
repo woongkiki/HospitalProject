@@ -5,15 +5,208 @@ import { DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import {dnaDataList, dnaReport} from '../Utils/DummyData';
 import ToastMessage from '../components/ToastMessage';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
+import Api from '../Api';
+
 
 const {width} = Dimensions.get('window');
 
 const DnaSelect = (props) => {
 
-    const {navigation} = props;
+    const {navigation, userInfo} = props;
 
 
     const [dnaDatas, setDnaDatas] = useState(dnaReport);
+
+
+    const [dnaDataLists, setDnaDataLists] = useState('');
+
+    const DnaDataReceive = () => {
+        Api.send('member_familyDisease', {'id':userInfo.id, 'token':userInfo.appToken}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+               console.log('내 정보123: ', arrItems);
+
+               setDnaDataLists(arrItems);
+               
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    useEffect(()=>{
+        DnaDataReceive();
+    }, [])
+
+
+    const DnaAddButton = (i) => {
+        let newDnaLists = [...dnaDataLists];
+        let newDna = {...dnaDataLists[i]};
+
+        //console.log('선택...',newDna.value);
+
+        let arr = newDna.value.split(',');
+        //console.log("arr:::::",arr);
+        let str = "";
+
+        //console.log(arr.includes('1'));
+
+        let arrStatus = arr.includes('1');
+        let arrStatusNull = arr.includes('');
+
+        if(arrStatus){
+            
+            const findIdx = arr.find((e) => e === '1'); // 배열에 같은값이 있으면 출력
+            const idxs = arr.indexOf(findIdx);
+
+            arr.splice(idxs, 1)
+            //arr.splice(index,1);
+        }else{
+           
+            if(arrStatusNull){
+                arr = [];
+                arr.push('1');
+            }else{
+                arr.splice(0, 0, '1');
+            }
+        }
+
+       // console.log("arr변화후::;", arr);
+         str = arr.join(',');
+         newDnaLists[i].value = str;
+         console.log("str::::",newDnaLists);
+         setDnaDataLists([...newDnaLists])
+        // arr.map((e,index)=>{
+            
+        //     if(e == value){
+        //         console.log("index",index);
+        //         arr.splice(index,1);
+        //     }
+        // });
+    }
+
+    const DnaAddButtonDad = (i) => {
+        let newDnaLists = [...dnaDataLists];
+        let newDna = {...dnaDataLists[i]};
+
+        //console.log('선택...',newDna.value);
+
+        let arr = newDna.value.split(',');
+        //console.log("arr:::::",arr);
+        let str = "";
+
+        //console.log(arr.includes('1'));
+
+        let arrStatus = arr.includes('2');
+        let arrStatusNull = arr.includes('');
+
+        if(arrStatus){
+            
+            const findIdx = arr.find((e) => e === '2'); // 배열에 같은값이 있으면 출력
+            const idxs = arr.indexOf(findIdx);
+
+            arr.splice(idxs, 1)
+            //arr.splice(index,1);
+        }else{
+           
+            if(arrStatusNull){
+                arr = [];
+                arr.push('2');
+            }else{
+                arr.splice(1, 0, '2');
+            }
+        }
+
+       // console.log("arr변화후::;", arr);
+         str = arr.join(',');
+         newDnaLists[i].value = str;
+         console.log("str::::",newDnaLists);
+         setDnaDataLists([...newDnaLists])
+    }
+
+    const DnaAddButtonMom = (i) => {
+        let newDnaLists = [...dnaDataLists];
+        let newDna = {...dnaDataLists[i]};
+
+        //console.log('선택...',newDna.value);
+
+        let arr = newDna.value.split(',');
+        //console.log("arr:::::",arr);
+        let str = "";
+
+        //console.log(arr.includes('1'));
+
+        let arrStatus = arr.includes('3');
+        let arrStatusNull = arr.includes('');
+
+        if(arrStatus){
+            
+            const findIdx = arr.find((e) => e === '3'); // 배열에 같은값이 있으면 출력
+            const idxs = arr.indexOf(findIdx);
+
+            arr.splice(idxs, 1)
+            //arr.splice(index,1);
+        }else{
+           
+            if(arrStatusNull){
+                arr = [];
+                arr.push('3');
+            }else{
+                arr.splice(2, 0, '3');
+            }
+        }
+
+       // console.log("arr변화후::;", arr);
+         str = arr.join(',');
+         newDnaLists[i].value = str;
+         console.log("str::::",newDnaLists);
+         setDnaDataLists([...newDnaLists])
+    }
+
+    const DnaAddButtonBro = (i) => {
+        let newDnaLists = [...dnaDataLists];
+        let newDna = {...dnaDataLists[i]};
+
+        //console.log('선택...',newDna.value);
+
+        let arr = newDna.value.split(',');
+        //console.log("arr:::::",arr);
+        let str = "";
+
+        //console.log(arr.includes('1'));
+
+        let arrStatus = arr.includes('4');
+        let arrStatusNull = arr.includes('');
+
+        if(arrStatus){
+            
+            const findIdx = arr.find((e) => e === '4'); // 배열에 같은값이 있으면 출력
+            const idxs = arr.indexOf(findIdx);
+
+            arr.splice(idxs, 1)
+            //arr.splice(index,1);
+        }else{
+           
+            if(arrStatusNull){
+                arr = [];
+                arr.push('4');
+            }else{
+                arr.splice(3, 0, '4');
+            }
+        }
+
+       // console.log("arr변화후::;", arr);
+         str = arr.join(',');
+         newDnaLists[i].value = str;
+         console.log("str::::",newDnaLists);
+         setDnaDataLists([...newDnaLists])
+    }
 
     // const dnaParentButton = (disNames) => {
 
@@ -22,26 +215,38 @@ const DnaSelect = (props) => {
         
     //     console.log(disNameInfo);
     //     console.log(disNames.diseaseParent);
+
+
+    const DnaInfoSave = () => {
+
+
+        console.log(dnaDataLists.join('^'));
+        let newArr = dnaDataLists;
+        let tmpArr = [];
+        newArr.map((e)=>{
+            tmpArr.push(JSON.stringify(e));
+        })
+        
+        Api.send('member_familyDiseaseSet', {'id':userInfo.id, 'token':userInfo.appToken, "disease":tmpArr.join('^')}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+
+            if(resultItem.result === 'Y' && arrItems) {
+               console.log('내 정보123: ', arrItems);
+
+               setDnaDataLists(arrItems);
+               navigation.navigate('HealthReport');
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+            //console.log(args);
+        });
+    }
     // }
 
-    const dnaReportData = dnaDataList.map((item, index)=> {
-
-        return(
-            <Box key={index} mt={2.5}>
-                <HStack justifyContent='space-between' alignItems='center' px={2.5} pl={4} style={styles.dnaDisName}>
-                    <DefText text={item.diseaseName} style={styles.dnaTitle} />
-                    <HStack>
-                        <TouchableOpacity style={[styles.dnaSelectButton, {marginRight:5}, item.disParent === 1 && {backgroundColor:'#666'}]}>
-                            <DefText text='부모' style={[styles.dnaSelectButtonText]} />
-                        </TouchableOpacity>
-                        <TouchableOpacity style={[styles.dnaSelectButton, item.disFamily === 1 && {backgroundColor:'#666'}]}>
-                            <DefText text='형제자매' style={[styles.dnaSelectButtonText]}  />
-                        </TouchableOpacity>
-                    </HStack>
-                </HStack>
-            </Box>
-        )       
-    })
+    
 
     return (
         <Box flex={1} backgroundColor='#fff'>
@@ -57,14 +262,37 @@ const DnaSelect = (props) => {
                     </HStack>
                     <Box mt={5}>
                         <DefText text='가족력 질환기록' style={styles.reportDataText} />
-                        <VStack>
-                            {dnaReportData}
-                        </VStack>
+                        {
+                            dnaDataLists != '' &&
+                            dnaDataLists.map((item, index)=> {
+                                return (
+                                    <Box key={index} mt={2.5}>
+                                        <HStack justifyContent='space-between' alignItems='center' px={2.5} pl={4} style={styles.dnaDisName}>
+                                            <DefText text={item.key} style={styles.dnaTitle} />
+                                            <HStack>
+                                                <TouchableOpacity onPress={()=>DnaAddButton(index)} style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('1') && {backgroundColor:'#666'}]}>
+                                                    <DefText text='조부모' style={[styles.dnaSelectButtonText]} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={()=>DnaAddButtonDad(index)} style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('2') && {backgroundColor:'#666'}]}>
+                                                    <DefText text='부' style={[styles.dnaSelectButtonText]} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={()=>DnaAddButtonMom(index)} style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('3') && {backgroundColor:'#666'}]}>
+                                                    <DefText text='모' style={[styles.dnaSelectButtonText]} />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity onPress={()=>DnaAddButtonBro(index)} style={[styles.dnaSelectButton, item.value.includes('4') && {backgroundColor:'#666'}]}>
+                                                    <DefText text='형제자매' style={[styles.dnaSelectButtonText]}  />
+                                                </TouchableOpacity>
+                                            </HStack>
+                                        </HStack>
+                                    </Box>
+                                )
+                            })
+                        }
                     </Box>
                 </Box>
             </ScrollView>
             <Box p={2.5}>
-                <TouchableOpacity style={styles.medicineButtons}>
+                <TouchableOpacity onPress={DnaInfoSave} style={styles.medicineButtons}>
                     <DefText text='저장' style={styles.medicineButtonsText} />
                 </TouchableOpacity>
             </Box>
@@ -118,4 +346,13 @@ const styles = StyleSheet.create({
     },
 });
 
-export default DnaSelect;
+export default connect(
+    ({ User }) => ({
+        userInfo: User.userInfo, //회원정보
+    }),
+    (dispatch) => ({
+        member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+        member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        member_logout: (user) => dispatch(UserAction.member_logout(user)), //로그아웃
+    })
+)(DnaSelect);
