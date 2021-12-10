@@ -1,13 +1,16 @@
 # 대표의사 프로젝트
 
-yarn 명령어로 전체 패키지 설치
-설치 후 ios의 경우 cd ios && pod install
+yarn 명령어로 전체 패키지 설치<br>
+설치 후 ios의 경우 cd ios && pod install<br>
 
 안드로이드 시뮬레이터 실행 yarn android<br>
 ios 시뮬레이터 실행 yarn ios<br>
 
 
 # node module 수정본
+
+gift-chat 커스텀 부분이 node 모듈을 새로 다운할 때 마다 원래 코드로 초기화 됨으로<br>
+아래 경로에 다음 코드를 입력
 
 # react-native-gifted-chat ⇒ lib⇒ Bubble.js
 
