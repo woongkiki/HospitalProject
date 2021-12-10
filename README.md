@@ -9,7 +9,7 @@ yarn 명령어로 전체 패키지 설치
 
 # node module 수정본
 
-# react-native-gifted-chat ⇒ lib⇒ Bubble.js
+# react-native-gifted-chat ⇒ lib⇒ Bubble.js (gift-chat 채팅 말풍선 변경)
 
 ```JS
 import PropTypes from "prop-types";
@@ -30,7 +30,7 @@ import MessageAudio from "./MessageAudio";
 import Time from "./Time";
 import Color from "./Color";
 import { StylePropType, isSameUser, isSameDay } from "./utils";
-import Font from "../../../src/common/Font";
+import Font from "../../../src/common/Font"; //사용하는 폰트가 있다면
 
 const styles = {
   left: StyleSheet.create({
@@ -461,4 +461,117 @@ Bubble.propTypes = {
     right: StylePropType,
   }),
 };
+```
+
+# react-native-gifted-chat ⇒ lib ⇒ Day.js (gift-chat 날짜형식 변경)
+
+```JS
+    import PropTypes from 'prop-types';
+    import React, { PureComponent } from 'react';
+    import { Platform, StyleSheet, Text, View } from 'react-native';
+    import dayjs from 'dayjs';
+    import Color from './Color';
+    import { StylePropType, isSameDay } from './utils';
+    import { DATE_FORMAT } from './Constant';
+    import moment from 'moment';
+    import Font from '../../../src/common/Font'; //사용하는 폰트가 있다면
+    import { black } from 'react-native-paper/lib/typescript/styles/colors';
+
+    const styles = StyleSheet.create({
+    container: {
+        alignItems    : 'center',
+        justifyContent: 'center',
+        marginTop     : 20,
+        marginBottom  : 15,
+    },
+    text: {
+        backgroundColor : Color.backgroundTransparent,
+        color           : Color.defaultColor,
+        fontSize        : 10,
+        fontFamily      : Font.NotoSansLight,
+    },
+    wrapper : {
+        borderWidth     :0.3,
+        borderColor     :'grey',
+        paddingHorizontal:15,
+        borderRadius    :50,
+        paddingVertical : Platform.OS === 'ios' ? 5 : 0,
+    }
+    });
+    //요일 계산
+    const getTodayLabel = (data) => {
+    var week = new Array('일', '월', '화', '수', '목', '금', '토');
+    var today = new Date(data).getDay();
+    var todayLabel = week[today];
+    return todayLabel + '요일';
+    };
+
+    export default class Day extends PureComponent {
+    render() {
+        const {
+        dateFormat,
+        currentMessage,
+        previousMessage,
+        containerStyle,
+        wrapperStyle,
+        textStyle,
+        } = this.props;
+        const date = moment(currentMessage.createdAt); // Thursday Feb 2015
+        const dow = date.day();
+        if (currentMessage && !isSameDay(currentMessage, previousMessage)) {
+        return (
+            <View style={[styles.container, containerStyle]}>
+            <View style={[styles.wrapper, wrapperStyle]}>
+                <Text style={[styles.text, textStyle]}>
+                {moment(currentMessage.createdAt).format('YYYY년 M월 D일 ')}
+                {dow === 1
+                    ? '월요일'
+                    : dow === 2
+                    ? '화요일'
+                    : dow === 3
+                    ? '수요일'
+                    : dow === 4
+                    ? '목요일'
+                    : dow === 5
+                    ? '금요일'
+                    : dow === 6
+                    ? '토요일'
+                    : dow === 7 && '일요일'}
+                {/* {dayjs(currentMessage.createdAt)
+                    .locale(this.context.getLocale())
+                    .format(dateFormat)} */}
+                </Text>
+            </View>
+            </View>
+        );
+        }
+        return null;
+    }
+    }
+    Day.contextTypes = {
+    getLocale: PropTypes.func,
+    };
+    Day.defaultProps = {
+    currentMessage: {
+        createdAt: null,
+    },
+    previousMessage: {},
+    nextMessage: {},
+    containerStyle: {},
+    wrapperStyle: {},
+    textStyle: {},
+    dateFormat: DATE_FORMAT,
+    };
+    Day.propTypes = {
+    currentMessage: PropTypes.object,
+    previousMessage: PropTypes.object,
+    nextMessage: PropTypes.object,
+    inverted: PropTypes.bool,
+    containerStyle: StylePropType,
+    wrapperStyle: StylePropType,
+    textStyle: StylePropType,
+    dateFormat: PropTypes.string,
+    };
+    //# sourceMappingURL=Day.js.map
+
 ```
