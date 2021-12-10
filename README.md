@@ -463,7 +463,7 @@ Bubble.propTypes = {
 };
 ```
 
-# react-native-gifted-chat ⇒ lib ⇒ Day.js (gift-chat 날짜형식 변경)
+# react-native-gifted-chat ⇒ lib ⇒ Day.js (gift-chat 날짜형식 변경 1)
 
 ```JS
     import PropTypes from 'prop-types';
