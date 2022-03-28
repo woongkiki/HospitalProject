@@ -14,6 +14,7 @@
 		4548B64EFDBE6377FC563256 /* libPods-HospitalProject-HospitalProjectTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AC3D3C84168D77D185BEAFD4 /* libPods-HospitalProject-HospitalProjectTests.a */; };
 		4F6983F69DCB43C08BFD0648 /* libPods-HospitalProject.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C404A4C8D8844F0E941D955 /* libPods-HospitalProject.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
+		E0152E3027BCBDAB008ED766 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E0152E2F27BCBDAB008ED766 /* Assets.xcassets */; };
 		E0906883273A535500E48742 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = E0906882273A535500E48742 /* Fonts */; };
 		E0CEA804275F318A00F21074 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = E0CEA803275F318A00F21074 /* GoogleService-Info.plist */; };
 		E0F64259276081360014CB70 /* SwiftBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0F64258276081360014CB70 /* SwiftBridge.swift */; };
@@ -46,10 +47,12 @@
 		AC3D3C84168D77D185BEAFD4 /* libPods-HospitalProject-HospitalProjectTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HospitalProject-HospitalProjectTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5F6C7EDB85A8202C6F383A0 /* Pods-HospitalProject-HospitalProjectTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HospitalProject-HospitalProjectTests.debug.xcconfig"; path = "Target Support Files/Pods-HospitalProject-HospitalProjectTests/Pods-HospitalProject-HospitalProjectTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DC113863BC11A9BCBFD78853 /* Pods-HospitalProject-HospitalProjectTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-HospitalProject-HospitalProjectTests.release.xcconfig"; path = "Target Support Files/Pods-HospitalProject-HospitalProjectTests/Pods-HospitalProject-HospitalProjectTests.release.xcconfig"; sourceTree = "<group>"; };
+		E0152E2F27BCBDAB008ED766 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E0906882273A535500E48742 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
 		E0CEA803275F318A00F21074 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		E0F64257276081360014CB70 /* HospitalProject-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "HospitalProject-Bridging-Header.h"; sourceTree = "<group>"; };
 		E0F64258276081360014CB70 /* SwiftBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftBridge.swift; sourceTree = "<group>"; };
+		E0FC5ED727671FA40063CC2D /* HospitalProject.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = HospitalProject.entitlements; path = HospitalProject/HospitalProject.entitlements; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -93,6 +96,7 @@
 		13B07FAE1A68108700A75B9A /* HospitalProject */ = {
 			isa = PBXGroup;
 			children = (
+				E0FC5ED727671FA40063CC2D /* HospitalProject.entitlements */,
 				E0F64258276081360014CB70 /* SwiftBridge.swift */,
 				E0CEA803275F318A00F21074 /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
@@ -125,6 +129,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				E0152E2F27BCBDAB008ED766 /* Assets.xcassets */,
 				E0906882273A535500E48742 /* Fonts */,
 				13B07FAE1A68108700A75B9A /* HospitalProject */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
@@ -232,6 +237,9 @@
 				Base,
 			);
 			mainGroup = 83CBB9F61A601CBA00E9B192;
+			packageReferences = (
+				E0E7165527EDF96A00D62626 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */,
+			);
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -258,6 +266,7 @@
 				E0CEA804275F318A00F21074 /* GoogleService-Info.plist in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
+				E0152E3027BCBDAB008ED766 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -460,6 +469,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = JHJFK5FN2Y;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -489,6 +499,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				COPY_PHASE_STRIP = NO;
+				DEVELOPMENT_TEAM = JHJFK5FN2Y;
 				INFOPLIST_FILE = HospitalProjectTests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -513,13 +524,18 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_ENTITLEMENTS = HospitalProject/HospitalProject.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.2;
+				DEVELOPMENT_TEAM = JHJFK5FN2Y;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = HospitalProject/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -527,6 +543,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = HospitalProject;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "HospitalProject-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -540,12 +557,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 1;
+				CODE_SIGN_ENTITLEMENTS = HospitalProject/HospitalProject.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1.0.2;
+				DEVELOPMENT_TEAM = JHJFK5FN2Y;
 				INFOPLIST_FILE = HospitalProject/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 2.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -553,6 +575,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = HospitalProject;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "HospitalProject-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -608,7 +631,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -666,7 +689,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					/usr/lib/swift,
 					"$(inherited)",
@@ -713,6 +736,17 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E0E7165527EDF96A00D62626 /* XCRemoteSwiftPackageReference "kakao-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao/kakao-ios-sdk";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
 	};
 	rootObject = 83CBB9F71A601CBA00E9B192 /* Project object */;
 }

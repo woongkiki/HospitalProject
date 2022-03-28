@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>HospitalProject</string>
+	<string>대표의사 – 평생 함께하는 의사</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -17,19 +17,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.942377152347-ktpk61j1icv1r81s6omhqj59j26jmk86</string>
-			</array>
-		</dict>
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
@@ -40,36 +32,23 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>KAKAO_APP_KEY</key>
 	<string>8bf14c69ff30f2814723118d34b74f77</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
-	  <string>kakaokompassauth</string>
-	  <string>storykompassauth</string>
-	  <string>kakaolink</string>
+		<string>kakaokompassauth</string>
+		<string>storykompassauth</string>
+		<string>kakaolink</string>
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>localhost</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-			</dict>
-		</dict>
-	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow access to your camera</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>대표의사에서 프로필 이미지 또는 음식 이미지 등록에 사용하기 위해서 카메라 및 갤러리 권한이 필요합니다.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>대표의사에서 프로필 이미지 또는 음식 이미지 등록에 사용하기 위해서 카메라 및 갤러리 권한이 필요합니다.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to your photo gallery</string>
+	<string>대표의사에서 프로필 이미지 또는 음식 이미지 등록에 사용하기 위해서 카메라 및 갤러리 권한이 필요합니다.</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Fonts/NotoSansKR-Black.otf</string>
