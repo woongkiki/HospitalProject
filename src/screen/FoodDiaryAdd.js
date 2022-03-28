@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Box, VStack, HStack, Image, Input, Select, Modal } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
-import {DefInput, DefText} from '../common/BOOTSTRAP';
+import {DefInput, DefText, SaveButton} from '../common/BOOTSTRAP';
 import HeaderFood from '../components/HeaderFood';
 import { foodCategory, foodLists, foodSearchData, diseaseDatas1, diseaseDatas2, foodCategoryLists } from '../Utils/DummyData';
 import HeaderComponents from '../components/HeaderComponents';
@@ -13,6 +13,8 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import Api from '../Api';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { textLengthOverCut } from '../common/dataFunction';
+import Font from '../common/Font';
+import { fontFamily } from 'styled-system';
 
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
@@ -144,6 +146,31 @@ const FoodDiaryAdd = (props) => {
     const [profileImgs, setProfileImgs] = useState('');
     const _changeProfileImg = () =>{
       // console.log('이미지 변경');
+        // ImagePicker.openPicker({
+        //     width: 400,
+        //     height: 400,
+        //     cropping: true,
+        //     cropperCircleOverlay: true
+        //   }).then(image => {
+        //     //console.log(image);
+
+        //     const my_photo = {
+        //         idx : 1,
+        //         uri : image.path,
+        //         type : image.mime,
+        //         data : image.data,
+        //         name : 'profile_img.jpg'
+        //     }
+
+        //     setProfileImgs(my_photo);
+        //   });
+
+        setProfileImageModal(true);
+    }
+
+    const [profileImageModal, setProfileImageModal] = useState(false);
+
+    const gallerySelect = () => {
         ImagePicker.openPicker({
             width: 400,
             height: 400,
@@ -161,9 +188,31 @@ const FoodDiaryAdd = (props) => {
             }
 
             setProfileImgs(my_photo);
+            setProfileImageModal(false);
           });
     }
 
+    const cameraSelect = () => {
+        ImagePicker.openCamera({
+            width: 400,
+            height: 400,
+            cropping: true,
+            cropperCircleOverlay: true
+          }).then(image => {
+            console.log(image);
+
+            const my_photo = {
+                idx : 1,
+                uri : image.path,
+                type : image.mime,
+                data : image.data,
+                name : 'profile_img.jpg'
+            }
+
+            setProfileImgs(my_photo);
+            setProfileImageModal(false);
+          });
+    }
 
     //날짜 선택..
     const [isDatePickerVisible, setDatePickerVisibility] = useState(false);
@@ -307,8 +356,7 @@ const FoodDiaryAdd = (props) => {
             params.foods += JSON.stringify(e) + "^^";
         });
 
-        
-        params.tag = tagDataList.join("^");
+        if(tagDataList) params.tag = tagDataList.join("^");
      
         console.log(params);
         
@@ -398,25 +446,53 @@ const FoodDiaryAdd = (props) => {
     }, [])
 
 
-    
+    const [delFoodModal, setDelFoodModal] = useState(false);
+    const [delFoodSelect, setDelFoodSelect] = useState('');
+    const foodSelectRemove = (item) => {
+
+        //foods 값 삭제
+        const categoryFilter = foods.filter((e, index)=>{
+            return e !== item;
+        });
+        setFoods(categoryFilter);
+
+
+        //foodIdx 값 삭제
+        const categoryFilterIdx = foodIdx.filter((e, index)=>{
+            return e !== item.fidx;
+        });
+        setFoodIdx(categoryFilterIdx);
+
+
+        ////
+        // console.log('삭제할 음식 선택',item);
+        // console.log(foods, foodIdx);
+        // console.log('음식 ㄱ', foods.includes(item));
+        // console.log('categoryFilterIdx',categoryFilterIdx);
+        // console.log('categoryFilter',categoryFilter);
+    }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='식단일기' navigation={navigation} />
             <ScrollView>
-                <Box p={5}>
+                <Box p={5} paddingBottom='100px'>
                     <Box>
-                        <DefText text='음식명' style={[styles.reportLabel, {marginBottom:10}]} />
+                        <HStack>
+                            <DefText text='음식명' style={[styles.reportLabel, {marginBottom:10}]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                        </HStack>
                         <Input 
                             placeholder='음식명을 입력하세요'
+                            placeholderTextColor={'#a3a3a3'}
                             height='45px'
                             width='100%'
                             backgroundColor='transparent'
-                            
+                            borderRadius={10}
                             //onSubmitEditing={schButtons}
                             value={foodNameInput}
                             onChangeText={foodNameChange}
-                            style={{fontSize:14}}
+                            style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, foodNameInput.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                             _focus='transparent'
                         />
                     </Box>
@@ -440,19 +516,28 @@ const FoodDiaryAdd = (props) => {
                     </Box>
                     <HStack mt={5} justifyContent='space-between'>
                         <Box width={(width-40)*0.47} >
-                            <DefText text='일자' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <HStack justifyContent='space-between' alignItems='center' width='100%' backgroundColor='#ff0' height='45px' py='5px'  backgroundColor='#f1f1f1' borderRadius={20} px={5} >
-                                <DefText text={dateTimeText} style={{fontSize:14}} />
+                            <HStack>
+                                <DefText text='일자' style={[styles.reportLabel, {marginBottom:10}]} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                            </HStack>
+                            <HStack justifyContent='space-between' alignItems='center' width='100%'  height='45px' py='5px'  backgroundColor='#f1f1f1' borderRadius={10} px={5} >
+                                <DefText text={dateTimeText} style={{fontSize:16, fontFamily:Font.NotoSansMedium}} />
                                 <TouchableOpacity onPress={showDatePicker}>
-                                    <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
+                                    <Image source={require('../images/carlendarNew.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
                                 </TouchableOpacity>
                             </HStack>
                         </Box>
                         <Box width={(width-40)*0.47} >
-                            <DefText text='시간' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <HStack justifyContent='space-between' alignItems='center' width='100%' backgroundColor='#ff0' height='45px' backgroundColor='#f1f1f1' borderRadius={20} px={5} >
-                                <TouchableOpacity onPress={showTimePicker}>
-                                    <DefText text={timeInput} style={{fontSize:14}} />
+                            <HStack>
+                                <DefText text='시간' style={[styles.reportLabel, {marginBottom:10}]} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                            </HStack>
+                            <HStack justifyContent='space-between' alignItems='center' width='100%'  height='45px' backgroundColor='#f1f1f1' borderRadius={10} >
+                                <TouchableOpacity onPress={showTimePicker} style={{width:'100%'}} >
+                                    <HStack alignItems={'center'} justifyContent='space-between' px={5} pr='10px'>
+                                        <DefText text={timeInput} style={{fontSize:16, fontFamily:Font.NotoSansMedium}} />
+                                        <Image source={require('../images/timeIcons.png')} alt='측정시간' style={{width:26, height:26, resizeMode:'contain'}} />
+                                    </HStack>
                                 </TouchableOpacity>
                             </HStack>
                         </Box>
@@ -462,9 +547,16 @@ const FoodDiaryAdd = (props) => {
                     <Box mt={5}>
                         <Box>
                             <HStack alignItems='center' justifyContent='space-between' mb={2.5}>
-                                <DefText text='음식명 또는 설명' style={[styles.reportLabel]} />
-                                <TouchableOpacity onPress={()=>navigation.navigate('FoodAdd', {'foodsIdxSend':foodIdx, 'tagList':tagDataList})} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
-                                    <DefText text='음식추가' style={{fontSize:13, color:'#fff'}} />
+                                <HStack>
+                                    <DefText text='음식데이터' style={[styles.reportLabel]} />
+                                    <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                                </HStack>
+                                <TouchableOpacity onPress={()=>navigation.navigate('FoodAdd', {'foodsIdxSend':foodIdx, 'tagList':tagDataList})} >
+                                    {/* <DefText text='음식추가' style={{fontSize:13, color:'#fff'}} /> */}
+                                    <Image source={require('../images/smallAddNew.png')} style={{width:61, height:29, resizeMode:'contain'}} alt='추가' />
+                                    <Box style={{width:61, height:29,position:'absolute', top:0, left:0, justifyContent:'center', paddingLeft:25}}>
+                                        <DefText text='추가' style={{fontSize:15, lineHeight:21,fontFamily:Font.NotoSansMedium}} />
+                                    </Box>
                                 </TouchableOpacity>
                             </HStack>
                            {
@@ -479,27 +571,37 @@ const FoodDiaryAdd = (props) => {
 
                                     return (
                                         <Box key={index} style={[ index != 0 && {marginTop:10} ]}>
-                                            <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px='15px'>
-                                                <DefText text={ textLengthOverCut(item.fname, 10) } style={{fontSize:14, color:'#333', fontWeight:'bold'}} />
-                                                <HStack alignItems='center'>
-                                                    <DefText text={item.fkcal + 'kcal, ' + item.fqty+'인분 '+ costs +item.fstd} style={{fontSize:13,color:'#666', marginRight:10}}/>
+                                            
+                                            <Box style={[{backgroundColor:'#f1f1f1', borderRadius:15}]} justifyContent='space-between' alignItems='center' px='15px' py='10px' flexWrap={'wrap'}>
+                                                <Box justifyContent={'flex-start'} width='100%'>
+                                                    <HStack alignItems={'center'}>
+                                                        <DefText text={ item.fname } style={{fontSize:14, color:'#333', fontWeight:'bold'}} />
+                                                        <TouchableOpacity onPress={()=>foodSelectRemove(item)} style={{marginLeft:10}}>
+                                                            <Image source={require('../images/closeDis.png')} alt='삭제' />
+                                                        </TouchableOpacity>
+                                                    </HStack>
+                                                </Box>
+                                                <Box justifyContent={'flex-end'} width='100%' mt='5px'>
+                                                    <HStack alignItems='center' justifyContent={'flex-end'} >
+                                                        <DefText text={item.fkcal + 'kcal, ' + item.fqty+'인분 '+ costs +item.fstd} style={{fontSize:13,color:'#666', marginRight:5}}/>
 
-                                                    <TouchableOpacity onPress={ ()=>handleFoodQty(index) } style={{marginRight:5}}>
-                                                        <Image source={require('../images/plusFood.png')} alt='음식추가' style={{width:24, height:24, resizeMode:'contain'}} />
-                                                    </TouchableOpacity>
+                                                        <TouchableOpacity onPress={ ()=>handleFoodQty(index) } style={{marginRight:5}}>
+                                                            <Image source={require('../images/plusFood.png')} alt='음식추가' style={{width:24, height:24, resizeMode:'contain'}} />
+                                                        </TouchableOpacity>
 
 
-                                                    <TouchableOpacity onPress={()=>handleFoodQtyMinus(index)}>
-                                                        <Image source={require('../images/minusFood.png')} alt='음식빼기' style={{width:24, height:24, resizeMode:'contain'}} />
-                                                    </TouchableOpacity>
-                                                </HStack>
-                                            </HStack>
+                                                        <TouchableOpacity onPress={()=>handleFoodQtyMinus(index)}>
+                                                            <Image source={require('../images/minusFood.png')} alt='음식빼기' style={{width:24, height:24, resizeMode:'contain'}} />
+                                                        </TouchableOpacity>
+                                                    </HStack>
+                                                </Box>
+                                            </Box>
                                         </Box>
                                     )
                                 })
                                :
-                                <Box justifyContent='center' alignItems='center' height={50}>
-                                    <DefText text='음식을 추가하세요.' style={{fontSize:14, color:'#666'}} />
+                               <Box justifyContent='center' alignItems='flex-start' height={'45px'} borderRadius={10} borderWidth={1} borderColor='#f1f1f1' px='15px'>
+                                    <DefText text='음식을 추가하세요.' style={{color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 </Box>
                            }
                             
@@ -509,8 +611,13 @@ const FoodDiaryAdd = (props) => {
                         <Box>
                             <HStack alignItems='center' justifyContent='space-between' mb={2.5}>
                                 <DefText text='태그' style={[styles.reportLabel]} />
-                                <TouchableOpacity onPress={()=>navigation.navigate('FoodDiaryTag', {'foods':foodIdx, 'foodName':foods})} style={{paddingVertical:5,paddingHorizontal:10, backgroundColor:'#666', borderRadius:10}}>
-                                    <DefText text='추가' style={{fontSize:13, color:'#fff'}} />
+                                <TouchableOpacity onPress={()=>navigation.navigate('FoodDiaryTag', {'foods':foodIdx, 'foodName':foods})} >
+                                    {/* <DefText text='추가' style={{fontSize:13, color:'#fff'}} /> */}
+                                    {/* <Image source={require('../images/foodDataAdd.png')} alt='추가' /> */}
+                                    <Image source={require('../images/smallAddNew.png')} style={{width:61, height:29, resizeMode:'contain'}} alt='추가' />
+                                    <Box style={{width:61, height:29,position:'absolute', top:0, left:0, justifyContent:'center', paddingLeft:25}}>
+                                        <DefText text='추가' style={{fontSize:15, lineHeight:21,fontFamily:Font.NotoSansMedium}} />
+                                    </Box>
                                 </TouchableOpacity>
                             </HStack>
                            
@@ -532,8 +639,8 @@ const FoodDiaryAdd = (props) => {
                                 }
                                 </HStack>
                                 :
-                                <Box justifyContent='center' alignItems='center' height={50}>
-                                    <DefText text='음식에 관한 태그를 추가하세요.' style={{fontSize:14, color:'#666'}} />
+                                <Box justifyContent='center' alignItems='flex-start' height={'45px'} borderRadius={10} borderWidth={1} borderColor='#f1f1f1' px='15px'>
+                                    <DefText text='음식에 관한 태그를 추가하세요.' style={{color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 </Box>
                             }
                         </Box>
@@ -547,9 +654,10 @@ const FoodDiaryAdd = (props) => {
                                     width={(width-40) * 0.5}
                                     height={45}
                                     backgroundColor='#fff'
+                                    borderRadius={10}
                                     placeholder='평점선택'
                                     onValueChange={(itemValue) => starChange(itemValue)}
-                                    style={{fontSize:14}}
+                                    style={{fontSize:16, fontFamily:Font.NotoSansMedium}}
                                 >
                                     <Select.Item 
                                         label='1점'
@@ -589,14 +697,15 @@ const FoodDiaryAdd = (props) => {
                             <DefText text='장소입력' style={[styles.reportLabel, {marginBottom:10}]} />
                             <Input 
                                 placeholder='장소를 입력하세요'
+                                placeholderTextColor={'#a3a3a3'}
                                 height='45px'
                                 width='100%'
                                 backgroundColor='transparent'
-                                
+                                borderRadius={10}
                                 //onSubmitEditing={schButtons}
                                 value={positionSelect}
                                 onChangeText={positionChange}
-                                style={{fontSize:14}}
+                                style={[{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}, positionSelect.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                 _focus='transparent'
                             />
                         </Box>
@@ -606,24 +715,27 @@ const FoodDiaryAdd = (props) => {
                             <DefText text='메모' style={[styles.reportLabel, {marginBottom:10}]} />
                             <Input 
                                 placeholder='식사에 대한 감상평을 입력하세요.'
+                                placeholderTextColor='#a3a3a3'
                                 height='100px'
                                 width='100%'
                                 backgroundColor='transparent'
+                                borderRadius={10}
                                 multiline={true}
                                 textAlignVertical='top'
                                 //onSubmitEditing={schButtons}
                                 value={foodMemo}
                                 onChangeText={foodMemoChange}
-                                style={{fontSize:14}}
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, foodMemo.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                 _focus='transparent'
                             />
                         </Box>
                     </Box>
-                    <TouchableOpacity onPress={foodDiarySaves} style={[styles.buttonDef, {marginTop:20}]}>
-                        <DefText text='저장' style={styles.buttonDefText} />
-                    </TouchableOpacity>
+                    
                 </Box>
             </ScrollView>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={foodDiarySaves} />
+            </Box>
             <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
@@ -637,7 +749,32 @@ const FoodDiaryAdd = (props) => {
                 onConfirm={handleConfirmTime}
                 onCancel={hideTimePicker}
             />
-         
+
+            <Modal isOpen={profileImageModal} onClose={()=>setProfileImageModal(false)}>
+                <Box width={width} backgroundColor='#fff' p={5} position={'absolute'} bottom='0'>
+                    <HStack>
+                       
+                        <TouchableOpacity onPress={()=>gallerySelect()} style={{alignItems:'center', justifyContent:'center', width:width*0.43}}>
+                            <Image source={require('../images/gallerySelect.png')} alt='갤러리'/>
+                            <DefText text='갤러리' style={{textAlign:'center', marginTop:5}} />
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={()=>cameraSelect()} style={{alignItems:'center', justifyContent:'center', width:width*0.43}}>
+                            <Image source={require('../images/cameraSelect.png')} alt='카메라'/>
+                            <DefText text='카메라' style={{textAlign:'center', marginTop:5}} />
+                        </TouchableOpacity>
+                    </HStack>
+                </Box>
+            </Modal>
+
+            <Modal isOpen={delFoodModal} onClose={()=>setDelFoodModal(false)}>
+                <Modal.Content>
+                    <Modal.Body>
+                        <Box>
+                            <DefText text='선택하신 음식을 삭제하시겠습니까?' />
+                        </Box>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
 
             {/* 태그추가 */}
             <Modal isOpen={tagVisible} style={{flex:1, backgroundColor:'#fff'}}>
@@ -725,9 +862,9 @@ const FoodDiaryAdd = (props) => {
 
 const styles = StyleSheet.create({
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696968',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
     },
     reportDataText: {
         fontSize:15,

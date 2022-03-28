@@ -1,15 +1,16 @@
 import React, {useState, useEffect} from 'react';
 import { Box, VStack, HStack, Image, Input, Select, Modal } from 'native-base';
-import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, SafeAreaView } from 'react-native';
+import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, SafeAreaView, ActivityIndicator } from 'react-native';
 import ToastMessage from '../components/ToastMessage';
 import HeaderComponents from '../components/HeaderComponents';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
 
-const {width} = Dimensions.get('window');
+const {width, height} = Dimensions.get('window');
 
 const FoodAdd = (props) => {
 
@@ -17,7 +18,7 @@ const FoodAdd = (props) => {
 
     const {params} = route;
 
-    console.log(params);
+    console.log('userInfo',userInfo);
 
     const isFocused = useIsFocused();
 
@@ -42,8 +43,9 @@ const FoodAdd = (props) => {
         setFoodSearch(food);
     }
 
-
+//귀리
     //음식데이터 전달
+    const [foodLoading, setFoodLoading] = useState(false);
     const [foodDatas, setFoodDatas] = useState([]);
 
     const foodSearchBtn = () => {
@@ -52,13 +54,16 @@ const FoodAdd = (props) => {
             return false;
         }
 
-        Api.send('food_list', {'id':userInfo.id,  'token':userInfo.appToken, 'schText':foodSearch, 'page':1}, (args)=>{
+         setFoodLoading(true);
+
+         Api.send('food_list', {'id':userInfo.id,  'token':userInfo.appToken, 'schText':foodSearch, 'page':1}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
                 console.log('등록된 태그 정보: ', arrItems);
                 
+                setFoodLoading(false);
                 setFoodDatas(arrItems);
                 //console.log(arrItems);
             }else{
@@ -66,6 +71,8 @@ const FoodAdd = (props) => {
                
             }
         });
+
+
     }
 
 
@@ -133,27 +140,42 @@ const FoodAdd = (props) => {
                     <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
                         <Input
                             placeholder='음식 이름을 입력하세요.'
+                            placeholderTextColor={'#a3a3a3'}
                             height='45px'
                             width={width-80}
                             backgroundColor='transparent'
                             borderWidth={0}
                             onSubmitEditing={foodSearchBtn}
                             value={foodSearch}
+                            style={[{
+                                fontFamily:Font.NotoSansMedium, fontSize:16
+                            }]}
                             onChangeText={foodSearchChange}
                         />
                         <TouchableOpacity onPress={foodSearchBtn}>
                             <Image source={require('../images/schIcons.png')} alt='검색' />
                         </TouchableOpacity>
                     </HStack>
-                    <Box mt={5}>
-                        {
+                    
+                    {
+                        foodLoading ?
+                        <Box flex={1} justifyContent='center' alignItems='center' height={height - 240}>
+                            <ActivityIndicator size='large' color='#333' />
+                        </Box>
+                        :
+                        <Box mt={5}>
+                        {   
                             foodDatas != "" ?
                             foodDatas.map((item, index)=>{
                                 return (
                                     <TouchableOpacity onPress={()=>foodSelectBtn(item)} key={index} style={[ index != 0 && {marginTop:10} ]}>
-                                        <HStack style={[{height:40, backgroundColor:'#f1f1f1', borderRadius:15}, selectFood == item.idx && {backgroundColor:'#aaa'} ]} justifyContent='space-between' alignItems='center' px={5}>
-                                            <DefText text={item.name} style={[{fontSize:14, color:'#333', fontWeight:'bold'}, selectFood == item.idx && {color:'#fff'}]} />
-                                            <DefText text={item.kcal + 'kcal, ' + item.subinfo} style={[{fontSize:13,color:'#666'}, selectFood == item.idx && {color:'#fff'}]}/>
+                                        <HStack style={[{width:'100%',backgroundColor:'#f1f1f1', borderRadius:10}, selectFood == item.idx && {backgroundColor:'#aaa'} ]} justifyContent='space-between' alignItems='center' px={5} py={2.5} flexWrap='wrap'>
+                                            <Box width='50%'>
+                                                <DefText text={item.name} style={[{fontSize:14, color:'#333', fontWeight:'bold'}, selectFood == item.idx && {color:'#fff'}]} />
+                                            </Box>
+                                            <Box width='50%' alignItems={'flex-end'}>
+                                                <DefText text={item.kcal + 'kcal, ' + item.subinfo} style={[{fontSize:13,color:'#666'}, selectFood == item.idx && {color:'#fff'}]}/>
+                                            </Box>
                                         </HStack>
                                     </TouchableOpacity>
                                 )
@@ -163,14 +185,12 @@ const FoodAdd = (props) => {
                                 <DefText text='검색된 음식 목록이 없습니다.' style={{fontSize:14, color:'#666'}} />
                             </Box>
                         }
-                    </Box>
-                    
+                        </Box>                        
+                    }
                 </Box>
             </ScrollView>
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={foodSaveButton} style={[styles.buttonDef]}>
-                    <DefText text='음식 추가' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} right={'20px'} bottom={'30px'}>
+                <SaveButton onPress={foodSaveButton} />
             </Box>
         </Box>
     );

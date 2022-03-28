@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
 import { Box, Image, HStack, VStack, Input, Modal } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import {dnaDataList, dnaReport} from '../Utils/DummyData';
 import ToastMessage from '../components/ToastMessage';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
+import Font from '../common/Font';
 
 
 const {width} = Dimensions.get('window');
@@ -253,14 +254,14 @@ const DnaSelect = (props) => {
             <HeaderComponents headerTitle='가족력질환' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
-                    <HStack height='115px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                    <HStack height='121px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                         <Box width={(width * 0.65) + 'px'}>
-                            <DefText text='질환 중 가족력 여부를 체크해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
+                            <DefText text='질환 중 가족력 여부를 체크해주세요.' style={{fontSize:16, fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
                             <DefText text='건강은 가족력과 밀접한 관련이 있습니다.' style={{fontSize:14, marginTop:10}} />
                         </Box>
                         <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
                     </HStack>
-                    <Box mt={5}>
+                    <Box mt={5} pb='80px'>
                         <DefText text='가족력 질환기록' style={styles.reportDataText} />
                         {
                             dnaDataLists != '' &&
@@ -291,10 +292,8 @@ const DnaSelect = (props) => {
                     </Box>
                 </Box>
             </ScrollView>
-            <Box p={2.5}>
-                <TouchableOpacity onPress={DnaInfoSave} style={styles.medicineButtons}>
-                    <DefText text='저장' style={styles.medicineButtonsText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={DnaInfoSave} />
             </Box>
         </Box>
     );
@@ -307,8 +306,9 @@ const styles = StyleSheet.create({
         fontWeight:'bold'
     },
     reportDataText: {
-        fontSize:15,
-        color:'#333'
+        fontSize:16,
+        color:'#696969',
+        fontFamily:Font.NotoSansMedium,
     },
     dnaDisName:{
         height:40,
@@ -317,19 +317,20 @@ const styles = StyleSheet.create({
     },
     dnaTitle:{
         fontSize:14,
-        color:'#333',
-        fontWeight:'bold'
+        color:'#000',
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     dnaSelectButton:{
         height:30,
-        backgroundColor:'#D2D2D2',
+        backgroundColor:'#a3a3a3',
         justifyContent:'center',
         alignItems:'center',
         borderRadius:10,
         paddingHorizontal:10
     },
     dnaSelectButtonText: {
-        fontSize:13,
+        fontSize:14,
         color:'#fff',
     },
     medicineButtons : {

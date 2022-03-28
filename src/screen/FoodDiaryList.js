@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
-import { Box, VStack, HStack, Image, Input } from 'native-base';
+import { Box, VStack, HStack, Image, Input, Modal } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet } from 'react-native';
-import {DefInput, DefText} from '../common/BOOTSTRAP';
+import {AddButton, DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { foodCategory, foodLists } from '../Utils/DummyData';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -35,10 +36,15 @@ const FoodDiaryList = (props) => {
 
    const [foodCategorys, setFoodCategorys] = useState('');
 
-   const foodCategorySelect = ( category ) => {
-       setFoodCategorys(category);
-       setFoodInput(category);
+   const foodCategorySelect = async ( category ) => {
+    if(foodCategorys == category) { await setFoodCategorys('');   }
+    else                         { await setFoodCategorys(category); }
+       //setFoodInput(category);
+      
    }
+   useEffect(()=>{
+    FoodDiaryListChange();
+   },[foodCategorys])
 
 
    const FoodDiaryCategoryListChange = () => {
@@ -61,7 +67,7 @@ const FoodDiaryList = (props) => {
    const [foodListData, setFoodListData] = useState('');
 
    const FoodDiaryListChange = () => {
-        Api.send('food_schedule2', {'id':userInfo.id, 'token':userInfo.appToken, 'schText':foodInput}, (args)=>{
+        Api.send('food_schedule2', {'id':userInfo.id, 'token':userInfo.appToken, 'schText':foodInput, 'schTag':foodCategorys}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
@@ -114,12 +120,40 @@ const FoodDiaryList = (props) => {
 
     //foodLists.map
 
+    //삭제모달
+    const [deleteIdx, setDeleteIdx] = useState('');
+    const [deleteModal, setDeleteModal] = useState(false);
+
+    const DeleteIdx = (idx) => {
+        setDeleteIdx(idx);
+        setDeleteModal(true);
+    }
+
+    const DeleteSubmit = () => {
+        //console.log('deleteIdx:::', deleteIdx);
+
+        Api.send('food_delete', {'id':userInfo.id,  'token':userInfo.appToken, idx:deleteIdx}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+               // console.log('결과 정보: ', arrItems);
+                ToastMessage(resultItem.message);
+                setDeleteModal(false);
+                FoodDiaryListChange();
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+              // ToastMessage(resultItem.message);
+            }
+        });
+    }
+
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents navigation={navigation} headerTitle='식단일기' />
             <ScrollView>
-                <Box p={5}>
+                <Box p={5} mb={'80px'}>
                     <Box>
                         <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
                             <Input
@@ -128,6 +162,7 @@ const FoodDiaryList = (props) => {
                                 width={width-80}
                                 backgroundColor='transparent'
                                 borderWidth={0}
+                                borderRadius={10}
                                 //onSubmitEditing={schButtons}
                                 value={foodInput}
                                 onChangeText={foodInputChange}
@@ -142,7 +177,7 @@ const FoodDiaryList = (props) => {
                                 {
                                     foodTags.map((item, index)=> {
                                         return (
-                                            <TouchableOpacity key={index} style={[styles.keywordButton, foodCategorys == item && {backgroundColor:'#666'} ]} onPress={()=>{foodCategorySelect(item)}}>
+                                            <TouchableOpacity key={index} style={[styles.keywordButton, foodCategorys == item && {backgroundColor:'#696968'} ]}  onPress={()=>{foodCategorySelect(item)}}>
                                                 <DefText text={'#'+item} style={[styles.keywordButtonText, foodCategorys == item && {color:'#fff'}]} />
                                             </TouchableOpacity>
                                         )
@@ -157,11 +192,12 @@ const FoodDiaryList = (props) => {
                             foodListData.map((item, index)=> {
                                 
                                 const itemCategorys = item.tag_list.map((category, idx)=>{
+                                    if(category != ""){
                                     return(
-                                        <Box key={idx} backgroundColor='#666' py='4px' px='10px' borderRadius={15} ml={ idx != 0 ? 2.5 : 0 } >
-                                            <DefText text={category} style={{fontSize:13,color:'#fff'}} />
+                                        <Box key={idx} backgroundColor='#696968' py='4px' px='10px' borderRadius={10} ml={ idx != 0 ? '5px' : 0 } mt={'5px'} >
+                                            <DefText text={category} style={{fontSize:14,color:'#fff'}} />
                                         </Box>
-                                    )
+                                    )}
                                 });
                         
                         
@@ -181,7 +217,7 @@ const FoodDiaryList = (props) => {
 
                                 return (
                                     <Box key={index} shadow={8} p={5} py={2.5} backgroundColor='#fff' borderRadius={15} mt={ index != 0 ? 5 : 2.5 }>
-                                        <TouchableOpacity onPress={()=>navigation.navigate('FoodDiaryView', item)}>
+                                        <TouchableOpacity onLongPress={()=>DeleteIdx(item.idx)} onPress={()=>navigation.navigate('FoodDiaryView', item)}>
                                             <HStack justifyContent='space-between' alignItems='center'>
                                                 <VStack width={(width-80)*0.6} >
                                                     <HStack mb={2}>
@@ -212,11 +248,32 @@ const FoodDiaryList = (props) => {
                     </VStack>
                 </Box>
             </ScrollView>
-            <Box p={2.5} px={5}>
+            {/* <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{navigation.navigate('FoodDiaryAdd')}} style={[styles.buttonDef]}>
                    <DefText text='식단정보 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
+            </Box> */}
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('FoodDiaryAdd', {'foods':'', 'foodName':'', 'tagList':''})}} />
             </Box>
+
+            <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)}>
+            
+                <Modal.Content maxWidth={width-40}>
+                    <Modal.Body>
+                        <DefText text='식단기록을 삭제하시겠습니까?' style={{textAlign:'center'}}/>
+                        <HStack justifyContent='space-between' mt={5}>
+                            <TouchableOpacity style={styles.logoutButton} onPress={DeleteSubmit}>
+                                <DefText text='확인' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.logoutButton} onPress={()=>setDeleteModal(false)}>
+                                <DefText text='취소' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                        </HStack>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
         </Box>
     );
 };
@@ -225,16 +282,17 @@ const styles = StyleSheet.create({
     keywordButton: {
         height:30,
         paddingHorizontal:10,
-        backgroundColor:'#ddd',
+        backgroundColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:35,
+        borderRadius:10,
         marginRight:10,
         marginTop:10,
     },
     keywordButtonText: {
-        fontSize: 14,
-        color:'#333',
+        lineHeight:30,
+        fontFamily:Font.NotoSansMedium,
+        color:'#000',
     },
     itemTitle: {
         fontSize:15,
@@ -269,6 +327,18 @@ const styles = StyleSheet.create({
     },
     buttonDefText:{
         fontSize:14,
+        color:'#fff'
+    },
+    logoutButton : {
+        height:40,
+        width:(width-80) *0.47,
+        borderRadius:10,
+        backgroundColor:'#696968',
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    logoutButtonText: {
+        fontSize:15,
         color:'#fff'
     }
 })

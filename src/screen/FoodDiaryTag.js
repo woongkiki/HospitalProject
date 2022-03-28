@@ -6,8 +6,9 @@ import HeaderComponents from '../components/HeaderComponents';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -122,7 +123,7 @@ const FoodDiaryTag = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <Box>
-                        <DefText text='선택한 태그' />
+                        <DefText text='선택한 태그' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
                         {
                             selectTag != '' ?
                             <HStack flexWrap='wrap'>
@@ -138,15 +139,15 @@ const FoodDiaryTag = (props) => {
                             </HStack>
                             :
                             <Box py={5} alignItems='center' justifyContent='center'>
-                                <DefText text='선택된 태그가 없습니다.' style={{fontSize:14,color:'#666'}} />
+                                <DefText text='선택된 태그가 없습니다.' style={{color:'#696969', fontFamily:Font.NotoSansMedium}} />
                             </Box>
                         
                         }
                         
                     </Box>
                     <Box mt={5}>
-                        <DefText text='등록태그' />
-
+                        <DefText text='등록태그' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />                 
+                        
                         {
                                 foodTagList != "" ?
                                 <HStack flexWrap='wrap'>
@@ -170,25 +171,33 @@ const FoodDiaryTag = (props) => {
                     <Box mt={5}>
                         <Input 
                             placeholder='등록하실 태그명을 입력하세요.'
-                            height='40px'
+                            height='45px'
                             width={width-40}
                             backgroundColor='transparent'
                             _focus='transparent'
                             borderWidth={1}
-                            style={{fontSize:14}}
+                            borderRadius={10}
+                            borderColor='#f1f1f1'
+                            style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, tagInsert.length > 0 && {backgroundColor:'#f1f1f1'}]}
                             value={tagInsert}
                             onChangeText={tagTextChange}
                         />
-                        <TouchableOpacity onPress={tagSubmitButton} style={[styles.inputEnters]}>
-                            <DefText text='태그등록' style={{color:'#fff'}} />
-                        </TouchableOpacity>
+                        <Box style={{justifyContent:'flex-end', alignItems:'flex-end', marginTop:10}}>
+                            <TouchableOpacity onPress={tagSubmitButton} >
+                                {/* <DefText text='태그등록' style={{color:'#fff'}} /> */}
+                             
+                                <Image source={require('../images/smallAddNew.png')} style={{width:61, height:29, resizeMode:'contain'}} alt='추가' />
+                                <Box style={{width:61, height:29,position:'absolute', top:0, left:0, justifyContent:'center', paddingLeft:25}}>
+                                    <DefText text='추가' style={{fontSize:15, lineHeight:21,fontFamily:Font.NotoSansMedium}} />
+                                </Box>
+                      
+                            </TouchableOpacity>
+                        </Box>
                     </Box>
                 </Box>
             </ScrollView>
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={tagSavedButton} style={[styles.buttonDef]}>
-                <DefText text='태그 추가' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"20px"}>
+                <SaveButton onPress={tagSavedButton}  />
             </Box>
         </Box>
     );

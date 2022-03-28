@@ -133,7 +133,7 @@ const ClinicView = (props) => {
                                 <DefText text={numberFormat(isPrice) + '원'} style={{fontSize:18, color:'#000', fontWeight:'bold'}} />
                             </HStack>
                         </Box>
-                        <TouchableOpacity onPress={()=>{navigation.navigate('OrderForm', {'par':params, 'priceFix':isPrice, 'counts':sellCount, 'optionChk':checkbox, 'optionPrice':selectOptionPrice} )}} style={{height:40, backgroundColor:'#666', alignItems:'center', justifyContent:'center', borderRadius:5, marginTop:20}}>
+                        <TouchableOpacity onPress={()=>{navigation.navigate('OrderForm', {'par':params, 'priceFix':isPrice, 'counts':sellCount, 'optionChk':checkbox, 'optionPrice':selectOptionPrice} )}} style={{height:45, backgroundColor:'#090A73', alignItems:'center', justifyContent:'center', borderRadius:10, marginTop:20}}>
                             <DefText text='구매하기' style={{fontSize:14, color:'#fff'}} />
                         </TouchableOpacity>
                     </Modal.Body>

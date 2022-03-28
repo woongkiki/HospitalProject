@@ -9,6 +9,7 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import ToastMessage from '../components/ToastMessage';
 import Api from '../Api';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
 
 const {width, height} = Dimensions.get('window');
 const HealthInfoWidth = (width - 40) - 100;
@@ -116,21 +117,21 @@ const CustomCommunity = (props) => {
 
     //맞춤건강정보 게시판 이동
     const goNavi = () => {
-        navigation.goBack();
+        navigation.navigate('Scrap');
     }
 
     const ModalSave = () => {
 
-        if(diseaseSelected.length > 0){
-            ToastMessage('관심 및 질환을 하나 이상 선택하세요.');
-        }
+        // if(diseaseSelected.length > 0){
+        //     ToastMessage('관심 및 질환을 하나 이상 선택하세요.');
+        // }
 
         Api.send('member_interest', {'id':userInfo.id, 'token':userInfo.appToken, 'disease':diseaseSelected.join('^')}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
             if(resultItem.result === 'Y' && arrItems) {
-               //console.log('연령별 주요 질환: ', arrItems);
+               console.log('연령별 주요 질환: ', arrItems);
 
                //ToastMessage(resultItem.message);
                setStatusModal(false);
@@ -164,14 +165,15 @@ const CustomCommunity = (props) => {
         })
 
         return(
-            <Box key={index} px={5} style={[ {marginBottom:20} ]}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('CommunityView', item)}}>
+            <Box key={index} px={5}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('CommunityView', item)}} style={[{borderBottomWidth:1, paddingVertical:15, borderBottomColor:'#f1f1f1'}, index === 0 && {borderTopColor:'#f1f1f1', borderTopWidth:1} ]}>
                     <HStack>
-                        <Image source={{uri:item.upfile1}} alt={item.subject} style={{width:100, height:100, resizeMode:'contain'}} />
+                        <Image source={{uri:item.upfile1}} alt={item.subject} style={{width:100, height:70, resizeMode:'stretch', borderRadius:10}} />
+                        
                         <VStack pl={2.5} width={HealthInfoWidth}  justifyContent='space-around'>
                             <DefText text={item.subject} style={styles.communityTitle} />
                             <HStack justifyContent='space-between' alignItems='center' >
-                                <DefText text={item.count + ' reading'} style={styles.communityView} />
+                                <DefText text={'조회 : '+item.count} style={styles.communityView} />
                                 <HStack>
                                     {keywordName}
                                 </HStack>
@@ -244,7 +246,7 @@ const CustomCommunity = (props) => {
             let arrItems = args.arrItems;
 
             if(resultItem.result === 'Y' && arrItems) {
-               console.log('내 질환에 맞는 커뮤니티 글: ', resultItem);
+               console.log('내 질환에 맞는 커뮤니티 글: ', arrItems);
 
 
                setCommunityList(arrItems);
@@ -278,7 +280,7 @@ const CustomCommunity = (props) => {
                     ListHeaderComponent={
                         <>  
                             <Box px={5} pt={5}>
-                                <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
+                                <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={10}>
                                     <Input
                                         placeholder='검색하실 내용을 적어주세요.'
                                         height='45px'
@@ -287,7 +289,7 @@ const CustomCommunity = (props) => {
                                         borderWidth={0}
                                         value={communitySearch}
                                         onChangeText={SearchTextChagne}
-                                        
+                                        style={{fontSize:16, fontFamily:Font.NotoSansMedium}}
                                     />
                                     <TouchableOpacity >
                                         <Image source={require('../images/schIcons.png')} alt='검색' />
@@ -295,13 +297,13 @@ const CustomCommunity = (props) => {
                                 </HStack>
                             </Box>
                             
-                            <Box mt={2.5} mb={5} mt={5}>
+                            <Box mb={5} mt={5}>
                                 <HStack px={5} alignItems='center' justifyContent='space-between'>
                                     <HStack>
-                                        <TouchableOpacity onPress={()=>sortChangeButton('최신순')} style={[styles.commnuityKeywordButton, sortCategory === '최신순' && {backgroundColor:'#666'}]}>
+                                        <TouchableOpacity onPress={()=>sortChangeButton('최신순')} style={[styles.commnuityKeywordButton, sortCategory === '최신순' && {backgroundColor:'#696969'}]}>
                                             <DefText text='최신순' style={[styles.keywordButtonText, sortCategory === '최신순' && {color:'#fff'}]} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={()=>sortChangeButton('인기순')} style={[styles.commnuityKeywordButton, sortCategory === '인기순' && {backgroundColor:'#666'}]}>
+                                        <TouchableOpacity onPress={()=>sortChangeButton('인기순')} style={[styles.commnuityKeywordButton, sortCategory === '인기순' && {backgroundColor:'#696969'}]}>
                                             <DefText text='인기순' style={[styles.keywordButtonText, sortCategory === '인기순' && {color:'#fff'}]} />
                                         </TouchableOpacity>
                                     </HStack>
@@ -352,7 +354,7 @@ const CustomCommunity = (props) => {
                                                 diseaseSelected.map((item, index)=> {
                                                     return(
                                                         <Box key={index} style={styles.disButton}>
-                                                            <DefText text={item} />
+                                                            <DefText text={item} style={styles.disText}/>
                                                         </Box>
                                                     )
                                                 })
@@ -419,7 +421,7 @@ const CustomCommunity = (props) => {
                                             {
                                                  diseaseList.map((item, index)=> {
                                                     return(
-                                                        <TouchableOpacity key={index} style={[styles.disButton, diseaseSelected.includes(item.name) && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name)}>
+                                                        <TouchableOpacity key={index} style={[styles.disButton, diseaseSelected.includes(item.name) && {backgroundColor:'#696969'} ]} onPress={()=>diseaseSelectButton(item.name)}>
                                                             <DefText text={item.name} style={[styles.disText, diseaseSelected.includes(item.name) && {color:'#fff'}]} />
                                                         </TouchableOpacity>
                                                     )
@@ -454,35 +456,38 @@ const styles = StyleSheet.create({
         backgroundColor:'#ddd',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:35,
+        borderRadius:10,
         marginRight:10,
         marginTop:10,
     },
     keywordButtonText: {
         fontSize: 14,
-        color:'#333',
+        color:'#000',
+        fontFamily:Font.NotoSansMedium
     },
     communityTitle: {
         fontSize:14,
-        lineHeight:24,
-        color:'#000'
+        color:'#000',
+        fontFamily:Font.NotoSansBold,
+        fontWeight:'bold'
     },
     communityView : {
-        fontSize:13,
-        color:'#FF004E'
+        fontSize:14,
+        color:'#696969'
     },
     commnuityKeywordButton: {
         height: 25,
         paddingHorizontal:10,
-        backgroundColor:'#ddd',
+        backgroundColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:25,
+        borderRadius:10,
         marginRight:10,
     },
     labelText: {
         fontSize:14,
-        color:'#696968'
+        color:'#696969',
+        fontFamily:Font.NotoSansMedium
     },
     disButton: {
         paddingVertical:5,
@@ -496,14 +501,15 @@ const styles = StyleSheet.create({
     disText: {
         fontSize:14,
         color:'#333',
-        fontWeight:'bold'
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium
     },
     medicineButtons : {
-        backgroundColor:'#999',
-        borderRadius:5,
+        backgroundColor:'#090A73',
+        borderRadius:10,
         alignItems:'center',
         justifyContent:'center',
-        height: 40,
+        height: 45,
         width:width-40,
     },
     medicineButtonsText: {

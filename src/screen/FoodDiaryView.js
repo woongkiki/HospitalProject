@@ -40,8 +40,8 @@ const FoodDiaryView = (props) => {
 
     const categoryList = params.tag_list.map((item, index)=>{
         return(
-            <Box key={index} backgroundColor='#666' py='4px' px='10px' borderRadius={15} ml={ index != 0 ? 2.5 : 0 } >
-                <DefText text={item} style={{fontSize:13,color:'#fff'}} />
+            <Box key={index} backgroundColor='#696968'  px='10px' borderRadius={15} mr={ 2.5 } mt={2.5}>
+                <DefText text={item} style={{color:'#fff', lineHeight:30}} />
             </Box>
         )
     })
@@ -96,9 +96,13 @@ const FoodDiaryView = (props) => {
                         <DefText text={foodDetail.memo} style={{fontSize:14,marginTop:10}} />
                         <DefText text={'섭취장소 : '+foodDetail.place} style={{marginTop:10}}/>
                         <DefText text={foodDetail.fdate + ' ' + foodDetail.ftime} style={{fontSize:13, color:'#666', marginTop:10}} />
-                        <HStack mt={2.5}>
-                            {categoryList}
-                        </HStack>
+                        {
+                            params.tag_list != '' && 
+                            <HStack  flexWrap='wrap'>
+                                {categoryList}
+                            </HStack>
+                        }
+                        
                     </Box>
                 </ScrollView>
                 :

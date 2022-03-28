@@ -46,11 +46,11 @@ const ClinicViews = (props) => {
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
-               
+             
                 //setClinicList(arrItems);
                 setAllPrice(arrItems.sellprice);
                 setOrgPrice(arrItems.sellprice);
-                console.log('상품 정보: ',  arrItems);
+                console.log('상품 정보123123: ',  arrItems.intro);
 
                 setProductDetail(arrItems);
 
@@ -172,7 +172,7 @@ const ClinicViews = (props) => {
             }
         }
 
-        let paramsData = {'id':userInfo.id, 'token':userInfo.appToken, 'prdcode':productDetal.prdcode, 'hcode':userInfo.m_hcode, 'optNum':optnum, 'optprice':optprice, 'optname':optname, 'opttitle':opttitle, 'optcode': optname, 'optreserve':optreserve, 'amount':sellCount};
+        let paramsData = {'id':userInfo.id, 'token':userInfo.appToken, 'prdcode':productDetal.prdcode, 'hcode':userInfo.m_hcode, 'optnum':optnum, 'optprice':optprice, 'optname':optname, 'opttitle':opttitle, 'optcode': optname, 'optreserve':optreserve, 'amount':sellCount};
 
 
         Api.send('product_cartInsert', paramsData, (args)=>{
@@ -251,22 +251,30 @@ const ClinicViews = (props) => {
                                     
                                 </Swiper>
                             </Box>
-                            <Box p={5}>
+                            <Box mt='15px'>
                                 <DefText text={params.prdname} style={{fontSize:16, fontWeight:'bold'}} />
-                                <Box mt={2.5} alignItems='flex-end'>
-                                    <DefText text={'정가 ' + numberFormat(productDetal.conprice) + '원'} style={[styles.orPrice, {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                {
+                                    productDetal.conprice != 0 &&
+                                    <Box mt={2.5} alignItems='flex-end'>
+                                        <DefText text={'정가 ' + numberFormat(productDetal.conprice) + '원'} style={[styles.orPrice, {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                    </Box>
+                                }
+                                {
+                                    productDetal.sellprice != 0 &&
+                                    <Box mt='5px' alignItems='flex-end' mb='15px'>
+                                        <DefText text={'회원가 ' + numberFormat(productDetal.sellprice) + '원'} style={styles.price} />
+                                    </Box>
+                                }
+                                <Box>
+                                    <DefText text={productDetal.intro} />
                                 </Box>
-                                <Box mt='5px' alignItems='flex-end'>
-                                    <DefText text={'회원가 ' + numberFormat(productDetal.sellprice) + '원'} style={styles.price} />
-                                </Box>
-
                             </Box>
                             {
                                 productDetal.content ?
-                                <Box>
+                                <Box mt='15px'>
                                     <HTML 
-                                        ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'br']}
-                                        ignoredTags={['head', 'script', 'src']}
+                                        iignoredStyles={[ 'width', 'height', 'margin', 'padding']}
+                                        ignoredTags={['head', 'script', 'src', 'br']}
                                         imagesMaxWidth={Dimensions.get('window').width - 40}
                                         source={{html: productDetal.content}} 
                                         tagsStyles={StyleHtml}
@@ -406,15 +414,15 @@ const ClinicViews = (props) => {
                             </Box>
                        }
                        
-                        <TouchableOpacity onPress={()=>ItemSell()} style={{height:40, backgroundColor:'#666', alignItems:'center', justifyContent:'center', borderRadius:5, marginTop:20}}>
-                            <DefText text='구매하기' style={{fontSize:14, color:'#fff'}} />
+                        <TouchableOpacity onPress={()=>ItemSell()} style={{height:45, backgroundColor:'#090A73', alignItems:'center', justifyContent:'center', borderRadius:10, marginTop:20}}>
+                            <DefText text='예약하기' style={{fontSize:14, color:'#fff'}} />
                         </TouchableOpacity>
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
             <Box p={2.5}>
                 <TouchableOpacity style={styles.medicineButtons} onPress={()=>setSellModal(true)}>
-                    <DefText text='구매하기' style={styles.medicineButtonsText} />
+                    <DefText text='예약하기' style={styles.medicineButtonsText} />
                 </TouchableOpacity>
             </Box>
         </Box>
@@ -450,11 +458,11 @@ const styles = StyleSheet.create({
         color:'#333'
     },
     medicineButtons : {
-        backgroundColor:'#999',
-        borderRadius:5,
+        backgroundColor:'#090A73',
+        borderRadius:10,
         alignItems:'center',
         justifyContent:'center',
-        height: 40,
+        height: 45,
     },
     medicineButtonsText: {
         fontSize:15,

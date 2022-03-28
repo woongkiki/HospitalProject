@@ -5,13 +5,16 @@ import { DefText } from '../common/BOOTSTRAP';
 import HeaderCommunity from '../components/HeaderCommunity';
 import {schKeyword, healthData, ScrapFolderData} from '../Utils/DummyData';
 import ToastMessage from '../components/ToastMessage';
-import HTML from 'react-native-render-html';
+import RenderHtml from 'react-native-render-html';
 import StyleHtml from '../common/StyleHtml';
 import { StackActions } from '@react-navigation/native';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
+import Font from '../common/Font';
+import { WebView } from 'react-native-webview';
+import { BASE_URL } from '../Utils/APIConstant';
 
 const {width, height} = Dimensions.get('window');
 
@@ -22,7 +25,7 @@ const CommunityView = (props) => {
     const {params} = route;
 
     const [modalView, setModalView] = useState(false);
-    console.log(params);
+    //console.log(params);
 
     const [scrapModal, setScrapModal] = useState(false);
 
@@ -49,15 +52,18 @@ const CommunityView = (props) => {
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
-                console.log('스크랩 폴더 정보: ', resultItem);
+               // console.log('스크랩 폴더 정보: ', arrItems);
 
                ToastMessage(resultItem.message);
                setScrapModal(false);
                setModalView(false);
+               BBSDetail();
+
+               loadings();
 
             }else{
                 console.log('결과 출력 실패!', resultItem);
-               Alert.alert(resultItem.message);
+               //Alert.alert(resultItem.message);
             }
         });
         // ToastMessage('게시물이 스크랩되었습니다.');
@@ -71,6 +77,30 @@ const CommunityView = (props) => {
         setScrapModal(true);
     }
 
+    const scrapDelete = () => {
+        //scrapCompleteHandler();
+
+        Api.send('bbs_scrapDelete', {'id':userInfo.id, 'token':userInfo.appToken, 'bidx':params.idx}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+               // console.log('스크랩 폴더 정보: ', arrItems);
+
+               ToastMessage(resultItem.message);
+              // setScrapModal(false);
+               setModalView(false);
+               BBSDetail();
+
+               loadings();
+
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               //Alert.alert(resultItem.message);
+            }
+        });
+    }
+
     const [myScrapFolder, setMyScrapFolder] = useState([]);
 
     const myScrapFolderList = () => {
@@ -79,21 +109,25 @@ const CommunityView = (props) => {
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
-                console.log('스크랩 폴더 정보: ', arrItems);
+                //console.log('스크랩 폴더 정보: ', arrItems);
              
                 setMyScrapFolder(arrItems);
 
             }else{
                 console.log('결과 출력 실패!', resultItem);
-               ToastMessage(resultItem.message);
+               //ToastMessage(resultItem.message);
             }
         });
     }
 
+    const [detailLoading , setDetailLoading] = useState(false);
     const [detailSet, setDetail] = useState('');
 
-    const BBSDetail = () => {
-        Api.send('bbs_detail', {'id':userInfo.id, 'token':userInfo.appToken, 'idx':params.idx}, (args)=>{
+    const BBSDetail = async () => {
+        
+        await setDetailLoading(false);
+
+        await Api.send('bbs_detail', {'id':userInfo.id, 'token':userInfo.appToken, 'idx':params.idx}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
@@ -104,15 +138,21 @@ const CommunityView = (props) => {
 
             }else{
                 console.log('결과 출력 실패!', resultItem);
-               ToastMessage(resultItem.message);
+               //ToastMessage(resultItem.message);
             }
         });
+
+        await setDetailLoading(true);
     }
+
+
 
     useEffect(()=>{
         myScrapFolderList();
 
         BBSDetail();
+
+        
     }, [])
 
     useEffect(()=>{
@@ -120,63 +160,62 @@ const CommunityView = (props) => {
     }, [myScrapFolder]);
 
 
-    
-    
+    const [webViewLoading, setWebViewLoading] = useState(false);
+
+    const ScrapMove = () => {
+        navigation.navigate('Scrap');
+    }
+
+
+    const loadings = async () => {
+        await setWebViewLoading(true);
+        await setWebViewLoading(false);
+    }
+
+    useEffect( ()=>{
+        loadings();
+    }, [])
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderCommunity navigation={navigation} headerTitle='건강정보' />
             {
-                detailSet != '' ?
-                <ScrollView>
-                    <Box p={5}>
-                        <Box width='90%' mb={10}>
-                            <DefText text={detailSet.subject} style={styles.boardViewTitle} />
-                        </Box>
-                        <HStack alignItems='center' pb={5} borderBottomWidth={1} borderBottomColor='#dfdfdf' justifyContent='space-between' pr={5}>
-                            <HStack alignItems='center'>
-                                <Image 
-                                    source={require('../images/hospitalLogo.png')} 
-                                    alt='hospital logo'
-                                    style={{marginRight:20, width:64, height:64, resizeMode:'contain'}}
-                                />
-                                <Box>
-                                    <DefText text={detailSet.name} style={styles.boardViewWriter} />
-                                    <DefText text={detailSet.datetimes} style={styles.boardViewDate} />
-                                </Box>
-                            </HStack>
-                            <TouchableOpacity onPress={() => setModalView(true)}>
-                                <Image source={require('../images/communituOption.png')} alt='옵션' />
-                            </TouchableOpacity>
-                        </HStack>
-                        <Box py={5} px={2.5}>
-                        {/* <Image source={{uri:params.communityContent}} alt={params.communityTitle} width={width-40} height={400} /> */}
-                        {/* <DefText text={params.content} /> */}
-                        <HTML 
-                                ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontSize', 'br']}
-                                ignoredTags={['head', 'script', 'src']}
-                                imagesMaxWidth={Dimensions.get('window').width - 40}
-                                source={{html: detailSet.content}} 
-                                tagsStyles={StyleHtml}
-                                containerStyle={{ flex: 1, }}
-                                contentWidth={Dimensions.get('window').width}  
-                            />
-                        </Box>
-                    </Box>
-                </ScrollView>
+                webViewLoading ?
+                <Box flex={1} justifyContent='center' alignItems={'center'}>
+                    <ActivityIndicator size={'large'} color='#333' />
+                </Box>
                 :
-                <Box flex={1} alignItems='center' justifyContent='center'>
-                    <ActivityIndicator size='large' color='#333' />
+                <Box flex={1} p='12px'>
+                    <WebView
+                        source={{
+                            uri: BASE_URL + '/adm/rn-webview/bbs.php?idx='+params.idx+'&id=' + userInfo.id
+                        }}
+                        style={{
+                            opacity:0.99,
+                            minHeight:1
+                        }}
+                        onMessage={e => setModalView(true)}
+                        originWhitelist={['*']}
+                    />
                 </Box>
             }
+            
             
             <Modal isOpen={modalView} onClose={() => setModalView(false)}>
             
                 <Modal.Content maxWidth={width} width={width} borderRadius={0} position='absolute' bottom={0}>
                     <Modal.Body>
-                        <TouchableOpacity onPress={scrapHandle}>
-                            <DefText text='스크랩하기' />
+                    {
+                        detailSet.scrapChk ?
+                        <TouchableOpacity onPress={scrapDelete}>
+                            <DefText text={ '스크랩 삭제하기'} />
                         </TouchableOpacity>
+                        :
+                        <TouchableOpacity onPress={scrapHandle}>
+                            <DefText text={ '스크랩하기'} />
+                        </TouchableOpacity>
+                    }
+                        
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
@@ -221,7 +260,7 @@ const CommunityView = (props) => {
                                     <DefText text='스크랩용 폴더를 먼저 생성하세요.' />
                                 }
 
-                                <TouchableOpacity onPress={scrapCompleteHandler} disabled={selectButton} style={[styles.medicineButtons, !selectButton && {backgroundColor:'#666'}]} >
+                                <TouchableOpacity onPress={scrapCompleteHandler} disabled={selectButton} style={[styles.medicineButtons, !selectButton && {backgroundColor:'#090A73'}]} >
                                     <DefText text='폴더선택완료' style={styles.medicineButtonsText} />
                                 </TouchableOpacity>
                             </Box>
@@ -236,40 +275,35 @@ const CommunityView = (props) => {
 
 const styles = StyleSheet.create({
     boardViewTitle: {
-        fontSize:20,
-        lineHeight:23,
+        fontSize:22,
+        lineHeight:30,
         color:'#000',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     boardViewWriter: {
-        fontSize:15,
-        lineHeight:21,
-        color:'#666'
+        fontSize:16,
+        color:'#696969'
     },
     boardViewDate: {
-        fontSize:15,
-        lineHeight:21,
-        color:'#666',
+        color:'#696969',
         marginTop:5
     },
     boardViewContent: {
-        fontSize:15,
-        lineHeight:21,
-        color:'#333'
+        fontSize:16,
+        color:'#000'
     },
     medicineButtons : {
-        backgroundColor:'#999',
-        borderRadius:5,
+        backgroundColor:'#090A73',
+        borderRadius:10,
         alignItems:'center',
         justifyContent:'center',
-        height: 40,
+        height: 45,
         marginTop:20
     },
     medicineButtonsText: {
-        fontSize:15,
-        lineHeight:21,
         color:'#fff',
-        
+        fontFamily:Font.NotoSansMedium
     }
 })
 

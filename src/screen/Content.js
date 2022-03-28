@@ -5,6 +5,7 @@ import { DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { NoticeData } from '../Utils/DummyData';
 import Api from '../Api';
+import Font from '../common/Font';
 
 const Content = ( props ) => {
 
@@ -44,7 +45,7 @@ const Content = ( props ) => {
                                 <TouchableOpacity key={index} style={[styles.mypageButton, index != 0 && {marginTop:10}]} onPress={()=>{navigation.navigate('ServiceTerm', item)}}>
                                     <HStack alignItems='center' height='43px' justifyContent='space-between'>
                                         <DefText text={item.title} style={styles.mypageButtonText} />
-                                        <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                                        <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
                                     </HStack>
                                 </TouchableOpacity>
                             )
@@ -61,14 +62,15 @@ const styles = StyleSheet.create({
     mypageButton: {
         height:43,
         backgroundColor:'#F1F1F1',
-        borderRadius:43,
+        borderRadius:10,
         paddingLeft:20,
         paddingRight:10,
         
     },
     mypageButtonText: {
-        fontSize:16,
-        color:'#000'
+        color:'#000',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     }
 })
 

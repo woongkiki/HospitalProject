@@ -45,7 +45,7 @@ const DiseaseSelect = (props) => {
     
             if(resultItem.result === 'Y' && arrItems) {
                 //console.log('복약 스케줄 정보: ', resultItem);
-                console.log(arrItems);
+                console.log('123::', arrItems);
                 setSchDisData(arrItems);
                 //setReserveList(arrItems)
             }else{

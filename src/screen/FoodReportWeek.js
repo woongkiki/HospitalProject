@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import {LineChart, ProgressChart} from 'react-native-chart-kit';
+import { WebView } from 'react-native-webview';
 
 const {width} = Dimensions.get('window');
 
@@ -91,24 +92,28 @@ const FoodReportWeek = (props) => {
                 <Box p={5}>
                     <Box>
                         <DefText text='일주일간 혈당 수치 변화' style={[styles.reportLabel, {marginBottom:10}]} />
-                        <Box mt={2.5}>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <LineChart
-                                    data={data}
-                                    width={width + 3000}
-                                    height={235}
-                                    chartConfig={chartConfig}
-                                    bezier
-                                    fromZero={true} //0 부터시작 기본 false
-                                    withShadow={false} // 선그림자 여부 기본 true
-                                    yLabelsOffset={20} //y축 그래프 사이 여백
-                                    segments={5} //y축 수치 세그먼트 기본 4
-                                    style={{marginLeft:-20}}
+                        <Box>
+                            <HStack justifyContent={'center'}>
+                                <HStack alignItems={'center'} mr='20px'>
+                                    <Box style={{width:7, height:7, borderRadius:10, backgroundColor:'#00f', marginRight:5}} />
+                                    <DefText text='정상' style={{fontSize:12}} />
+                                </HStack>
+                                <HStack alignItems={'center'} mr='20px'>
+                                    <Box style={{width:7, height:7, borderRadius:10, backgroundColor:'#f00', marginRight:5}} />
+                                    <DefText text='비정상' style={{fontSize:12}} />
+                                </HStack>
+                                <HStack alignItems={'center'}>
+                                    <Box style={{width:7, height:7, borderRadius:10, backgroundColor:'#03D427', marginRight:5}} />
+                                    <DefText text='식단일기 작성' style={{fontSize:12}} />
+                                </HStack>
+                            </HStack>
+                            <Box height='300px'>
+                                <WebView
+                                    source={{
+                                        uri:'https://khict0107.cafe24.com/adm/rn-webview/bloodsugarFood.php?mode=week&id='+userInfo.id
+                                    }}
                                 />
-                            </ScrollView>
+                            </Box>
                         </Box>
                     </Box>
                     <Box mt={5}>

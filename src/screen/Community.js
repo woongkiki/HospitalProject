@@ -119,10 +119,10 @@ const Community = (props) => {
     //커뮤니티 데이터 가져오기
     const communityDataReceive = async () => {
 
-        let parameeters = {'schText':schTexts, 'sort':sortCategory};
+        let parameeters = {'schText':schTexts, 'sort':sortCategory, 'tag':keywordData};
 
         if(paramsData != ''){
-            parameeters = {'schText':schTexts, 'sort':sortCategory, 'code':paramsData};
+            parameeters = {'schText':schTexts, 'sort':sortCategory, 'code':paramsData, 'tag':keywordData};
         }
 
         await setCommunityLoading(true);
@@ -132,6 +132,8 @@ const Community = (props) => {
 
             if(resultItem.result === 'Y' && arrItems) {
              //   console.log('결과 출력 파라미터..: ', resultItem);
+
+             console.log('arrItems::::::',arrItems);
                 setCommunityApi(arrItems);
             }else{
                 console.log('결과 출력 실패!');
@@ -222,7 +224,7 @@ const Community = (props) => {
         await setCommunityLoading(true);
 
 
-        await Api.send('bbs_list', {'schText':keywordData, 'sort':sortCategory}, (args)=>{
+        await Api.send('bbs_list', {'schText':schTexts, 'sort':sortCategory, 'tag':keywordData}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
@@ -241,8 +243,8 @@ const Community = (props) => {
     //검색 키워드
     const schKeywordData = tagLists.map((keyword, index)=>{
         return(
-            <TouchableOpacity key={index} style={[styles.keywordButton, keywordData == keyword.name && {backgroundColor:'#666'}]} onPress={()=>keywordChangeList(keyword.name)}>
-                <DefText text={'#' + keyword.name} style={[styles.keywordButtonText, keywordData == keyword.name && {color:'#fff'}]} />
+            <TouchableOpacity key={index} style={[styles.keywordButton, {marginRight:10}, index === 0 && {marginLeft:20}, keywordData == keyword.name && {backgroundColor:'#696969'}]} onPress={()=>keywordChangeList(keyword.name)}>
+                <DefText text={keyword.name} style={[styles.keywordButtonText, keywordData == keyword.name && {color:'#fff'}]} />
             </TouchableOpacity>
         )
     })
@@ -274,25 +276,26 @@ const Community = (props) => {
         })
 
         return(
-            <Box px={5} style={[ {marginBottom:20} ]}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('CommunityView', item)}}>
+            <Box px={5} >
+                <TouchableOpacity onPress={()=>{navigation.navigate('CommunityView', item)}} style={[{borderBottomWidth:1, paddingVertical:15, borderBottomColor:'#f1f1f1'}, index === 0 && {borderTopColor:'#f1f1f1', borderTopWidth:1} ]}>
                     <HStack>
-                        <Image source={{uri:item.upfile1}} alt={item.subject} style={{width:100, height:100, resizeMode:'contain'}} />
-                        <VStack pl={2.5} width={HealthInfoWidth}  justifyContent='space-around'>
+                        <Image source={{uri:item.upfile1}} alt={item.subject} style={{width:100, height:70, resizeMode:'stretch', borderRadius:10}} />
+                        <VStack pl={2.5} width={HealthInfoWidth}  justifyContent='center'>
                             <DefText text={item.subject} style={styles.communityTitle} />
-                            <HStack justifyContent='space-between' alignItems='center' flexWrap={'wrap'}>
-                                <DefText text={item.count + ' reading'} style={styles.communityView} />
+                            <HStack justifyContent='space-between' alignItems='center' flexWrap={'wrap'} mt={'15px'}>
+                                <DefText text={'조회 : ' + item.count} style={styles.communityView} />
                                 
                                 {
                                     item.taglist.length > 0 &&
                                     <HStack>
                                         {
                                             item.taglist.map((tag, idx)=> {
+                                                if(tag != ''){
                                                 return(
                                                     <Box key={idx} style={[styles.commnuityKeywordButton, {marginTop:0},idx === 0 && {marginLeft:0} ]}>
                                                         <DefText text={tag} style={[styles.keywordButtonText]} />
                                                     </Box>
-                                                )
+                                                )}
                                             })
                                         }
                                     </HStack>
@@ -324,27 +327,38 @@ const Community = (props) => {
                     data={comData}
                     ListHeaderComponent={
                         <>  
-                            <Box px={5} pt={5}>
-                                <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
-                                    <Input
-                                        placeholder='검색하실 내용을 적어주세요.'
-                                        height='45px'
-                                        width={width-80}
-                                        backgroundColor='transparent'
-                                        borderWidth={0}
-                                        value={communitySearch}
-                                        onChangeText={SearchTextChagne}
-                                        onSubmitEditing={schButtons}
-                                    />
-                                    <TouchableOpacity onPress={schButtons}>
-                                        <Image source={require('../images/schIcons.png')} alt='검색' />
-                                    </TouchableOpacity>
-                                </HStack>
-                                <HStack flexWrap='wrap'>
-                                    {schKeywordData}
-                                </HStack>
+                            <Box pt={5}>
+                                <Box px={5}>
+                                    <HStack  alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
+                                        <Input
+                                            placeholder='검색하실 내용을 적어주세요.'
+                                            height='45px'
+                                            width={width-80}
+                                            backgroundColor='transparent'
+                                            borderWidth={0}
+                                            value={communitySearch}
+                                            onChangeText={SearchTextChagne}
+                                            onSubmitEditing={schButtons}
+                                        />
+                                        <TouchableOpacity onPress={schButtons}>
+                                            <Image source={require('../images/schIcons.png')} alt='검색' />
+                                        </TouchableOpacity>
+                                    </HStack>
+                                </Box>
+                                <Box>
+                                    <ScrollView 
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    >
+                                        <HStack flexWrap='wrap'>
+                                            {schKeywordData}
+                                        </HStack>
+                                    </ScrollView>
+                                </Box>
+                                
                             </Box>
                             {/* 당뇨 관리 */}
+                            <Box>
                             {
                                 hospitalBanners != '' && 
                                 <Box px={5} mt={5}>
@@ -353,6 +367,7 @@ const Community = (props) => {
                                     </TouchableOpacity>
                                 </Box>
                             }
+                            </Box>
                             
                             {/* 당뇨 관리 */}
                             <Box px={5} mt={2.5} mb={5}>
@@ -360,8 +375,8 @@ const Community = (props) => {
                                     <TouchableOpacity onPress={()=>sortChangeButton('최신순')} style={[styles.keywordButton, sortCategory === '최신순' && {backgroundColor:'#666'}]}>
                                         <DefText text='최신순' style={[styles.keywordButtonText, sortCategory === '최신순' && {color:'#fff'}]} />
                                     </TouchableOpacity>
-                                    <TouchableOpacity onPress={()=>sortChangeButton('인기순')} style={[styles.keywordButton, sortCategory === '인기순' && {backgroundColor:'#666'}]}>
-                                        <DefText text='인기순' style={[styles.keywordButtonText, sortCategory === '인기순' && {color:'#fff'}]} />
+                                    <TouchableOpacity onPress={()=>sortChangeButton('조회순')} style={[styles.keywordButton, sortCategory === '조회순' && {backgroundColor:'#666'}]}>
+                                        <DefText text='조회순' style={[styles.keywordButtonText, sortCategory === '조회순' && {color:'#fff'}]} />
                                     </TouchableOpacity>
                                 </HStack>
                             </Box>
@@ -389,33 +404,36 @@ const styles = StyleSheet.create({
     keywordButton: {
         height:30,
         paddingHorizontal:10,
-        backgroundColor:'#ddd',
+        backgroundColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:35,
+        borderRadius:10,
         marginRight:10,
         marginTop:10,
     },
     keywordButtonText: {
         fontSize: 14,
-        color:'#333',
+        color:'#000',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     },
     communityTitle: {
         fontSize:14,
-        lineHeight:24,
-        color:'#000'
+        color:'#000',
+        fontFamily:Font.NotoSansBold,
+        fontWeight:'bold'
     },
     communityView : {
-        fontSize:13,
-        color:'#FF004E'
+        fontSize:14,
+        color:'#696969'
     },
     commnuityKeywordButton: {
         height: 25,
         paddingHorizontal:10,
-        backgroundColor:'#ddd',
+        backgroundColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:25,
+        borderRadius:10,
         marginLeft:10,
     }
 })
