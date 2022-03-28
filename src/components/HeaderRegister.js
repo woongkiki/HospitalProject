@@ -12,7 +12,7 @@ const HeaderRegister = (props) => {
     const { width } = Dimensions.get('window');
 
     return (
-        <Box backgroundColor='#fff'>
+        <Box height='50px' backgroundColor='#fff'>
             <HStack alignItems='center' justifyContent='space-between' py='15px' px={12} >
                 <TouchableOpacity
                     onPress={()=>{ navigation.goBack() }}
@@ -23,7 +23,7 @@ const HeaderRegister = (props) => {
                 <Box>
                     <DefText 
                         text={headerText} 
-                        style={{fontSize:20, lineHeight:23,color:'#1E3354', fontWeight:'bold'}} 
+                        style={{fontSize:20, lineHeight:23,color:'#1E3354', fontWeight:Font.NotoSansMedium}} 
                     />
                 </Box>
                 <Box style={{width:9}}></Box>

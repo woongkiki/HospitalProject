@@ -2,41 +2,51 @@ import React from 'react';
 import { Box, VStack, HStack, Image } from 'native-base';
 import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, View } from 'react-native';
 import { DefText } from '../common/BOOTSTRAP';
+import Font from '../common/Font';
 
 const HeaderMedicine = ( props ) => {
 
     const {navigation, headerTitle, medicineList} = props;
 
     return (
-        <Box py={2.5} px={5} shadow={5} backgroundColor='#fff'>
-            <HStack justifyContent='space-between' alignItems='center'>
-                
+        <Box  px={5} height={'50px'} shadow={5} backgroundColor='#fff'>
+            
+            <Box width={'100%'} height={'50px'} alignItems={'center'} justifyContent={'center'}>
+                <DefText text={headerTitle} style={{fontSize:20, lineHeight:50, fontFamily:Font.NotoSansMedium ,position:'absolute', left:'50%', marginLeft:-40, color:'#696969'}} />
                 <TouchableOpacity
                     onPress={()=>{navigation.goBack()}}
+                    style={{
+                        paddingRight:20,
+                        
+                        position: 'absolute',
+                        height: 50,
+                        left: 0,
+                        top:0,
+                        alignItems:'center',
+                        justifyContent:'center'
+                    }}
                 >
                     <Image source={require('../images/headerArr.png')} alt='뒤로가기' />
                 </TouchableOpacity>
-                <DefText text={headerTitle} style={{fontSize:20, lineHeight:23,position:'absolute', left:'50%', marginLeft:-40}} />
-                <HStack alignItems='center'>
-                    {/* <TouchableOpacity>
+                <TouchableOpacity 
+                    onPress={medicineList}
+                    style={{
+                        
+                        position: 'absolute',
+                        height: 50,
+                        right: 0,
+                        top:0,
+                        alignItems:'center',
+                        justifyContent:'center'
+                    }}
+                >
                         <Image
-                            source={require('../images/reportIcons.png')}
-                            alt='리포트'
-                            style={{
-                                marginRight:10
-                            }}
-                        />
-                    </TouchableOpacity> */}
-                    <TouchableOpacity
-                        onPress={medicineList}
-                    >
-                        <Image
-                            source={require('../images/reportIcons2.png')}
-                            alt='리포트'
+                            source={require('../images/headerMenuNew.png')}
+                            alt='식단일기'
+                            style={{width:29, height:23, resizeMode:'contain'}}
                         />
                     </TouchableOpacity>
-                </HStack>
-            </HStack>
+            </Box>
         </Box>
     );
 };

@@ -43,13 +43,13 @@ export const renderBubble = (props) => (
       wrapperStyle={{
 
         left: {
-          backgroundColor: '#F4F4F4',
+          backgroundColor: '#f1f1f1',
           borderRadius: 15,
           marginTop: 5,
           minHeight: 20,
         },
         right: {
-          backgroundColor: '#696968',
+          backgroundColor: '#696969',
           borderRadius: 15,
           marginTop: 5,
         },
@@ -112,14 +112,14 @@ export const ChatTime = ({ currentMessage, timeFormat }) => {
           fontSize: 10,
           color: '#333333',
           textAlign: 'right',
-          fontFamily: Font.NotoSansLight,
+          fontFamily: Font.NotoSansMedium,
           lineHeight: 13,
         },
         left: {
           fontSize: 10,
           color: '#333333',
           textAlign: 'right',
-          fontFamily: Font.NotoSansLight,
+          fontFamily: Font.NotoSansMedium,
           lineHeight: 13,
         },
       }}
