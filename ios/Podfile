@@ -14,9 +14,11 @@ target 'HospitalProject' do
 
   target 'HospitalProjectTests' do
     inherit! :complete
+    pod 'KakaoSDK'
     # Pods for testing
   end
 
+  
   # Enables Flipper.
   #
   # Note that if you have use_frameworks! enabled, Flipper will not work and
