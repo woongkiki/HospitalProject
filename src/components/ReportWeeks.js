@@ -8,6 +8,9 @@ import Api from '../Api';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
+import { WebView } from 'react-native-webview';
+import { BASE_URL } from '../Utils/APIConstant';
 
 const {width} = Dimensions.get('window');
 
@@ -34,6 +37,7 @@ const ReportWeeks = (props) => {
 
 
     const [bloodSugarGraph, setBloodSugarGraph] = useState('');
+    const [bloodSugarGraphWidth, setBloodSugarGraphWidth] = useState(0);
     const [bloodSugarAvgBefore, setBloodSugarAvgBefore] = useState(-1);
     const [bloodSugarAvgAfter, setBloodSugarAvgAfter] = useState(-1);
     const [bloodSugarGraphData, setBloodSugarGraphData] = useState('');
@@ -67,6 +71,7 @@ const ReportWeeks = (props) => {
     const [bloodPLow, setBloodPLow] = useState('-1');
 
     const [bloodPressureType, setBloodPressureType] = useState([]);
+    const [bloodPressureWidth, setBloodPressureWidth] = useState([]);
     const [bloodPHighData, setBloodPHighData] = useState([]);
     const [bloodPLowData, setBloodPLowData] = useState([]);
 
@@ -113,18 +118,25 @@ const ReportWeeks = (props) => {
                 //console.log('123:::::::::', arrItems);
 
                
-                setBloodSugarGraph(arrItems.avg_sugar1);
+                setBloodSugarGraph(arrItems.sugar_graph);
                 
 
                 //공복혈당 평균
                 let bblevel = arrItems.avg_sugar1;
-            
-                if(bblevel < 80)   bblevel = 80;
-                if(bblevel > 140)   bblevel = 140;
-                bblevel = (bblevel * 1 - 91.7) * 2.405 * 0.92;
 
-               // console.log('213213123123123123',bblevel)
-                setBloodSugarAvgBefore(bblevel)
+               // console.log('bblevel::::::',bblevel);
+            
+                if(bblevel < 80)    bblevel = 80;
+                if(bblevel > 140)   bblevel = 140;
+                
+                // bblevel = (bblevel * 1 - 91.7) * 2.405 * 0.92;
+
+                let bbvalue = 0;
+                if(bblevel <= 100) bbvalue = 7*0.92;
+                else if(bblevel > 100 && bblevel <= 125) bbvalue = 50*0.92;
+                else bbvalue = 92 * 0.92;
+
+                setBloodSugarAvgBefore(arrItems.avg_sugar1)
 
 
                 //식후혈당 평균
@@ -137,25 +149,18 @@ const ReportWeeks = (props) => {
                 if(balevel > 220)   balevel = 220;
                 balevel = (balevel * 1 - 120) * 0.92;
 
+
+
+                if(balevel <= 140) bbvalue = 7*0.92;
+                else if(balevel > 140 && balevel <= 200) bbvalue = 50*0.92;
+                else bbvalue = 92 * 0.92;                
+
                 //console.log('213213123',balevel)
-                setBloodSugarAvgAfter(balevel);
+                setBloodSugarAvgAfter(arrItems.avg_sugar2);
+
+
 
                 
-
-                let graph_keys = Object.keys(arrItems.sugar_graph);
-
-                let graphKeysDatas = [];
-                graph_keys.map((e, i)=> {
-                    graphKeysDatas[i] = graph_keys[i].split('_')[0].substring(5,10) + ' ' + graph_keys[i].split('_')[1]+'시';
-                })
-                //console.log('123123', graph_keys[0].split('_')[1]);
-
-
-                //키값저장
-                setBloodSugarKeyData(graphKeysDatas);
-                //setBloodSugarKeyData(graphKeysDatas)
-
-                setBloodSugarData(Object.values(arrItems.sugar_graph));
 
 
                 //정상혈당 달성도
@@ -218,7 +223,7 @@ const ReportWeeks = (props) => {
                 if(bloodHighs >= 160)   boxWidths = 95;
                 boxWidths = boxWidths * 0.92;
 
-                setBloodPHigh(boxWidths);
+                setBloodPHigh(arrItems.avg_pressure1);
 
                
 
@@ -229,58 +234,38 @@ const ReportWeeks = (props) => {
                 if(bloodLows > 110)   bloodLows = 110;
                 bloodLows = (bloodLows * 1 - 60) * 2 * 0.92;
 
-                setBloodPLow(bloodLows);
+                setBloodPLow(arrItems.avg_pressure2);
                 
 
                 //setBloodPLow(arrItems.avg_pressure1);
 
 
-                //날짜별 혈압정보
-                //console.log('34343', Object.values(arrItems.pressure_graph)[0].high);
 
-                let bloodpgraphValue = Object.keys(arrItems.pressure_graph);
-                let bloodpKeyArr = [];
-                bloodpgraphValue.map((e, i)=> {
-                    bloodpKeyArr[i] = bloodpgraphValue[i].substring(5,10);
-                })
+               // let bpgraph_keys = Object.values(arrItems.pressure_graph);
 
-                setBloodPressureType(bloodpKeyArr)
-                //let pressureKey
-
-
-                let bpgraph_keys = Object.values(arrItems.pressure_graph);
-
-                let bloodPHightData = [];
-                bpgraph_keys.map((e, i)=> {
-                    if(bpgraph_keys[i].high != undefined){
-                        bloodPHightData[i] = bpgraph_keys[i].high;
-                    }else{
-                        bloodPHightData[i] = 0;
-                    }
-                    //console.log(bpgraph_keys[i].high);
-                })
+                // let bloodPHightData = [];
+                // bpgraph_keys.map((e, i)=> {
+                //     if(bpgraph_keys[i].high != undefined){
+                //         bloodPHightData[i] = bpgraph_keys[i].high;
+                //     }else{
+                //         bloodPHightData[i] = 0;
+                //     }
+                    
+                // })
 
                 //console.log(bloodPHightData);
-                setBloodPHighData(bloodPHightData);
+               // setBloodPHighData(bloodPHightData);
 
 
-                let bloodPLowData = [];
-                bpgraph_keys.map((e, i)=> {
-                    if(bpgraph_keys[i].low != undefined){
-                        bloodPLowData[i] = bpgraph_keys[i].low;
-                    }else{
-                        bloodPLowData[i] = 0;
-                    }
-                    //console.log(bpgraph_keys[i].high);
-                })
-                setBloodPLowData(bloodPLowData);
-
+                
 
                 let drug_percent1 = arrItems.drug_per1;
 
                 drug_percent1 = drug_percent1 / 100;
 
                 let drug_percent2 = arrItems.drug_per2;
+
+                console.log('drug:::', arrItems)
 
                 drug_percent2 = drug_percent2 / 100;
                 
@@ -295,36 +280,27 @@ const ReportWeeks = (props) => {
                 setRecomKcalData(arrItems.recom_kcal);
 
                 let kcalEats = (arrItems.avg_kcal1 / arrItems.recom_kcal) * 100;
-
                 console.log('kaclE', kcalEats);
-
-                if(kcalEats>100){
-                    setKcalEat(100);
-                }else{
-                    setKcalEat( Math.round(kcalEats));
+                if(!isNaN(kcalEats)){
+                    if(kcalEats>100){
+                        setKcalEat(100);
+                    }else{
+                        setKcalEat( Math.round(kcalEats));
+                    }
+                } else {
+                    setKcalEat(0);
                 }
 
 
                 //식단 그래프용
-                let foodGraphKey = Object.keys(arrItems.kcal_graph);
-                let foodGraphKeyArr = [];
-                foodGraphKey.map((e, i)=> {
-                    foodGraphKeyArr[i] = foodGraphKey[i].substring(5,10);
-                })
-                
-                setFoodGraphKey(foodGraphKeyArr);
+             
 
-                let foodGraphValue = Object.values(arrItems.kcal_graph);
-                let foodGraphValueArr = [];
-                foodGraphValue.map((e, i)=> {
-                    foodGraphValueArr[i] = foodGraphValue[i];
-                })
-
-                setFoodGraphValue(foodGraphValueArr);
+               
 
                 //식사 실천율
                 setRuleMeal(arrItems.rule_meal);
                 setRuleMealAlert(arrItems.rule_meal_alert);
+                console.log(arrItems.rule_meal_alert);
 
                 //식사습관
                 setRuleTime(arrItems.rule_time);
@@ -408,7 +384,7 @@ const ReportWeeks = (props) => {
             strokeWidth: 2 // optional
           }
         ],
-        legend: ["확장기","수축기"], // optional
+        legend: ["수축기","확장기"], // optional
         fromZero : false
     };
 
@@ -477,82 +453,77 @@ const ReportWeeks = (props) => {
                 </Box>
                 :
                 <>
-                    <DefText text='주간평균 혈당' style={styles.reportLabel} />
-                    <VStack mt={2.5}>
-                        <DefText text='공복혈당' style={styles.reportLabelSmall} />
+                    <HStack alignItems={'center'} justifyContent='space-between'>
+                        <DefText text='주간평균 혈당' style={styles.reportLabel} />
+                        <TouchableOpacity onPress={()=>navigation.navigate('GraphView', {'id':userInfo.id, 'mode':'week', 'screen':'bloodsugarReport'})} style={{padding:5, paddingHorizontal: 10, backgroundColor:'#B7B7B7', borderRadius:12}} >
+                            <DefText text='그래프 확인' style={{color:'#fff', }} />
+                        </TouchableOpacity>
+                    </HStack>
+                    <VStack mt={2.5}> 
                         
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            {
-                                bloodSugarAvgBefore != '-1' &&
-                                <Box style={[{position:'absolute', bottom:1, left:bloodSugarAvgBefore+'%'}]}>
-                                    <Image source={require('../images/smileIcons.png')} alt='수치' />
-                                </Box> 
-                            }
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
-                            </HStack>
-                        </LinearGradient>
-                        <HStack justifyContent='space-around' height='35px' mt={1}>
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text='100' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text='125' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                        </HStack>
-                    </VStack>
-                    <VStack mt={2.5}>
-                        <DefText text='식후혈당' style={styles.reportLabelSmall} />
-                        
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            {
-                                bloodSugarAvgAfter != '-1' &&
-                                <Box style={[{position:'absolute', bottom:1, left:bloodSugarAvgAfter+'%'}]}>
-                                    <Image source={require('../images/smileIcons.png')} alt='수치' />
+                       
+                        <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                            <DefText text={'식전 혈당(mg/dL)'} style={{ color:'#000000', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
+                            <HStack>
+                                <Box borderBottomWidth={bloodSugarAvgBefore < 100 ? 0 : 1} borderColor={ bloodSugarAvgBefore < 100 ? 'transparent' : '#f00'}>
+                                    <DefText text={bloodSugarAvgBefore != '' ? bloodSugarAvgBefore : '-'} style={{ color: bloodSugarAvgBefore < 100 ? '#000' : '#f00', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
                                 </Box>
-                            }
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='당뇨전단계' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
-                                <DefText text='당뇨' style={[styles.reportChartText, {color:'#333', fontWeight:'bold'}]} />
                             </HStack>
-                        </LinearGradient>
-                        <HStack justifyContent='space-around' height='35px' mt={1}>
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text='140' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text='200' style={[styles.reportChartText, {color:'#333'}]} />
-                            <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
                         </HStack>
+                
                     </VStack>
-                    <Box mt={5}>
-                        <Box>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            >
-                                <LineChart
-                                    data={data}
-                                    width={width + 3000}
-                                    height={235}
-                                    chartConfig={chartConfig}
-                                    bezier
-                                    fromZero={true} //0 부터시작 기본 false
-                                    withShadow={false} // 선그림자 여부 기본 true
-                                    yLabelsOffset={20} //y축 그래프 사이 여백
-                                    segments={5} //y축 수치 세그먼트 기본 4
-                                    style={{marginLeft:-20}}
-                                />
-                            </ScrollView>
+                    <VStack mt={2.5}>
+                        
+                        <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                            <DefText text={'식후 혈당(mg/dL)'} style={{ color:'#000000', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
+                            <HStack>
+                                <Box borderBottomWidth={bloodSugarAvgAfter < 140 ? 0 : 1} borderColor={ bloodSugarAvgAfter < 140 ? 'transparent' : '#f00'}>
+                                    <DefText text={ bloodSugarAvgAfter != '' ? bloodSugarAvgAfter : '-'} style={{ color: bloodSugarAvgAfter < 140 ? '#000' : '#f00', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
+                                </Box>
+                            
+                            </HStack>
+                        </HStack>
+         
+                    </VStack>
+         
+                    {/* <Box mt={5}>
+                        <HStack justifyContent={'center'}>
+                            <HStack alignItems={'center'} mr='20px'>
+                                <Box style={{width:7, height:7, borderRadius:10, backgroundColor:'#00f', marginRight:5}} />
+                                <DefText text='정상' style={{fontSize:12}} />
+                            </HStack>
+                            <HStack alignItems={'center'}>
+                                <Box style={{width:7, height:7, borderRadius:10, backgroundColor:'#f00', marginRight:5}} />
+                                <DefText text='비정상' style={{fontSize:12}} />
+                            </HStack>
+                        </HStack>
+                        <Box height='300px' >
+                            
+                            <WebView
+                                source={{
+                                    uri:BASE_URL +`/adm/rn-webview/bloodsugarReport.php?mode=week&id=`+userInfo?.id
+                                }}
+                                startInLoadingState={true}
+                                renderLoading={() => (
+                                        <ActivityIndicator
+                                            size="large"
+                                            color="#000"
+                                            style={{ width: '100%', marginTop: 50, marginBottom: 50 }}
+                                            />
+                                )}
+                                style={{
+                                    opacity:0.99,
+                                    minHeight:1,
+                                }}
+                            />
                         </Box>
-                    </Box>
+                    </Box> */}
+
+                    
                     {
                         bloodSugarGoalTotal != '0' &&
-                        <Box mt={2.5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                            <DefText text='정상혈당 달성도' style={[styles.reportLabel], {marginBottom:10}} />
+                        <Box mt={5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
+                            <DefText text='정상혈당 달성도' style={[styles.reportLabel, {marginBottom:10}]} />
                             <VStack>
                                 {
                                     bloodSugarGoalTotal != '' &&
@@ -579,7 +550,7 @@ const ReportWeeks = (props) => {
                     {
                         sugarArr != '' && 
                         <Box mt={5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                            <DefText text='혈당 값 추세' style={[styles.reportLabel], {marginBottom:10}} />
+                            <DefText text='혈당 값 추세' style={[styles.reportLabel, {marginBottom:10}]} />
                             <Box width={ (width-80) + 'px'} >
                                 <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
                                     <Box width={(width - 40) *0.2 + 'px'} />
@@ -638,7 +609,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm1 > 0 ? '+'+sugarArrTerm1 : '-'+sugarArrTerm1} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm1 > 0 ? '+'+sugarArrTerm1 : sugarArrTerm1} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                                 {
@@ -648,7 +619,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm2 > 0 ? '+'+sugarArrTerm2 : '-'+sugarArrTerm2} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm2 > 0 ? '+'+sugarArrTerm2 : sugarArrTerm2} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                                 
@@ -702,7 +673,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm3 > 0 ? '+'+sugarArrTerm3 : '-'+sugarArrTerm3} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm3 > 0 ? '+'+sugarArrTerm3 : sugarArrTerm3} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                                 {
@@ -712,7 +683,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm4 > 0 ? '+'+sugarArrTerm4 : '-'+sugarArrTerm4} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm4 > 0 ? '+'+sugarArrTerm4 : sugarArrTerm4} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                             </VStack>
@@ -765,7 +736,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm5 > 0 ? '+'+sugarArrTerm5 : '-'+sugarArrTerm5} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm5 > 0 ? '+'+sugarArrTerm5 : sugarArrTerm5} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                                 {
@@ -775,7 +746,7 @@ const ReportWeeks = (props) => {
                                                     </Box>
                                                     :
                                                     <Box style={{height:20, backgroundColor:'#FF6262', width:50, alignItems:'center', justifyContent:'center', borderRadius:20}}>
-                                                        <DefText text={sugarArrTerm6 > 0 ? '+'+sugarArrTerm6 : '-'+sugarArrTerm6} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
+                                                        <DefText text={sugarArrTerm6 > 0 ? '+'+sugarArrTerm6 : sugarArrTerm6} style={[styles.tableText, {color:'#fff', fontSize:12}]}  />
                                                     </Box>
                                                 }
                                             </VStack>
@@ -788,85 +759,148 @@ const ReportWeeks = (props) => {
                     }
                     {/* 혈압시작 */}
                     <VStack mt={5}>
-                        <DefText text='주간 혈압통계' style={[styles.reportLabel, {marginBottom:10}]} />
-                        <DefText text='최고혈압' style={styles.reportLabelSmall} />
-                        
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            {
-                                bloodPHigh != '-1' &&
-                                <Box style={[{position:'absolute', bottom:1, left: bloodPHigh + '%'}]}>
-                                    <Image source={require('../images/smileIcons.png')} alt='수치' />
-                                </Box>
-                            }
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
-                                <DefText text='주의' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1, marginLeft:-10}]} />
-                                <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
-                                <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1, marginRight:-5}]} />
-                                <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:1}]} />
-                            </HStack>
-                            
-                        </LinearGradient>
-                        <HStack justifyContent='space-between' height='35px' mt={1} pl={'25px'} pr={'30px'}>
- 
-                            <DefText text='120' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text='130' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text='140' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text='160' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
+                        <HStack justifyContent={'space-between'} alignItems='center' mb={'10px'}>
+                            <DefText text='주간 혈압통계' style={[styles.reportLabel]} />
+                            <TouchableOpacity onPress={()=>navigation.navigate('GraphView', {'id':userInfo.id, 'mode':'week', 'screen':'bloodpressureReport'})} style={{padding:5, paddingHorizontal: 10, backgroundColor:'#B7B7B7', borderRadius:12}} >
+                                <DefText text='그래프 확인' style={{color:'#fff', }} />
+                            </TouchableOpacity>
                         </HStack>
-                    </VStack>
-                    <VStack mt={2.5}>
-                        <DefText text='최저혈압' style={styles.reportLabelSmall} />
-                    
-                        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
-                            {
-                                bloodPLow != '-1' && 
-                                <Box style={[{position:'absolute', bottom:1, left:bloodPLow + '%'}]}>
-                                    <Image source={require('../images/smileIcons.png')} alt='수치' />
-                                </Box>
-                            }
-                            
-                            <HStack justifyContent='space-around' height='35px' alignItems='flex-end' pb='5px'>
-                                <DefText text='정상' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold', flex:2, textAlign:'center'}]} />
-                                <DefText text='고혈압전단계' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
-                                <DefText text='고혈압1기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
-                                <DefText text='고혈압2기' style={[styles.BloodPreText, {color:'#333', fontWeight:'bold',flex:1}]} />
+                      
+                        <DefText text='최고혈압' style={[{marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}]} />
+                        <Box p={5} backgroundColor='#f1f1f1' borderRadius={10} mb='20px'>
+                            <Box>
+                                {
+                                    bloodPHigh > -1 &&
+                                    <DefText text={bloodPHigh + ' mmHg'} style={{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}}/>
+                                }
+                            </Box>
+                            <Box mt='20px'>
+                                <HStack justifyContent='space-between' mt={'10px'} >
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                        <DefText text='정상' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                        <DefText text='주의' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                        <DefText text='전단계' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                        <DefText text='고혈압1기' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                        <DefText text='고혈압2기' style={styles.graphBoxText} />
+                                    </Box>
+                                </HStack>
+                                {
+                                    bloodPHigh > 0 && bloodPHigh <= 120 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPHigh > 120 && bloodPHigh <= 130 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPHigh > 130 && bloodPHigh <= 140 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPHigh > 140 && bloodPHigh <= 150 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPHigh > 150 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                            </Box>
+                            <HStack justifyContent={'space-around'} px={10} mt={'10px'}>
+                                <DefText text='120' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='130' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='140' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='150' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
                             </HStack>
-                            
-                        </LinearGradient>
-                        <HStack justifyContent='space-around' height='35px' mt={1}>
-                            <DefText text=' ' style={[styles.BloodPreText, {color:'#333', flex:2.25}]} />
-                            <DefText text='80' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text='90' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text='100' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
-                            <DefText text=' ' style={[styles.BloodPreText, {color:'#333', flex:1}]} />
-                        </HStack>
-                    </VStack>
-                    <Box alignItems='center' height='240px'>
-                        <Box>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            >   
-                                <LineChart
-                                    data={dataBlood}
-                                    width={width - 40}
-                                    height={220}
-                                    chartConfig={chartConfig}
-                                    bezier
-                                    fromZero={true} //0 부터시작 기본 false
-                                    withShadow={false} // 선그림자 여부 기본 true
-                                    yLabelsOffset={20} //y축 그래프 사이 여백
-                                    segments={5} //y축 수치 세그먼트 기본 4
-                                    style={{marginLeft:-10}}
-                                />
-                            </ScrollView>
                         </Box>
-                        
-                    </Box>
-                    {
-                        drugData1 != '' &&
-                        <VStack mt={10}>
+                    </VStack>
+                    <VStack>
+                        <DefText text='최저혈압' style={[{marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}]} />
+                        <Box p={5} backgroundColor='#f1f1f1' borderRadius={10} mb='20px'>
+                            <Box>
+                                {
+                                    bloodPLow > -1 &&
+                                    <DefText text={bloodPLow + ' mmHg'} style={{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}}/>
+                                }
+                            </Box>
+                            <Box mt='20px'>
+                                <HStack justifyContent='space-between' mt={'10px'} >
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                        <DefText text='저혈압' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                        <DefText text='정상' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                        <DefText text='전단계' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                        <DefText text='고혈압1기' style={styles.graphBoxText} />
+                                    </Box>
+                                    <Box style={[styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                        <DefText text='고혈압2기' style={styles.graphBoxText} />
+                                    </Box>
+                                </HStack>
+                                {
+                                    bloodPLow > 0 && bloodPLow <= 60 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPLow > 60 && bloodPLow <= 80 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPLow > 80 && bloodPLow <= 90 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPLow > 90 && bloodPLow <= 100 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                                {
+                                    bloodPLow > 100 &&
+                                    <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                        <Image source={require('../images/fatPositionNew.png')} alt='수치' />
+                                    </Box> 
+                                }
+                            </Box>
+                            <HStack justifyContent={'space-around'} px={10} mt={'10px'}>
+                                <DefText text='60' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='80' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='90' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                <DefText text='100' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                            </HStack>
+                        </Box>
+                    </VStack>
+                   
+                   
+                    
+                    <VStack mt={2.5}>
                             <DefText text='복약통계' style={[styles.reportLabel, {marginBottom:10}]} />
                             <HStack alignItems='flex-end' justifyContent='space-between' backgroundColor='#F1F1F1' p={5} borderRadius={10} >
                                 <Box >
@@ -904,10 +938,15 @@ const ReportWeeks = (props) => {
                             </HStack>
                             
                         </VStack>
-                    }
+                    
                     {/* 식단관리 */}
                     <VStack mt={5}>
-                        <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} />
+                        <HStack justifyContent={'space-between'} alignItems='center' mb={'10px'}>
+                            <DefText text='식습관 통계' style={[styles.reportLabel]} />
+                            <TouchableOpacity onPress={()=>navigation.navigate('GraphView', {'id':userInfo.id, 'mode':'week', 'screen':'kcalReport'})} style={{padding:5, paddingHorizontal: 10, backgroundColor:'#B7B7B7', borderRadius:12}} >
+                                <DefText text='그래프 확인' style={{color:'#fff', }} />
+                            </TouchableOpacity>
+                        </HStack>
                         <Box p={5} backgroundColor='#F1F1F1' borderRadius={10}>
                             <HStack justifyContent='space-around'>
                                 <VStack>
@@ -945,25 +984,13 @@ const ReportWeeks = (props) => {
                                         <DefText text={kcalEat + '%'} />
                                     </Box>
                                     :
-                                    <DefText text='0%'  />
+                                    <Box justifyContent={'center'} alignItems='center'>
+                                        <DefText text='0%'  />
+                                    </Box>
                                 }
                             </Box>
                         </Box>
-                        <Box mt={5}>
-                            <LineChart
-                                data={dataKcal}
-                                width={width - 40}
-                                height={220}
-                                chartConfig={chartConfig}
-                                bezier
-                                fromZero={true} //0 부터시작 기본 false
-                                withShadow={false} // 선그림자 여부 기본 true
-                                yLabelsOffset={20} //y축 그래프 사이 여백
-                                segments={5} //y축 수치 세그먼트 기본 4
-                                hideLegend={true}
-                                style={{marginLeft:-10}}
-                            />
-                        </Box>
+                        
                         <Box p={5} backgroundColor='#F1F1F1' borderRadius={10} mt={2.5}>
                             <DefText text='올바른 식사습관 달성도' style={[styles.reportLabel, {marginBottom:20}]} />
                             <VStack flexWrap={'wrap'}>
@@ -972,12 +999,16 @@ const ReportWeeks = (props) => {
                                     <DefText text={'규칙적인 식사 실천율 : '+ruleMeal.per+'%(총 '+ruleMeal.all+'회, 달성 '+ruleMeal.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
                                 }
                                 {
-                                    ruleMealAlert.notice != '' &&
+                                    ruleMealAlert?.notice != '' &&
                                     
                                     <HStack alignItems='center' mt={2.5}>
                                         <HStack flexWrap={'wrap'}>
-                                            <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
-                                            <DefText text={ruleMealAlert.notice} style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                            <Box width='10%'>
+                                                <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
+                                            </Box>
+                                            <Box width='90%'>
+                                                <DefText text={ruleMealAlert.notice} style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                            </Box>
                                         </HStack>
 
                                     </HStack>
@@ -987,15 +1018,19 @@ const ReportWeeks = (props) => {
                             <VStack  mt={2.5}>
                                 {
                                     ruleTime != '' &&
-                                    <DefText text={'규칙적인 식사 실천율 : '+ruleTime.per+'%(총 '+ruleTime.all+'회, 달성 '+ruleTime.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
+                                    <DefText text={'식사시간 준수실천율 : '+ruleTime.per+'%(총 '+ruleTime.all+'회, 달성 '+ruleTime.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
                                 }
                                 {
-                                    ruleTimeAlert.notice != '' &&
+                                    ruleTimeAlert?.notice != '' &&
                                     
                                     <HStack alignItems='center' mt={2.5} flexWrap='wrap'>
                                         <HStack flexWrap={'wrap'}>
-                                            <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
-                                            <DefText text={ ruleTimeAlert.notice} style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                            <Box width='10%'>
+                                                <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
+                                            </Box>
+                                            <Box width='90%'>
+                                                <DefText text={ ruleTimeAlert.notice} style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                            </Box>
                                         </HStack>
                                     
                                             
@@ -1005,7 +1040,7 @@ const ReportWeeks = (props) => {
                             <VStack mt={2.5}>
                                 {
                                     ruleNutrient != '' &&
-                                    <DefText text={'균형잡힌 영양소 비율 달성 : '+ruleNutrient.per+'%(총 '+ruleNutrient.all+'회, 달성 '+ruleNutrient.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
+                                    <DefText text={'균형잡힌 영양소 비율 달성 : '+ruleNutrient.per+'%(총 '+ruleNutrient.all+'일, 달성 '+ruleNutrient.cnt+'일)'} style={{fontSize:14,color:'#666'}} />
                                 }
                             </VStack>
                             {
@@ -1013,8 +1048,12 @@ const ReportWeeks = (props) => {
                                 
                                 <HStack alignItems='center' mt={2.5} flexWrap='wrap'>
                                     <HStack flexWrap={'wrap'}>
-                                        <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
-                                        <DefText text={ ruleNutrientAlert.notice } style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                        <Box width='10%'>
+                                            <Image source={require('../images/dangerIcon.png')} alt='주의' style={{marginRight:5}} />
+                                        </Box>
+                                        <Box width='90%'>
+                                            <DefText text={ ruleNutrientAlert.notice } style={{fontSize:12, color:'#333', fontWeight:'bold'}} />
+                                        </Box>
                                     </HStack>
                             
                                         
@@ -1023,7 +1062,7 @@ const ReportWeeks = (props) => {
                             <VStack mt={2.5}>
                                 {
                                     ruleSugar != '' &&
-                                    <DefText text={'당류 섭취관리 : '+ruleSugar.per+'%(총 '+ruleSugar.all+'회, 달성 '+ruleSugar.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
+                                    <DefText text={'당류 관리 달성도 : '+ruleSugar.per+'%(총 '+ruleSugar.all+'일, 달성 '+ruleSugar.cnt+'일)'} style={{fontSize:14,color:'#666'}} />
                                 }
                             </VStack>
                             {
@@ -1039,7 +1078,7 @@ const ReportWeeks = (props) => {
                             <VStack mt={2.5}>
                                 {
                                     ruleCholesterol != '' &&
-                                    <DefText text={'콜레스테롤 섭취관리 : '+ruleCholesterol.per+'%(총 '+ruleCholesterol.all+'회, 달성 '+ruleCholesterol.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
+                                    <DefText text={'콜레스테롤 관리 달성도 : '+ruleCholesterol.per+'%(총 '+ruleCholesterol.all+'일, 달성 '+ruleCholesterol.cnt+'일)'} style={{fontSize:14,color:'#666'}} />
                                 }
                             </VStack>
                             {
@@ -1055,7 +1094,7 @@ const ReportWeeks = (props) => {
                             <VStack mt={2.5}>
                                 {
                                     ruleSalt != '' &&
-                                    <DefText text={'나트륨 섭취관리 : '+ruleSalt.per+'%(총 '+ruleSalt.all+'회, 달성 '+ruleSalt.cnt+'회)'} style={{fontSize:14,color:'#666'}} />
+                                    <DefText text={'나트륨 관리 달성도 : '+ruleSalt.per+'%(총 '+ruleSalt.all+'일, 달성 '+ruleSalt.cnt+'일)'} style={{fontSize:14,color:'#666'}} />
                                 }
                             </VStack>
                             {
@@ -1084,21 +1123,22 @@ const styles = StyleSheet.create({
         width:width*0.43,
         height: 30,
         borderWidth:1,
-        borderColor:'#f2f2f2',
-        backgroundColor:'#dfdfdf',
+        borderColor:'#f1f1f1',
+        backgroundColor:'#f1f1f1',
         //alignItems:'center',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:5
+        borderRadius:10
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        fontSize:16,
+        color:'#696969',
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     reportLabelSmall : {
-        fontSize:13,
-        color:'#666'
+        fontSize:14,
+        color:'#696969'
     },
     reportChartText: {
         fontSize:14,
@@ -1106,28 +1146,29 @@ const styles = StyleSheet.create({
     },
     tableText: {
         fontSize:14,
-        color:'#333',
+        color:'#000',
         textAlign:'center'
     },
     progerssChartText: {
         fontSize:14,
-        color:'#333'
+        color:'#000'
     },
     progerssChartNumber : {
         fontSize:18,
-        color:'#333',
+        color:'#000',
         fontWeight:'bold',
+        fontFamily:Font.NotoSansBold,
         marginVertical:2.5
     },
     kcalAvgText: {
-        fontSize:15,
+        fontSize:14,
         color:'#666',
         marginBottom:10,
         fontWeight:'bold',
         textAlign:'center'
     },
     kcalAvgNumber : {
-        fontSize:15,
+        fontSize:14,
         color:'#666',
         textAlign:'center'
 
@@ -1137,6 +1178,25 @@ const styles = StyleSheet.create({
         color:'#fff',
         textAlign:'center'
     },
+    graphBox:{
+        width: (width - 80) * 0.15,
+        height: 30,
+        backgroundColor:'#333',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    graphBoxFive:{
+        width: (width - 80) * 0.185,
+        height: 30,
+        backgroundColor:'#333',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    graphBoxText: {
+        fontSize:12,
+        color:'#000',
+        fontWeight:'bold'
+    }
 })
 
 export default connect(

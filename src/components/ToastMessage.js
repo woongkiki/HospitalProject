@@ -6,7 +6,7 @@ import { getStatusBarHeight } from 'react-native-status-bar-height';
 const ToastMessage = ( message, duration, position, offset, message2 = '') => {
   Toast.show({
     type    : 'custom_type', //success | error | info
-    position: 'bottom',
+    position: position == '1' ? position : 'bottom',
     text1   : message,
     text2   : message2,
     visibilityTime: duration ? duration : 1000,
