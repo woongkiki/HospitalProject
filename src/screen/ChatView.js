@@ -17,6 +17,7 @@ import messaging from '@react-native-firebase/messaging';
 
 import Toast from 'react-native-toast-message';
 import PushNotificationIOS from '@react-native-community/push-notification-ios';
+import Font from '../common/Font';
 
 // ios 노티 개수 초기화
 if (Platform.OS === 'ios') { PushNotificationIOS.setApplicationIconBadgeNumber(0); }
@@ -31,6 +32,8 @@ const ChatView = (props) => {
 
     const [messages, setMessages] = useState([]);
 
+
+    const [chatCategorys, setChatCategorys] = useState(''); //카테고리
     // useEffect(() => {
     //     setMessages([
     //         {
@@ -75,6 +78,7 @@ const ChatView = (props) => {
         //setMessages(previousMessages => GiftedChat.append(previousMessages, messages))
     }, [])
 
+    const [checkListImage, setCheckListImage] = useState('');
 
     const ChatingLists = () => {
       
@@ -86,7 +90,8 @@ const ChatView = (props) => {
                 //console.log('임시저장하기: ', resultItem);
                 //ToastMessage(resultItem.message);
 
-                // console.log('채팅리스트1:::', arrItems);
+                // console.log('채팅리스트1:::', arrItems[0]);
+                 setCheckListImage(arrItems[0].user.avatar);
                 setMessages(arrItems);
                 
                 //setReserveList(arrItems)
@@ -99,7 +104,41 @@ const ChatView = (props) => {
      
     }
 
+
+    const [chatInfoData, setChatInfoData] = useState('');
+
+    const ChatInfos = () => {
+        Api.send('checklist_list', {'id':userInfo.id,  'token':userInfo.appToken, 'hcode':userInfo.m_hcode, 'status':chatCategorys}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('채팅리스트 헤더: ', arrItems);
+                //ToastMessage(resultItem.message);
+
+                let coco = arrItems;
+                //console.log('cocococo', coco);
+                let coco2 = coco.filter((item)=>{
+                    return item.idx == params.idx;
+                })
+
+                setChatInfoData(coco2[0]);
+                //console.log('ghoiiiio', coco);
+                //console.log('채팅리스트1:::', arrItems);
+               // setChatDatas(arrItems);
+                // /setChatListLoading(false);
+                //setReserveList(arrItems)
+            }else{
+                //console.log('결과 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    
+
     useEffect(()=>{
+        ChatInfos();
         ChatingLists();
     }, [])
 
@@ -194,31 +233,38 @@ const ChatView = (props) => {
                 } 
             }
             });
-            const unsubscribe = await dynamicLinks().onLink(handleDynamicLink);
-            return () => unsubscribe();
+            //const unsubscribe = await dynamicLinks().onLink(handleDynamicLink);
+            //return () => unsubscribe();
         }
     }, []);
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             {/* <HeaderComponents navigation={navigation} headerTitle='채팅' /> */}
-            <Box>
-                <HStack alignItems='center' px={5} py={2.5} backgroundColor='#F7F8FB'>
+            <Box >
+                <HStack alignItems='center' px={5} height='55px'  backgroundColor='#F7F8FB'>
                     <TouchableOpacity
                         onPress={()=>{ navigation.goBack() }}
                         
                     >
                         <Image source={require('../images/headerArr.png')} alt='뒤로가기' />
                     </TouchableOpacity>
-                    <Box ml={5}>
-                        <Box >
-                            <Image source={{uri:params.upfile}} style={{width:40, height:40, resizeMode:'cover', borderRadius:40}} alt={params.name} />
+                    {
+                        chatInfoData != '' &&
+                        <Box ml={5}>
+                            <Box >
+                                <Image source={{uri:chatInfoData.upfile}} style={{width:40, height:40, resizeMode:'cover', borderRadius:10}} alt={params.name} />
+                            </Box>
                         </Box>
-                    </Box>
-                    <Box ml={2.5}>
-                        <DefText text={params.name} style={{fontSize:14}} />
-                        <DefText text='Medical Assistant' style={{fontSize:14, marginTop:5, color:'#666'}} />
-                    </Box>
+                    }
+                    {
+                        chatInfoData != '' &&
+                        <Box ml={2.5}>
+                            <DefText text={chatInfoData.name} style={{fontSize:14, fontFamily:Font.NotoSansMedium}} />
+                            <DefText text='Medical Assistant' style={{fontSize:14, color:'#696969'}} />
+                        </Box>
+                    }
+                    
                 </HStack>
             </Box>
             <GiftedChat

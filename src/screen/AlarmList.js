@@ -15,7 +15,7 @@ const {width} = Dimensions.get('window');
 
 const AlarmList = (props) => {
 
-    const {navigation, userInfo} = props;
+    const {navigation, userInfo, chg_hcode} = props;
 
    
     const [alarmCategory, setAlarmCategory] = useState('');
@@ -39,7 +39,7 @@ const AlarmList = (props) => {
     const [alarmList, setAlarmList] = useState('');
 
     const AlarmListRequest = () => {
-        Api.send('push_list', {'id':userInfo.id, 'category':categorySelect}, (args)=>{
+        Api.send('push_list', {'id':userInfo.id, 'token':userInfo.appToken,'category':''}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
@@ -49,6 +49,8 @@ const AlarmList = (props) => {
                //setAlarmCategory(arrItems);
                setAlarmList(arrItems);
 
+            }else{
+                console.log(arrItems);
             }
         });
     }
@@ -63,29 +65,41 @@ const AlarmList = (props) => {
 
         await setCategorySelect(tags);
 
-        await Api.send('push_list', {'id':userInfo.id, 'category':tags}, (args)=>{
+        await Api.send('push_list', {'id':userInfo.id, token:userInfo.appToken,'category':tags}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
 
                console.log('알림 내역...',arrItems);
+               console.log(args);
                //setAlarmCategory(arrItems);
                setAlarmList(arrItems);
 
+            }else{
+                console.log('실패:::',arrItems);
             }
         });
     }
-
-    const ScreenMove = (screen, screenIdx) => {
-
-        let screenName;
+    
+    const ScreenMove = (screen, screenIdx, hcode='') => {
+        if(hcode != '') chg_hcode(hcode); 
+        let screenName = '';
         if(screen == 'BBS'){
             screenName = 'CommunityView';
         }
 
         if(screen == 'hospitalBBS'){
+            
             screenName = 'BoardView';
+        }
+
+        if(screen == 'chat'){
+            screenName = 'ChatView';
+        }
+
+        if(screen == 'hospitalReserve'){
+            screenName = 'Reservation'
         }
 
         if(screen == null){
@@ -94,8 +108,12 @@ const AlarmList = (props) => {
         }
 
         //console.log(screenName);
-
-        navigation.navigate(screenName, {'idx':screenIdx});
+        if(screen != ''){
+            navigation.navigate(screen, {'idx':screenIdx});
+            //navigation.navigate(screenName, {'idx':screenIdx});
+        }else{
+            console.log('screen nonono');
+        }
 
     }
 
@@ -130,12 +148,19 @@ const AlarmList = (props) => {
                         alarmList != '' ?
                         alarmList.map((item, index)=> {
                             return(
-                                <TouchableOpacity onPress={()=>ScreenMove(item.screen, item.screen_idx)} key={index} style={[{backgroundColor:'#f1f1f1', borderRadius:10, padding:20}, index != 0 ? {marginTop:20} : {marginTop:10} ]} >
-                                    <HStack justifyContent='space-between' alignItems='center'>
-                                        <DefText text={item.title} style={styles.noticeTitle} />
-                                        <DefText text={item.wdate} style={styles.noticeTimes} />
+                                <TouchableOpacity onPress={()=>ScreenMove(item.screen, item.screen_idx, item.hcode)} key={index} style={[{backgroundColor: item.new ? '#abd4ff':'#f1f1f1', borderRadius:10, padding:20}, index != 0 ? {marginTop:20} : {marginTop:10}
+                                ]} >
+                                    <HStack alignItems='flex-start'>
+                                        <Box width='30%' >
+                                            <DefText text={item.title} style={{color:'#000', fontFamily:Font.NotoSansBold}} />
+                                        </Box>
+                                        <Box width='70%'>
+                                            <DefText text={item.content} style={{color:'#000', fontFamily:Font.NotoSansMedium}}  />
+                                            <DefText text={item.wdate} style={{fontSize:14, color:'#696969', fontFamily:Font.NotoSansMedium, marginTop:10}} />
+                                            <DefText text={item.hname} style={{fontSize:14, color:'#696969', fontFamily:Font.NotoSansMedium, marginTop:10}} />
+                                        </Box>
+                                        {/* <DefText text={item.wdate} style={styles.noticeTimes} /> */}
                                     </HStack>
-                                    <DefText text={item.content} style={[styles.noticeContent]} />
                                 </TouchableOpacity>
                             )
                         })
@@ -162,7 +187,7 @@ const styles = StyleSheet.create({
         color:'#666'
     },
     noticeContent: {
-        marginTop:20,
+        marginTop:15,
         fontSize:15,
         color:'#000'
     },
@@ -189,6 +214,7 @@ export default connect(
     (dispatch) => ({
         member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
         member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+        chg_hcode   : (hcode) => dispatch({"type":"change_hcode", payload:hcode})
         
     })
 )(AlarmList);

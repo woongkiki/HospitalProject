@@ -12,6 +12,7 @@ import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
 import {textLengthOverCut} from '../common/dataFunction';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
 
 const { width, height } = Dimensions.get('window');
 const RightContWidth = (width - 40) - 90;
@@ -54,7 +55,7 @@ const ChatingList = (props) => {
 
         console.log(status);
 
-        if(status.status == 'W'){
+        if(status.hmidx == null){
             ToastMessage('현재 담당자를 배정 중인 채팅입니다.');
             return false;
         }else{
@@ -77,7 +78,7 @@ const ChatingList = (props) => {
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
-                console.log('채팅리스트: ', arrItems);
+                console.log('채팅리스트: ', resultItem);
                 //ToastMessage(resultItem.message);
 
                 //console.log('채팅리스트1:::', arrItems);
@@ -127,7 +128,7 @@ const ChatingList = (props) => {
                 :
                 <ScrollView>
                     <Box p={5}>
-                        <DefText text='원하시는 태그를 선택하시면 보다 쉽게 검색이 가능합니다.' style={{fontSize:15, color:'#666'}} />
+                        <DefText text='원하시는 태그를 선택하시면 보다 쉽게 검색이 가능합니다.' style={{color:'#000', fontFamily:Font.NotoSansMedium}} />
                         <HStack pt={2.5}>
                             <TouchableOpacity onPress={()=>ChatCategoryChanges('')} style={[styles.chatCategory, chatCategorys === '' && {backgroundColor:'#666'} ]}>
                                 <DefText text='전체' style={[styles.chatCategoryText, chatCategorys === '' && {color:'#fff'}]} />
@@ -143,7 +144,7 @@ const ChatingList = (props) => {
                             chatDatas.length != '0' ?
                             chatDatas.map((item, index)=>{
                                 return (
-                                    <TouchableOpacity key={index} style={[ styles.chatListButton]} onPress={()=>ChatingButtons(item)}>
+                                    <TouchableOpacity key={index} style={[styles.chatListButton, index == 0 && {borderTopColor:'#f1f1f1', borderTopWidth:1, marginTop:20}]} onPress={()=>ChatingButtons(item)}>
                                         <HStack>
                                             <Image source={{uri:item.upfile}} alt='123' style={{width:width * 0.2, height:width * 0.2, resizeMode:'cover', borderRadius:10}} />
                                             <VStack width={RightContWidth} px={3} justifyContent='space-around'>
@@ -182,7 +183,7 @@ const ChatingList = (props) => {
                             
                             :
                             <Box justifyContent='center' alignItems='center' height={height- 250}>
-                                <DefText text='채팅내역 목록이 없습니다.' style={{color:'#666'}} />
+                                <DefText text='채팅내역 목록이 없습니다.' style={{color:'#696969'}} />
                             </Box>
                         }
                     </Box>
@@ -197,20 +198,22 @@ const styles = StyleSheet.create({
     chatCategory : {
         height:30,
         paddingHorizontal:10,
-        backgroundColor:'#ddd',
+        backgroundColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center',
-        borderRadius:35,
+        borderRadius:10,
         marginRight:10
     },
     chatCategoryText : {
         fontSize: 14,
-        color:'#333',
+        color:'#000',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
     },
     chatListButton: {
         borderBottomWidth:1,
-        borderBottomColor:'#666',
-        marginTop:20,
+        borderBottomColor:'#f1f1f1',
+        paddingVertical:15
     },
     buttonDoctorName : {
         fontSize:14,

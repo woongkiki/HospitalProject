@@ -10,6 +10,9 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
+import Font from '../common/Font';
+import { WebView } from 'react-native-webview';
+import { BASE_URL } from '../Utils/APIConstant';
 
 const BoardView = (props) => {
 
@@ -46,42 +49,18 @@ const BoardView = (props) => {
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='병원게시판' navigation={navigation} />
-            {
-                detail != '' ?
-                <ScrollView>
-                    <Box p={5}>
-                        <Box width='90%' mb={10}>
-                            <DefText text={detail.subject} style={styles.boardViewTitle} />
-                        </Box>
-                        <HStack alignItems='center' pb={5} borderBottomWidth={1} borderBottomColor='#dfdfdf'>
-                            <Image 
-                                source={require('../images/hospitalLogo.png')} 
-                                alt='hospital logo'
-                                style={{marginRight:20, width:64, height:64, resizeMode:'contain'}}
-                            />
-                            <Box>
-                                <DefText text='힐링' style={styles.boardViewWriter} />
-                                <DefText text={detail.wdate} style={styles.boardViewDate} />
-                            </Box>
-                        </HStack>
-                        <Box py={5} px={2.5}>
-                            <HTML 
-                                ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontFamily', 'br']}
-                                ignoredTags={['head', 'script', 'src']}
-                                imagesMaxWidth={Dimensions.get('window').width - 40}
-                                source={{html: detail.content}} 
-                                tagsStyles={StyleHtml}
-                                containerStyle={{ flex: 1, }}
-                                contentWidth={Dimensions.get('window').width}  
-                            />
-                        </Box>
-                    </Box>
-                </ScrollView>
-                :
-                <Box alignItems='center' justifyContent='center' flex={1}>
-                    <ActivityIndicator size='large' color='#333' />
-                </Box>
-            }
+            <Box flex={1} px='12px'>
+                <WebView
+                    source={{
+                        uri: BASE_URL + '/adm/rn-webview/hospital_bbs.php?idx='+params.idx
+                    }}
+                    style={{
+                        opacity:0.99,
+                        minHeight:1
+                    }}
+                    originWhitelist={['*']}
+                />
+            </Box>
             
         </Box>
     );
@@ -89,10 +68,11 @@ const BoardView = (props) => {
 
 const styles = StyleSheet.create({
     boardViewTitle: {
-        fontSize:20,
-        lineHeight:23,
+        fontSize:25,
+        lineHeight:30,
         color:'#000',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     boardViewWriter: {
         fontSize:15,

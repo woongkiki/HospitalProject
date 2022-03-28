@@ -1,12 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList, ImageBackground, Alert } from 'react-native';
 import { Box, Image, HStack, Input, Modal, VStack } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefInput, DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { ScrapFolderData } from '../Utils/DummyData';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import ToastMessage from '../components/ToastMessage';
+import { StackActions } from '@react-navigation/native';
+import Api from '../Api';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -29,7 +32,13 @@ const AcountInfo = ( props ) => {
        // console.log(logout.state);
 
         ToastMessage('로그아웃 합니다.');
-        navigation.replace('Login');
+        //navigation.replace('Login');
+
+        //navigation.dispatch(StackActions.replace('Login'));
+
+        navigation.reset({
+            routes: [{ name: 'Login' }],
+        });
 
     }
 
@@ -51,35 +60,81 @@ const AcountInfo = ( props ) => {
         
     }
 
+
+    const [memberChangeModal, setMemberChangeModal] = useState(false);
+
+    const [pwdNumber, setPwdNumber] = useState('');
+    const pwdNumberChange = (text) => {
+        setPwdNumber(text)
+    }
+
+    const AcountChanges = () => {
+
+        //navigation.navigate('AcountInfoChange', {'userInfo':userInfo})
+        navigation.navigate('EasyPwdCh');
+        setMemberChangeModal(false);
+    }
+
+    const Acounts = () =>{
+        Api.send('member_password2', {'id':userInfo.id,  'token':userInfo.appToken, password:pwdNumber}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('결과 정보: ', arrItems);
+               navigation.navigate('AcountInfoChange', {'userInfo':userInfo})
+               setMemberChangeModal(false);
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+               ToastMessage(resultItem.message);
+            }
+        });
+    }
+    
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='계정설정' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
-                    <TouchableOpacity style={[styles.mypageButton, {marginTop:0}]} onPress={()=>navigation.navigate('AcountInfoChange', {'userInfo':userInfo})}>
+                    <TouchableOpacity style={[styles.mypageButton, {marginTop:0}]} onPress={()=>setMemberChangeModal(!memberChangeModal)}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='회원정보 변경' style={styles.mypageButtonText} />
-                            <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                            <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
                         </HStack>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>navigation.navigate('HospitalAdd')}>
+                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>navigation.navigate('PasswordCh')}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
-                            <DefText text='병원추가' style={styles.mypageButtonText} />
+                            <DefText text='비밀번호 변경' style={styles.mypageButtonText} />
+                            <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
+                        </HStack>
+                    </TouchableOpacity>
+
+                    {/* <TouchableOpacity style={[styles.mypageButton]} onPress={()=>navigation.navigate('EasyPwdCh')}>
+                        <HStack alignItems='center' height='43px' justifyContent='space-between'>
+                            <DefText text='간편비밀번호 변경' style={styles.mypageButtonText} />
                             <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                        </HStack>
+                    </TouchableOpacity> */}
+
+                    <TouchableOpacity style={[styles.mypageButton]} onPress={()=>navigation.navigate('HospitalList')}>
+                        <HStack alignItems='center' height='43px' justifyContent='space-between'>
+                            <DefText text='회원권 조회' style={styles.mypageButtonText} />
+                            <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
                         </HStack>
                     </TouchableOpacity>
                    
                     <TouchableOpacity style={[styles.mypageButton]} onPress={()=>setLogOutModal(true)}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='로그아웃' style={styles.mypageButtonText} />
-                            <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                            <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
                         </HStack>
                     </TouchableOpacity>
                     <TouchableOpacity style={[styles.mypageButton]} onPress={()=>setMemberLeave(true)}>
                         <HStack alignItems='center' height='43px' justifyContent='space-between'>
                             <DefText text='탈퇴하기' style={styles.mypageButtonText} />
-                            <Image source={require('../images/buttonArrRight.png')} alt='바로가기' />
+                            <Image source={require('../images/mypageArrs.png')} alt='바로가기' style={{width:28, height:28}} />
                         </HStack>
                     </TouchableOpacity>
                 </Box>
@@ -118,6 +173,44 @@ const AcountInfo = ( props ) => {
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
+            <Modal isOpen={memberChangeModal} onClose={() => setMemberChangeModal(false)}>
+            
+                <Modal.Content maxWidth={width-40} backgroundColor='#fff'>
+                    <Modal.Body>
+                        <DefText text={'회원정보 변경을 위해'+'\n'+'간편 비밀번호를 입력해주세요.'} style={{textAlign:'center', fontFamily:Font.NotoSansMedium, marginBottom:20}}/>
+                        <Box>
+                            
+                            <Input 
+                                value={pwdNumber}
+                                onChangeText={pwdNumberChange}
+                                secureTextEntry={true}
+                                height='45px'
+                                placeholder='간편 비밀번호를 입력하세요.'
+                                keyboardType='number-pad'
+                                maxLength={6}
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                borderRadius={10}
+                                _focus='transparent'
+                                style={[{fontFamily:Font.NotoSansMedium}, pwdNumber.length > 0 && {backgroundColor:'#f1f1f1'}]}
+                            />
+                        </Box>
+                        <HStack justifyContent='space-between' mt={5}>
+                            <TouchableOpacity style={styles.logoutButton} onPress={Acounts}>
+                                <DefText text='확인' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.logoutButton} onPress={()=>setMemberChangeModal(false)}>
+                                <DefText text='취소' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                        </HStack>
+                        <HStack justifyContent={'flex-end'} mt={5}>
+                            <TouchableOpacity onPress={()=>AcountChanges()}>
+                                <DefText text='간편비밀번호 찾기' style={{color:'#696969', fontFamily:Font.NotoSansMedium}} />
+                            </TouchableOpacity>
+                        </HStack>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
         </Box>
     );
 };
@@ -126,26 +219,28 @@ const styles = StyleSheet.create({
     mypageButton: {
         height:43,
         backgroundColor:'#F1F1F1',
-        borderRadius:43,
+        borderRadius:10,
         paddingLeft:20,
         paddingRight:10,
         marginTop:10
     },
     mypageButtonText: {
-        fontSize:16,
-        color:'#000'
+        color:'#000',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     },
     logoutButton : {
-        height:40,
+        height:45,
         width:(width-80) *0.47,
         borderRadius:10,
-        backgroundColor:'#696968',
+        backgroundColor:'#090A73',
         alignItems:'center',
         justifyContent:'center'
     },
     logoutButtonText: {
-        fontSize:15,
-        color:'#fff'
+        fontSize:16,
+        color:'#fff',
+        fontFamily:Font.NotoSansMedium
     }
 })
 

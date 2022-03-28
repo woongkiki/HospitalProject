@@ -2,12 +2,13 @@ import React, {useState, useEffect} from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet } from 'react-native';
 import { Box, VStack, HStack, Image, Select, Input } from 'native-base';
 import HeaderComponents from '../components/HeaderComponents';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -136,93 +137,120 @@ const BloodPressureAdd = (props) => {
             <HeaderComponents headerTitle='혈압기록' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
-                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                         <Box width={(width * 0.60) + 'px'}>
-                            <DefText text='혈압을 기록해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='혈압측정 가이드를 꼭 참조해주세요.' style={{fontSize:14, }} />
+                            <DefText text='혈압을 기록해주세요.' style={{fontSize:16, fontFamily:Font.NotoSansMedium}} />
+                            <DefText text='혈압측정 가이드를 꼭 참조해주세요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
                             <TouchableOpacity
                                 style={{
                                     width:100,
                                     height:30,
-                                    backgroundColor:'#696968',
+                                    backgroundColor:'#090A73',
                                     borderRadius:10,
                                     alignItems:'center',
                                     justifyContent:'center',
                                     marginTop:10 
                                 }}
                             >
-                                <DefText text='가이드' style={{color:'#fff', fontSize:15}} />
+                                <DefText text='가이드' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                             </TouchableOpacity>
                         </Box>
-                        <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
+                        <Image source={require('../images/bloodPTopImage.png')} style={{width:74, height:59, resizeMode:'contain'}} alt='체크이미지' />
                     </HStack>
                     <HStack mt={5} p={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between' alignItems='center'>
                         <DefText text='측정일자' />
                         <HStack alignItems='center' >
                             <DefText text={dateTimeText} />
                             <TouchableOpacity onPress={showDatePicker}>
-                                <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
+                                <Image source={require('../images/carlendarNew.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
                             </TouchableOpacity>
                         </HStack>
                     </HStack>
                     <Box mt={5}>
-                        <HStack alignItems='center' justifyContent='space-between'>
-                            <DefText text='수축기(mmHg)' style={styles.selectLabel} />
-                            <Input 
-                                 placeholder='수축기를 입력하세요.'
-                                 height='45px'
-                                 width={width * 0.5}
-                                 backgroundColor='transparent'
-                                 _focus='transparent'
-                                 //onSubmitEditing={schButtons}
-                                 value={select1}
-                                 onChangeText={select1Change}
-                                 style={{fontSize:14}}
-                                 keyboardType='number-pad'
-                            />
-                            
+                        <HStack>
+                            <DefText text='수축기(mmHg)' style={[styles.selectLabel, {marginBottom:15}]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                         </HStack>
+                        <Input
+                            placeholder='수축기 혈압을 입력하세요.'
+                            placeholderTextColor={'#a3a3a3'}
+                            height='45px'
+                            width={width-40}
+                            backgroundColor='transparent'
+                            borderWidth={1}
+                            borderColor='#f1f1f1'
+                            borderRadius={10}
+                            //onSubmitEditing={schButtons}
+                            value={select1}
+                            onChangeText={select1Change}
+                            style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, select1.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                            keyboardType='phone-pad'
+                            _focus='transparent'
+                        />
+                        
                     </Box>
                     <Box mt={5}>
-                        <HStack alignItems='center' justifyContent='space-between'>
+                        <HStack>
+                            <DefText text='이완기(mmHg)' style={[styles.selectLabel, {marginBottom:15}]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                        </HStack>
+                        <Input 
+                                placeholder='이완기 혈압을 입력하세요.'
+                                height='45px'
+                                width={width-40}
+                                backgroundColor='transparent'
+                                _focus='transparent'
+                                //onSubmitEditing={schButtons}
+                                value={select2}
+                                borderColor='#f1f1f1'
+                                borderRadius={10}
+                                onChangeText={select2Change}
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, select2.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                                keyboardType='number-pad'
+                        />
+                        {/* <HStack alignItems='center' justifyContent='space-between'>
                             <DefText text='이완기(mmHg)' style={styles.selectLabel} />
                             <Input 
-                                 placeholder='이완기를 입력하세요.'
+                                 placeholder='이완기 혈압을 입력하세요.'
                                  height='45px'
                                  width={width * 0.5}
                                  backgroundColor='transparent'
                                  _focus='transparent'
                                  //onSubmitEditing={schButtons}
                                  value={select2}
+                                 borderColor='#f1f1f1'
+                                 borderRadius={10}
                                  onChangeText={select2Change}
-                                 style={{fontSize:14}}
+                                 style={[{fontSize:14}, select2.length > 0 && {backgroundColor:'#f1f1f1', color:'#000', fontSize:16, fontFamily:Font.NotoSansMedium}]}
                                  keyboardType='number-pad'
                             />
-                        </HStack>
+                        </HStack> */}
                     </Box>
                     <Box mt={5}>
-                        <HStack alignItems='center' justifyContent='space-between'>
-                            <DefText text='심박수(bpm)' style={styles.selectLabel}  />
-                            <Input 
-                                 placeholder='심박수를 입력하세요.'
-                                 height='45px'
-                                 width={width * 0.5}
-                                 backgroundColor='transparent'
-                                 _focus='transparent'
-                                 //onSubmitEditing={schButtons}
-                                 value={select3}
-                                 onChangeText={select3Change}
-                                 style={{fontSize:14}}
-                                 keyboardType='number-pad'
-                            />
+                        <HStack>
+                            <DefText text='심박수(bpm)' style={[styles.selectLabel, {marginBottom:15}]}  />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                         </HStack>
+                        <Input 
+                            placeholder='심박수를 입력하세요.'
+                            height='45px'
+                            width={width-40}
+                            backgroundColor='transparent'
+                            _focus='transparent'
+                            borderColor='#f1f1f1'
+                            borderRadius={10}
+                            //onSubmitEditing={schButtons}
+                            value={select3}
+                            onChangeText={select3Change}
+                            style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, select3.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                            keyboardType='number-pad'
+                        />
+                        
                     </Box>
                 </Box>
             </ScrollView>
-            <Box p={2.5}>
-                <TouchableOpacity onPress={SavesBtn} style={styles.buttonDef}>
-                    <DefText text='혈압 등록' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={SavesBtn} />
             </Box>
             <DateTimePickerModal
                 isVisible={isDatePickerVisible}
@@ -236,8 +264,8 @@ const BloodPressureAdd = (props) => {
 
 const styles = StyleSheet.create({
     selectLabel : {
-        fontSize:14,
-        color:'#666'
+        color:'#696968',
+        fontFamily:Font.NotoSansMedium
     },
     medicineButtons : {
         backgroundColor:'#999',

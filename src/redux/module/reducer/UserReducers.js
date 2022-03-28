@@ -99,6 +99,15 @@ import {
         return {
           userInfo: null, // user
         };
+      case "change_hcode":
+        let copy = {...state};
+        let copy_userInfo = {...copy.userInfo};
+        copy_userInfo.m_hcode = payload;
+
+      return {
+          ...state,
+          userInfo: copy_userInfo, // user
+        };
       default:
         return state;
     }

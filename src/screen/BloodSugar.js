@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet, Linking, ActivityIndicator } from 'react-native';
 import { Box, VStack, HStack, Image } from 'native-base';
 import HeaderComponents from '../components/HeaderComponents';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import LinearGradient from 'react-native-linear-gradient';
 import {LineChart, ProgressChart} from 'react-native-chart-kit';
 import { connect } from 'react-redux';
@@ -10,7 +10,8 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import Api from '../Api';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import ToastMessage from '../components/ToastMessage';
-
+import Font from '../common/Font';
+import { WebView } from 'react-native-webview';
 
 const {width} = Dimensions.get('window');
 
@@ -18,12 +19,14 @@ const BloodSugar = (props) => {
 
     const {navigation, userInfo} = props;
 
-
+    const [datalabel, setDataLabel] = useState([]);
     const dataLabels = [7,8,9,10,11,12,13,14,15,16,17,18,19,20];
     const [bloodSugarData, setBloodSugarData] = useState([130, 0, 190, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
+
+
     const data = {
-        labels: ["7시","8시","9시","10시","11시","12시","13시","14시","15시","16시","17시","18시","19시","20시"],
+        labels: datalabel,
         datasets: [
           {
             data: bloodSugarData,
@@ -33,7 +36,7 @@ const BloodSugar = (props) => {
           },
           
         ],
-       
+     
         fromZero : false
     };
 
@@ -87,6 +90,7 @@ const BloodSugar = (props) => {
             if(resultItem.result === 'Y' && arrItems) {
                 console.log('결과 정보: ', arrItems);
                 
+                setDataLabel(arrItems.graph_label)
                 setBloodSugarInfoAll(arrItems);
                 setBloodSugarBeforeInfo(arrItems.before);
                 setBloodSugarAfterInfo(arrItems.after);
@@ -100,18 +104,37 @@ const BloodSugar = (props) => {
                     graphDatas[i] = arrItems.sugar_graph[e];
                 });
               //  console.log(graphDatas);
-                setBloodSugarData(graphDatas);
+                setBloodSugarData(arrItems.graph_data);
 
-
+              
                 
 
+                // let balevel = arrItems.after.level;
+                // if(balevel < 120)   balevel = 120;
+                // if(balevel > 220)   balevel = 220;
+                // balevel = (balevel * 1 - 120) * 0.92;
+
+                // console.log('213213123',balevel)
+                // setBloodSugarAfterlevel(balevel);
+
                 let balevel = arrItems.after.level;
+
+                //console.log('식후혈당:::',balevel);
+
                 if(balevel < 120)   balevel = 120;
                 if(balevel > 220)   balevel = 220;
                 balevel = (balevel * 1 - 120) * 0.92;
 
-                console.log('213213123',balevel)
-                setBloodSugarAfterlevel(balevel);
+
+
+                if(balevel <= 140) bbvalue = 7*0.92;
+                else if(balevel > 140 && balevel <= 200) bbvalue = 50*0.92;
+                else bbvalue = 92 * 0.92;                
+
+                //console.log('213213123',balevel)
+                setBloodSugarAfterlevel(bbvalue);
+
+                
 
                 // if(balevel > 100){
                 //     setBloodSugarAfterlevel(91.5)
@@ -121,13 +144,32 @@ const BloodSugar = (props) => {
                 //     setBloodSugarAfterlevel(balevel)
                 // }
 
-                let bblevel = arrItems.before.level;
-                if(bblevel < 80)   bblevel = 80;
-                if(bblevel > 140)   bblevel = 140;
-                bblevel = (bblevel * 1 - 91.7) * 2.405 * 0.92;
+                // let bblevel = arrItems.before.level;
+                // if(bblevel < 80)   bblevel = 80;
+                // if(bblevel > 140)   bblevel = 140;
+                // bblevel = (bblevel * 1 - 91.7) * 2.405 * 0.92;
 
-                console.log('213213123123123123',bblevel)
-                setBloodSugarBeforelevel(bblevel)
+                // console.log('213213123123123123',bblevel)
+                // setBloodSugarBeforelevel(bblevel)
+
+
+                 //공복혈당 평균
+                let bblevel = arrItems.before.level;
+
+               // console.log('bblevel::::::',bblevel);
+            
+                if(bblevel < 80)    bblevel = 80;
+                if(bblevel > 140)   bblevel = 140;
+                
+                // bblevel = (bblevel * 1 - 91.7) * 2.405 * 0.92;
+
+                let bbvalue = 0;
+                if(bblevel <= 100) bbvalue = 7*0.92;
+                else if(bblevel > 100 && bblevel <= 125) bbvalue = 50*0.92;
+                else bbvalue = 92 * 0.92;
+
+                setBloodSugarBeforelevel(bbvalue)
+
 
 
                 // let bblevel = (arrItems.before.level - 95) * 2.8;
@@ -178,25 +220,30 @@ const BloodSugar = (props) => {
     //     console.log('식전', bloodSugarAfterInfo);
     // }, [bloodSugarInfoAll])
 
+    const bloodSugarSubmit = () => {
+        navigation.navigate('BloodSugarList')
+    }
+
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderComponents headerTitle='혈당' navigation={navigation} />
+            <HeaderComponents headerTitle='혈당' navigation={navigation} listButton={true} bloodSugar={bloodSugarSubmit} />
             {
                 bloodSugarLoading ? 
                 <>
                 {
                     bloodSugarInfoAll != '' ?
                     <ScrollView>
-                        <Box p={5}>
-                            <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                        <Box p={5} mb='80px'>
+                            <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                                 <Box width={(width * 0.60) + 'px'}>
                                     <DefText text='혈당이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                                    <DefText text='중요한 건강지표 "혈당"에 관해 알아보세요.' style={{fontSize:14}} />
+                                    <DefText text='중요한 건강지표 "혈당"에 관해' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
+                                    <DefText text='알아보세요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
                                     <TouchableOpacity
                                         style={{
                                             width:100,
                                             height:30,
-                                            backgroundColor:'#696968',
+                                            backgroundColor:'#090A73',
                                             borderRadius:10,
                                             alignItems:'center',
                                             justifyContent:'center',
@@ -204,49 +251,58 @@ const BloodSugar = (props) => {
                                         }}
                                         onPress={navigationMove}
                                     >
-                                        <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                        <DefText text='알아보기' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                                     </TouchableOpacity>
                                 </Box>
-                                <Image source={require('../images/BloodSugarIcon.png')} alt='체크이미지' style={{resizeMode:'contain'}} />
+                                <Image source={require('../images/bloodSTopIcon.png')} alt='체크이미지' style={{resizeMode:'contain', width:65, height:70}} />
                             </HStack>
                             {//콜레라
                                 bloodSugarAlert &&
-                                <Box py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
-                                    <HStack alignItems='center'>
-                                        <DefText text={ bloodSugarAlert.notice} style={{fontSize:14,color:'#999'}} />
+                                <Box py={2.5} justifyContent='center' px={5} backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
+                                    <HStack alignItems='center' flexWrap={'wrap'}>
+                                        <Box  >
+                                            <DefText text={ bloodSugarAlert.notice} style={{fontSize:14,color:'#000'}} />
+                                        </Box>
                                         {
-                                            bloodSugarAlert.url != '' &&
-                                            <TouchableOpacity onPress={()=>Linking.openURL(bloodSugarAlert.url)}>
-                                                <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
-                                                    <DefText text='더보기' style={{fontSize:14,color:'#999'}} />
+                                            bloodSugarAlert.screen != '' && bloodSugarAlert.screen_idx &&
+                                            <HStack width='100%' justifyContent={'flex-end'} mt='10px' >
+                                                <Box> 
+                                                    <TouchableOpacity onPress={()=>navigation.navigate(bloodSugarAlert.screen, {'idx':bloodSugarAlert.screen_idx})}>
+                                                        <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
+                                                            <DefText text='더보기' style={{fontSize:14,color:'#696969', fontFamily:Font.NotoSansMedium}} />
+                                                        </Box>
+                                                    </TouchableOpacity>
                                                 </Box>
-                                            </TouchableOpacity>
+                                            </HStack>
                                         }
                                     </HStack>
                                 </Box>
                             }
-                            <Box mt={5}>
-                                <Box>
-                                    <ScrollView
-                                        horizontal={true}
-                                        showsHorizontalScrollIndicator={false}
-                                    >
-                                        <LineChart
-                                            data={data}
-                                            width={width + 200}
-                                            height={235}
-                                            chartConfig={chartConfig}
-                                            bezier
-                                            fromZero={true} //0 부터시작 기본 false
-                                            withShadow={false} // 선그림자 여부 기본 true
-                                            yLabelsOffset={20} //y축 그래프 사이 여백
-                                            segments={5} //y축 수치 세그먼트 기본 4
-                                            style={{marginLeft:-20}}
-                                        />
-                                    </ScrollView>
+                            <Box mt={5} mb={5}>
+                                <DefText text='오늘의 혈당' style={[styles.graphText, {marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}, Platform.OS === 'ios' && {fontWeight:'500'}]} />
+                                <Box height='300px'>
+                                   
+                                    {/* <LineChart
+                                        data={data}
+                                        width={width-30}
+                                        height={235}
+                                        chartConfig={chartConfig}
+                                        bezier
+                                        fromZero={true} //0 부터시작 기본 false
+                                        withShadow={false} // 선그림자 여부 기본 true
+                                        yLabelsOffset={20} //y축 그래프 사이 여백
+                                        segments={5} //y축 수치 세그먼트 기본 4
+                                        style={{marginLeft:-20}}
+                                    /> */}
+                                    <WebView
+                                        source={{
+                                            uri:'https://khict0107.cafe24.com/adm/rn-webview/bloodsugar.php?id='+userInfo.id
+                                        }}
+                                    />
+                          
                                 </Box>
                             </Box>
-                            <VStack mt={2.5}>
+                            {/* <VStack mt={2.5}>
                                 <DefText text='공복혈당' style={styles.reportLabelSmall} />
                                 
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
@@ -272,8 +328,8 @@ const BloodSugar = (props) => {
                                     <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
                                     
                                 </HStack>
-                            </VStack>
-                            <VStack>
+                            </VStack> */}
+                            {/* <VStack>
                                 <DefText text='식후혈당' style={styles.reportLabelSmall} />
                                 
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
@@ -299,15 +355,17 @@ const BloodSugar = (props) => {
                                     <DefText text=' ' style={[styles.reportChartText, {color:'#333'}]} />
                                     
                                 </HStack>
-                            </VStack>
+                            </VStack> */}
+                            <DefText text='최근혈당' style={[styles.graphText, {marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}, Platform.OS === 'ios' && {fontWeight:'500'}]} />
                             <VStack>
                                 {
                                     bloodSugarBeforeInfo != '' &&
                                     <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
-                                        <DefText text={'공복혈당(mg/dL)'} />
+                                        <DefText text={'식전 혈당(mg/dL)'} style={{ color:'#000000', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
                                         <HStack>
-                                            <DefText text={bloodSugarBeforeInfo.level } />
-                                        
+                                            <Box borderBottomWidth={1} borderBottomColor={ bloodSugarBeforeInfo.level < 100 ? 'transparent' : '#f00'}>
+                                                <DefText text={bloodSugarBeforeInfo.level } style={{ color: bloodSugarBeforeInfo.level < 100 ? '#000' : '#f00', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
+                                            </Box>
                                         </HStack>
                                     </HStack>
                                 }
@@ -316,9 +374,11 @@ const BloodSugar = (props) => {
                                     bloodSugarAfterInfo != '' &&
                                     <HStack mt={2.5} py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
                                         {/* <DefText text={ bloodSugarAfterInfo.btimeStr +' 혈당(mg/dL)'} /> */}
-                                        <DefText text={'식후혈당(mg/dL)'} />
+                                        <DefText text={'식후 혈당(mg/dL)'} style={{ color:'#000000', fontFamily:Font.NotoSansMedium, lineHeight:30}} />
                                         <HStack>
-                                            <DefText text={bloodSugarAfterInfo.level}/>
+                                            <Box borderBottomWidth={1} borderBottomColor={ bloodSugarAfterInfo.level < 140 ? 'transparent' : '#f00'}>
+                                                <DefText text={bloodSugarAfterInfo.level} style={{ color: bloodSugarAfterInfo.level < 140 ? '#000' : '#f00', fontFamily:Font.NotoSansMedium, lineHeight:30}}/>
+                                            </Box>
                                         </HStack>
                                     </HStack>
                                 }
@@ -329,7 +389,7 @@ const BloodSugar = (props) => {
                     :
                     <Box justifyContent='center' alignItems='center'  flex={1}>
                         <Image source={require('../images/BloodSugarIcon.png')} alt='체크이미지' style={{resizeMode:'contain'}} />
-                        <DefText text='혈당을 기록하여 건강을 관리하세요.' style={{marginTop:20}} />
+                        <DefText text='혈당을 기록하여 건강을 관리하세요.' style={{marginTop:20, color:'#696969', fontFamily:Font.NotoSansMediu, fontWeight:'500'}} />
                         {/* <ActivityIndicator size='large' color='#333' /> */}
                     </Box>
                 }
@@ -341,10 +401,14 @@ const BloodSugar = (props) => {
             }
             
             
-            <Box p={2.5} px={5}>
+            {/* <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{navigation.navigate('BloodSugarAdd')}} style={[styles.buttonDef]}>
                    <DefText text='혈당기록 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
+            </Box> */}
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('BloodSugarAdd')}} />
             </Box>
         </Box>
     );

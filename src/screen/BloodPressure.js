@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, Dimensions, TouchableOpacity, Platform, FlatList, StyleSheet, Linking, ActivityIndicator } from 'react-native';
 import { Box, VStack, HStack, Image, Center } from 'native-base';
 import HeaderComponents from '../components/HeaderComponents';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import LinearGradient from 'react-native-linear-gradient';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { textAlign } from 'styled-system';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -132,27 +133,30 @@ const BloodPressure = (props) => {
         },[])
     );
 
-
+    const BloodPresButton = () => {
+        navigation.navigate('BloodPressureList');
+    }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderComponents headerTitle='혈압' navigation={navigation} />
+            <HeaderComponents headerTitle='혈압' navigation={navigation} listButton={true} bloodSugar={BloodPresButton} />
             {
                 bloodPLoading ?
                 <>
                 {
                     bloodPressureData != '' ?
                     <ScrollView>
-                        <Box p={5}>
-                            <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                        <Box p={5} mb='80px'>
+                            <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                                 <Box width={(width * 0.60) + 'px'}>
-                                    <DefText text='혈압이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                                    <DefText text='중요한 건강지표 "혈압"에 관해 알아보세요.' style={{fontSize:14, }} />
+                                    <DefText text='혈압이야기' style={[{fontSize:16, fontFamily:Font.NotoSansBold}, Platform.OS == 'ios' && {fontWeight:'bold'}]} />
+                                    <DefText text='중요한 건강지표 "혈압"에 관해' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
+                                    <DefText text='알아보세요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}}/>
                                     <TouchableOpacity
                                         style={{
                                             width:100,
                                             height:30,
-                                            backgroundColor:'#696968',
+                                            backgroundColor:'#090A73',
                                             borderRadius:10,
                                             alignItems:'center',
                                             justifyContent:'center',
@@ -160,27 +164,31 @@ const BloodPressure = (props) => {
                                         }}
                                         onPress={navigationMove}
                                     >
-                                        <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                        <DefText text='알아보기' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                                     </TouchableOpacity>
                                 </Box>
-                                <Image source={require('../images/heartRateIcon.png')} alt='체크이미지' />
+                                <Image source={require('../images/bloodPTopImage.png')} style={{width:74, height:59, resizeMode:'contain'}} alt='체크이미지' />
                             </HStack>
                             {
                                 bloodPressureAlert != "" &&
                                 
                                 <Box>
                                 
-                                    <Box py={2.5} px={5}  backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
+                                    <Box py={2.5} justifyContent='center' px={5}  backgroundColor='#f1f1f1' borderRadius={10} mt={3}>
                                         <HStack alignItems='center' flexWrap='wrap' justifyContent='space-between'>
                                             
-                                            <Box>
-                                            <DefText text={bloodPressureAlert[0]} style={{fontSize:14,color:'#999'}} />
+                                            <Box >
+                                                <DefText text={bloodPressureAlert.notice} style={{color:'#000', fontSize:14}} />
                                             </Box>
                                             {
-                                                bloodPressureAlert[1] != '' &&
-                                                <TouchableOpacity style={{marginTop:10}} onPress={()=>Linking.openURL(bloodPressureAlert[1])}>
-                                                    <DefText text='더보기' style={{fontSize:14,color:'#999'}} />
-                                                </TouchableOpacity>
+                                                bloodPressureAlert.screen && bloodPressureAlert.screen_idx != '' &&
+                                                <Box width='100%' alignItems='flex-end' > 
+                                                    <TouchableOpacity  onPress={()=>navigation.navigate(bloodPressureAlert.screen, {'idx':bloodPressureAlert.screen_idx})}>
+                                                        <Box borderBottomWidth={1} borderBottomColor='#999' ml={1}>
+                                                            <DefText text='더보기' style={{fontSize:14,color:'#696969', fontFamily:Font.NotoSansMedium}} />
+                                                        </Box>
+                                                    </TouchableOpacity>
+                                                </Box>
                                             }
                                         </HStack>
                                     </Box>
@@ -188,7 +196,7 @@ const BloodPressure = (props) => {
                       
                                 
                             }
-                            <VStack mt={2.5}>
+                            {/* <VStack mt={2.5}>
                                 <DefText text='최고혈압' style={styles.BloodPreSmallText} />
                                 
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
@@ -215,8 +223,8 @@ const BloodPressure = (props) => {
                                     <DefText text='160' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
 
                                 </HStack>
-                            </VStack>
-                            <VStack>
+                            </VStack> */}
+                            {/* <VStack>
                                 <DefText text='최저혈압' style={styles.BloodPreSmallText} />
                                 
                                 <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#FFCACA', '#FF9696', '#FF6262']} style={[{borderRadius:5, marginTop:10}]}>
@@ -243,8 +251,136 @@ const BloodPressure = (props) => {
                                     <DefText text='100' style={[styles.BloodPreText, {color:'#333', flex:1.25}]} />
                                     <DefText text=' ' style={[styles.BloodPreText, {color:'#333', flex:1}]} />
                                 </HStack>
-                            </VStack>
-                            <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                            </VStack> */}
+                            <DefText text='최고혈압' style={[{marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium, marginTop:20}]} />
+                            <Box p={5} backgroundColor='#f1f1f1' borderRadius={10} mb='20px'>
+                                <Box>
+                                    {
+                                        bloodPressureHighOr > -1 &&
+                                        <DefText text={bloodPressureHighOr + ' mmHg'} style={{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}}/>
+                                    }
+                                </Box>
+                                <Box mt='20px'>
+                                    <HStack justifyContent='space-between' mt={'10px'} >
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                            <DefText text='정상' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                            <DefText text='주의' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                            <DefText text='전단계' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                            <DefText text='고혈압1기' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                            <DefText text='고혈압2기' style={styles.graphBoxText} />
+                                        </Box>
+                                    </HStack>
+                                    {
+                                        bloodPressureHighOr <= 120 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureHighOr > 120 && bloodPressureHighOr <= 130 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureHighOr > 130 && bloodPressureHighOr <= 140 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureHighOr > 140 && bloodPressureHighOr <= 150 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureHighOr > 150 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                </Box>
+                                <HStack justifyContent={'space-around'} px={10} mt={'10px'}>
+                                    <DefText text='120' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='130' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='140' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='150' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                </HStack>
+                            </Box>
+                            <DefText text='최저혈압' style={[{marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}]} />
+                            <Box p={5} backgroundColor='#f1f1f1' borderRadius={10} mb='20px'>
+                                <Box>
+                                    {
+                                        bloodPressureLowOr > -1 &&
+                                        <DefText text={bloodPressureLowOr + ' mmHg'} style={{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}}/>
+                                    }
+                                </Box>
+                                <Box mt='20px'>
+                                    <HStack justifyContent='space-between' mt={'10px'} >
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#E5E587'}]}>
+                                            <DefText text='저혈압' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#11FF00'}]}>
+                                            <DefText text='정상' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FFA7A7'}]}>
+                                            <DefText text='전단계' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FF8686'}]}>
+                                            <DefText text='고혈압1기' style={styles.graphBoxText} />
+                                        </Box>
+                                        <Box style={[styles.graphBoxFive, {backgroundColor:'#FF5656'}]}>
+                                            <DefText text='고혈압2기' style={styles.graphBoxText} />
+                                        </Box>
+                                    </HStack>
+                                    {
+                                        bloodPressureLowOr <= 60 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureLowOr > 60 && bloodPressureLowOr <= 80 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureLowOr > 80 && bloodPressureLowOr <= 90 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureLowOr > 90 && bloodPressureLowOr <= 100 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                    {
+                                        bloodPressureLowOr > 100 &&
+                                        <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
+                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
+                                        </Box> 
+                                    }
+                                </Box>
+                                <HStack justifyContent={'space-around'} px={10} mt={'10px'}>
+                                    <DefText text='60' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='80' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='90' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='100' style={{fontSize:10, fontFamily:Font.NotoSansMedium}} />
+                                </HStack>
+                            </Box>
+                            {/* <HStack py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
                                 <DefText text='혈압(mmHg)' />
                                 <HStack>
                                     {
@@ -258,15 +394,18 @@ const BloodPressure = (props) => {
                                     
                                     
                                 </HStack>
-                            </HStack>
+                            </HStack> */}
                             {
                                 bloodHeartLate > 0 && 
-                                <HStack mt={2.5} py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
-                                    <DefText text='심박수(bpm)' />
+                                <>
+                                <DefText text='심박수' style={[{marginBottom:10, color:'#696968',  fontFamily:Font.NotoSansMedium}]} />
+                                <HStack  py={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between'>
+                                    <DefText text='심박수(bpm)' style={{color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     <HStack>
-                                        <DefText text={bloodHeartLate} />
+                                        <DefText text={bloodHeartLate} style={{color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     </HStack>
                                 </HStack>
+                                </>
                             }
                             
                         </Box>
@@ -274,7 +413,7 @@ const BloodPressure = (props) => {
                     :
                     <Box justifyContent='center' alignItems='center'  flex={1}>
                         <Image source={require('../images/heartRateIcon.png')} alt='체크이미지' />
-                        <DefText text='혈압을 기록하여 건강을 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                        <DefText text='혈압을 기록하여 건강을 관리하세요.' style={{marginTop:20, color:'#696969', fontFamily:Font.NotoSansMediu, fontWeight:'500'}} />
                         {/* <ActivityIndicator size='large' color='#333' /> */}
                     </Box>
                 }
@@ -284,10 +423,14 @@ const BloodPressure = (props) => {
                     <ActivityIndicator size='large' color='#333' />
                 </Box>
             }
-            <Box p={2.5} px={5}>
+            {/* <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{navigation.navigate('BloodPressureAdd')}} style={[styles.buttonDef]}>
                    <DefText text='혈압기록 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
+            </Box> */}
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('BloodPressureAdd')}} />
             </Box>
         </Box>
     );
@@ -313,6 +456,25 @@ const styles = StyleSheet.create({
     buttonDefText:{
         fontSize:14,
         color:'#fff'
+    },
+    graphBox:{
+        width: (width - 80) * 0.15,
+        height: 30,
+        backgroundColor:'#333',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    graphBoxFive:{
+        width: (width - 80) * 0.185,
+        height: 30,
+        backgroundColor:'#333',
+        justifyContent:'center',
+        alignItems:'center'
+    },
+    graphBoxText: {
+        fontSize:12,
+        color:'#000',
+        fontWeight:'bold'
     }
 })
 

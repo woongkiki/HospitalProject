@@ -137,7 +137,7 @@ export const actionCreators = {
   member_info: (user) => async (dispatch) => {
     try {
       const response = await UserApi.member_info(user);
-      // console.log('member_info ::: ', response);
+//       console.log('member_info ::: ', response);
 
       if (response.result) {
         await dispatch({

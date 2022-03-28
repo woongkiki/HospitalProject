@@ -8,6 +8,7 @@ import { StackActions } from '@react-navigation/native';
 import {connect} from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
+import Font from '../common/Font';
 
 const Board = (props) => {
 
@@ -16,6 +17,19 @@ const Board = (props) => {
     console.log('회원정보:::::', userInfo.m_hcode);
 
     const [membershipCode, setMembershipCode] = useState(userInfo.membership[0].hcode);
+
+    const dummy = [
+        {
+   
+            'subject' : 'ok',
+            'wdate' : '2022-03-18'
+        },
+        {
+           
+            'subject' : 'ok',
+            'wdate' : '2022-03-18'
+        }
+    ]
 
     const [boardList, setBoardList] = useState('');
 
@@ -44,7 +58,7 @@ const Board = (props) => {
     const _renderItem = ({item, index})=>{
         return(
             <Box px={5} >
-                <TouchableOpacity onPress={()=>navigation.navigate('BoardView', item)} style={{borderBottomWidth:1, borderBottomColor:'#dfdfdf', paddingVertical:10}}>
+                <TouchableOpacity onPress={()=>navigation.navigate('BoardView', item)} style={{borderBottomWidth:1, borderBottomColor:'#f1f1f1', paddingVertical:10}}>
                     <VStack>
                         <HStack flexWrap='wrap' width='95%'>
                             <DefText text={ "[" + item.category + "] " + item.title} style={styles.boardTitle} />
@@ -67,7 +81,7 @@ const Board = (props) => {
                         boardList.map((item, index)=> {
                             return(
                                 <Box px={5} key={index}>
-                                    <TouchableOpacity onPress={()=>navigation.navigate('BoardView', item)} style={{borderBottomWidth:1, borderBottomColor:'#dfdfdf', paddingVertical:10}}>
+                                    <TouchableOpacity onPress={()=>navigation.navigate('BoardView', item)} style={{borderBottomWidth:1, borderBottomColor:'#f1f1f1', paddingVertical:15}}>
                                         <VStack>
                                             <HStack flexWrap='wrap' width='95%'>
                                                 <DefText text={item.subject} style={styles.boardTitle} />
@@ -91,13 +105,13 @@ const Board = (props) => {
 
 const styles = StyleSheet.create({
     boardTitle: {
-        fontSize:14,
         color:'#000',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     boardDate: {
-        fontSize:12,
-        color:'#999',
+        fontSize:14,
+        color:'#696969',
         marginTop:20
     }
 })

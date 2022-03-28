@@ -11,6 +11,8 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import ImagePicker from 'react-native-image-crop-picker';
 import AsyncStorage from '@react-native-community/async-storage';
 import Postcode from '@actbase/react-daum-postcode';
+import Font from '../common/Font';
+import Api from '../Api';
 
 const {width} = Dimensions.get('window');
     const halfWidth = (width - 40) * 0.48;
@@ -42,7 +44,7 @@ const AcountInfoChange = (props) => {
     }
 
     //이름
-    const [nameInput, setNameInput] = useState('test');
+    const [nameInput, setNameInput] = useState('');
     const nameChange = (name) => {
         setNameInput(name);
     }
@@ -135,7 +137,10 @@ const AcountInfoChange = (props) => {
         //setAddrText2(addr2);
     }
 
-    
+    const [pwdStatus, setPwdStatus] = useState(true);
+    const [pwdConfirmStatus, setPwdConfirmStatus] = useState(true);
+
+    const [counselStatus, setCounselStatus] = useState(true);
 
 
     useEffect(()=>{
@@ -144,7 +149,7 @@ const AcountInfoChange = (props) => {
         setPhoneNumber(userInfoState.hphone);
         setBirthDay(userInfoState.birthday);
         setProfileImgs(userInfoState.photo);
-        setCounselNumber(userInfoState.passwd2);
+        //setCounselNumber(userInfoState.passwd2);
         setBaesongInfo(userInfoState.post);
         setBaesongInfo(userInfoState.post);
         setAddrText(userInfoState.address1);
@@ -228,6 +233,9 @@ const AcountInfoChange = (props) => {
         });
     };
 
+
+ 
+
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents navigation={navigation} headerTitle='회원정보 변경' />
@@ -249,8 +257,8 @@ const AcountInfoChange = (props) => {
                         </Box> */}
                         <Box>
                             <HStack>
-                                <DefText text='프로필 이미지' style={{fontSize:14}} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='프로필 이미지' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                             </HStack>
                             <Box justifyContent='center' alignItems='center' mt={5}>
                                 <TouchableOpacity  onPress={_changeProfileImg}>
@@ -266,20 +274,26 @@ const AcountInfoChange = (props) => {
                                 </TouchableOpacity>
                             </Box>
                         </Box>
-                        <Box>
+                        <Box mt={5}>
                             <HStack>
-                                <DefText text='이름' style={{fontSize:14}} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='이름' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                             </HStack>
-                            <DefInput 
+                            
+                            <Input 
                                 placeholderText='이름을 입력해주세요.'
-                                inputValue = {nameInput}
+                                placeholderTextColor={'#a3a3a3'}
+                                value={nameInput}
                                 onChangeText = {nameChange}
-                                multiline = {false}
-                                inputStyle={{marginTop:15}}
+                                height='45px'
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                borderRadius={10}
+                                _focus='transparent'
+                                style={[{fontFamily:Font.NotoSansMedium, marginTop:15}, nameInput?.length > 0 && {backgroundColor:'#f1f1f1'}]}
                             />
                         </Box>
-                        {
+                        {/* {
                             userInfo.sns == '' &&
                             <>
                                 <Box mt={5}>
@@ -293,13 +307,24 @@ const AcountInfoChange = (props) => {
                                             inputValue = {passwordInput}
                                             onChangeText = {passwordChange}
                                             multiline = {false}
-                                            secureTextEntry={true}
+                                            secureTextEntry={pwdStatus}
                                         />
                                         <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
-                                            <Image 
-                                                source={require('../images/eyes.png')} 
-                                                alt='암호화'
-                                            />
+                                            <TouchableOpacity onPress={() => setPwdStatus(!pwdStatus)}>
+                                                {
+                                                    pwdStatus ?
+                                                    <Image 
+                                                        source={require('../images/eyes.png')} 
+                                                        alt='암호화'
+                                                    />
+                                                    :
+                                                    <Image 
+                                                        source={require('../images/eyes_yes.png')} 
+                                                        alt='암호화'
+                                                    />
+                                                }
+                                            </TouchableOpacity>
+                                            
                                         </Box>
                                     </Box>
                                 </Box>
@@ -314,64 +339,112 @@ const AcountInfoChange = (props) => {
                                             inputValue = {rePasswordInput}
                                             onChangeText = {rePasswordChange}
                                             multiline = {false}
-                                            secureTextEntry={true}
+                                            secureTextEntry={pwdConfirmStatus}
                                         />
                                         <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
-                                            <Image 
-                                                source={require('../images/eyes.png')} 
-                                                alt='암호화'
-                                            />
+                                            <TouchableOpacity onPress={() => setPwdConfirmStatus(!pwdConfirmStatus)}>
+                                                {
+                                                    pwdConfirmStatus ?
+                                                    <Image 
+                                                        source={require('../images/eyes.png')} 
+                                                        alt='암호화'
+                                                    />
+                                                    :
+                                                    <Image 
+                                                        source={require('../images/eyes_yes.png')} 
+                                                        alt='암호화'
+                                                    />
+                                                }
+                                            </TouchableOpacity>
                                         </Box>
                                     </Box>
                                 </Box>
                             </>
-                        }
+                        } */}
                         
 
                         <Box mt={5}>
                             <HStack>
-                                <DefText text='주소' style={{fontSize:14}} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='주소' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                             </HStack>
                             <HStack justifyContent='space-between' mt={2.5}>
-                                <DefInput
+                                 {/* <DefInput
                                     placeholderText='지번'
                                 
                                     multiline = {false}
                                     inputValue={baesongInfo}
                                     onChangeText={baesongChange}
-                                        inputStyle={{width:(width-40)*0.6}}
+                                    inputStyle={{width:(width-40)*0.6}}
+                                />  */}
+                                 <Input 
+                                    placeholderText='지번'
+                                    placeholderTextColor={'#a3a3a3'}
+                                    value={baesongInfo}
+                                    onChangeText = {baesongChange}
+                                    height='45px'
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
+                                    _focus='transparent'
+                                    style={[{fontFamily:Font.NotoSansMedium, width:(width-40)*0.6}, baesongInfo?.length > 0 && {backgroundColor:'#f1f1f1'}]}
                                 />
-                                <TouchableOpacity onPress={() => setAddrModal(true)} style={{width:(width-40)*0.37, height:45, alignItems:'center', justifyContent:'center', borderRadius:5, borderWidth:1,borderColor:'#999'}}>
-                                    <DefText text='주소찾기' style={{fontSize:14}} />
+                                 {/* <Box style={{width:(width-40)*0.6, height:45, justifyContent:'center', borderWidth:1, borderColor:'#f1f1f1', borderRadius:10, paddingLeft:15}}>
+                                    {
+                                        baesongInfo != '' ?
+                                        <DefText text={baesongInfo} />
+                                        :
+                                        <DefText text='지번' style={{fontSize:14, color:'#ABB3BB'}} />
+                                    }
+                                </Box> */}
+                                <TouchableOpacity onPress={() => setAddrModal(true)} style={{width:(width-40)*0.37, height:45, alignItems:'center', justifyContent:'center', borderRadius:10, backgroundColor:'#090A73'}}>
+                                    <DefText text='주소찾기' style={{color:'#fff', fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
                                 </TouchableOpacity>
                             </HStack>
                             <Box mt={2.5}>
-                            <DefInput 
-                                placeholderText='상세주소를 입력하세요.'
-                                multiline = {false}
-                                inputValue={addrText}
-                                onChangeText={addrChange}
                                 
-                            />
+                                 <Input 
+                                    placeholderText='상세주소를 입력하세요.'
+                                    placeholderTextColor={'#a3a3a3'}
+                                    value={addrText}
+                                    onChangeText = {addrChange}
+                                    height='45px'
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
+                                    _focus='transparent'
+                                    style={[{fontFamily:Font.NotoSansMedium}, addrText?.length > 0 && {backgroundColor:'#f1f1f1'}]}
+                                />
                             </Box>
                             <Box mt={2.5}>
-                            <DefInput 
-                                placeholderText='추가주소를 입력하세요.'
-                                multiline = {false}
-                                inputValue={addrText2}
-                                onChangeText={addrTextChange2}
-                                
-                            />
+                                {/* <DefInput 
+                                    placeholderText='추가주소를 입력하세요.'
+                                    multiline = {false}
+                                    inputValue={addrText2}
+                                    onChangeText={addrTextChange2}
+                                    
+                                /> */}
+                                <Input 
+                                    placeholderText='추가주소를 입력하세요.'
+                                    placeholderTextColor={'#a3a3a3'}
+                                    value={addrText2}
+                                    onChangeText = {addrTextChange2}
+                                    height='45px'
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
+                                    _focus='transparent'
+                                    style={[{fontFamily:Font.NotoSansMedium}, addrText2?.length > 0 && {backgroundColor:'#f1f1f1'}]}
+                                />
                             </Box>
                         </Box>
                         
                         <Box mt={5}>
                             <HStack>
-                                <DefText text='휴대폰번호' style={{fontSize:14}} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='휴대폰번호' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                             </HStack>
-                            <DefInput 
+                            {/* <DefInput 
                                 placeholderText='휴대폰번호를 입력해주세요. (-를 빼고 입력하세요.)'
                                 inputValue = {phoneNumber}
                                 onChangeText = {phoneNumberChange}
@@ -379,62 +452,117 @@ const AcountInfoChange = (props) => {
                                 inputStyle={{marginTop:15}}
                                 maxLength={13}
                                 keyboardType='phone-pad'
+                            /> */}
+                            <Input 
+                                placeholderText='추가주소를 입력하세요.'
+                                placeholderTextColor={'#a3a3a3'}
+                                value={phoneNumber}
+                                onChangeText = {phoneNumberChange}
+                                height='45px'
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                borderRadius={10}
+                                _focus='transparent'
+                                style={[{fontFamily:Font.NotoSansMedium, marginTop:15}, phoneNumber?.length > 0 && {backgroundColor:'#f1f1f1'}]}
                             />
                         </Box>
                         <HStack mt={5} justifyContent='space-between'>
                             <Box width={halfWidth + 'px'}>
                                 <HStack>
-                                    <DefText text='생년월일' style={{fontSize:14}} />
-                                    <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                    <DefText text='생년월일' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                    <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                                 </HStack>
-                                <DefInput 
+                               
+                                <Input 
                                     placeholderText='Ex) 19790324'
-                                    inputValue = {birthDay}
+                                    placeholderTextColor={'#a3a3a3'}
+                                    value={birthDay}
                                     onChangeText = {birthDayChange}
-                                    multiline = {false}
-                                    inputStyle={{marginTop:15}}
+                                    height='45px'
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
+                                    _focus='transparent'
+                                    style={[{fontFamily:Font.NotoSansMedium, marginTop:15}, birthDay?.length > 0 && {backgroundColor:'#f1f1f1'}]}
                                     maxLength={8}
-                                    keyboardType='phone-pad'
                                 />
                             </Box>
                             <Box width={halfWidth + 'px'}>
                                 <HStack>
-                                    <DefText text='성별' style={{fontSize:14}} />
-                                    <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                    <DefText text='성별' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                    <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                                 </HStack>
                                 <Select
                                     selectedValue={gender}
-                                    height='48px'
+                                    height='45px'
                                     mt='15px'
-                                    fontSize={14}
                                     onValueChange={(itemValue) => setGender(itemValue)}
+                                    backgroundColor={gender.length>0 ? '#f1f1f1': '#fff'}
+                                    style={{fontSize:16, fontFamily:Font.NotoSansMedium}}
                                 >
                                     <Select.Item label='남자' value='남자' />
                                     <Select.Item label='여자' value='여자' />
                                 </Select>
                             </Box>
                         </HStack>
-                        <Box mt={5}>
+                        <Box mt={5} pb='80px'>
                             <HStack>
-                                <DefText text='자문코드' style={{fontSize:14}} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='간편비밀번호' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                             </HStack>
                             <Box mt='15px'>
-                                <DefInput 
-                                    placeholderText='자문요청시 본인확인을 위한 코드를 입력하세요.'
+                                 <DefInput 
+                                    placeholderText='자문요청을 위한 간편비밀번호 입력하세요.'
                                     inputValue = {counselNumber}
                                     onChangeText = {counselNumberChange}
                                     multiline = {false}
-                                    //secureTextEntry={true}
-                                />
-                                
+                                    secureTextEntry={counselStatus}
+                                    keyboardType={'number-pad'}
+                                    inputStyle={[{height:45, fontSize:16, color:'#000'}, counselNumber?.length > 0 && {backgroundColor:'#f1f1f1'}]}
+                                /> 
+                                {/* <Input 
+                                    placeholderText='자문요청을 위한 간편비밀번호 입력하세요.'
+                                    placeholderTextColor={'#a3a3a3'}
+                                    value={counselNumber}
+                                    onChangeText = {counselNumberChange}
+                                    height='45px'
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
+                                    _focus='transparent'
+                                    style={[{fontFamily:Font.NotoSansMedium}, counselNumber.length > 0 && {backgroundColor:'#f1f1f1'}]}
+                                    keyboardType='number-pad'
+                                /> */}
+                                <Box style={{height:45, position:'absolute', top:0, right:15, justifyContent:'center'}}>
+                                    <TouchableOpacity onPress={() => setCounselStatus(!counselStatus)}>
+                                        {
+                                            counselStatus ?
+                                            <Image 
+                                                source={require('../images/eyes.png')} 
+                                                alt='암호화'
+                                            />
+                                            :
+                                            <Image 
+                                                source={require('../images/eyes_yes.png')} 
+                                                alt='암호화'
+                                            />
+                                        }
+                                    </TouchableOpacity>
+                                </Box>
                             </Box>
                         </Box>
                     </VStack>
                 </Box>
             </ScrollView>
-            <Box mt={5} px={12} py={2.5}>
-                <Button onPress={_RegisterCompleteButton} text='회원정보 수정하기' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}} />
+            <Box position={'absolute'} bottom={"30px"} right={"20px"}>
+                {/* <Button onPress={_RegisterCompleteButton} text='회원정보 수정하기' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}} /> */}
+                <TouchableOpacity onPress={_RegisterCompleteButton}>
+                    
+                    <Image source={require('../images/saveButtonNew.png')} alt='저장' style={{width:111, height:53, resizeMode:'contain'}} />
+                    <Box style={{width:111, height:53, position:'absolute', top:0, left:0, justifyContent:'center', paddingLeft:60}}>
+                        <DefText text='저장' style={{fontSize:19, lineHeight:27,fontFamily:Font.NotoSansBold, color:'#fff'}} />
+                    </Box>
+                </TouchableOpacity>
             </Box>
             <Modal isOpen={addrModal} onClose={() => setAddrModal(false)} flex={1}>
                 <SafeAreaView style={{width:'100%', flex:1}}>
@@ -460,6 +588,7 @@ const AcountInfoChange = (props) => {
                 </SafeAreaView>
 
             </Modal>
+            
         </Box>
     );
 };
