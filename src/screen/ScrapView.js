@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 const ScrapView = (props) => {
 
@@ -149,22 +150,25 @@ const styles = StyleSheet.create({
     folderBox: {
         paddingHorizontal:10,
         paddingVertical:5,
-        backgroundColor:'#696968',
+        backgroundColor:'#696969',
         borderRadius:10
     },
     folderBoxText: {
         fontSize:14,
-        color:'#fff'
+        color:'#fff',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium
     },
     scrapListBUtton: {
         paddingVertical:10,
         paddingHorizontal:20,
         backgroundColor:'#F1F1F1',
-        borderRadius:12
+        borderRadius:10
     },
     scrapListCateTitle: {
         fontSize:14,
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     scrapListTitles:{
         fontSize:14,

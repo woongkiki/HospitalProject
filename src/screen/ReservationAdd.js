@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
 import { Box, Image, HStack, VStack, CheckIcon,Modal, Input } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import HeaderHospital from '../components/HeaderHospital';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import ToastMessage from '../components/ToastMessage';
@@ -12,6 +12,7 @@ import AsyncStorage from '@react-native-community/async-storage';
 
 import HTML from 'react-native-render-html';
 import StyleHtml from '../common/StyleHtml';
+import Font from '../common/Font';
 
 Date.prototype.format = function(f) {
     if (!this.valueOf()) return " ";
@@ -46,7 +47,7 @@ const ReservationAdd = (props) => {
 
     const {navigation, userInfo, member_info} = props;
 
-    
+    console.log('userInfo', userInfo.m_hcode);
     //console.log(props.route.params);
     //수정인지 새로작성인지
     const [reserveStatus, setReserveStatus] = useState('');
@@ -162,8 +163,8 @@ const ReservationAdd = (props) => {
 
     const rTypes = reservationType.map((item, index)=> {
         return(
-            <TouchableOpacity onPress={()=>setReserType(item)} key={index} style={[{padding:10, paddingHorizontal:20, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:15, marginRight:10, justifyContent:'center', alignItems:'center'}, reserType == item && {backgroundColor:'#666'} ]}>
-                <DefText text={item} style={[{fontSize:14, fontWeight:'bold'}, reserType == item && {color:'#fff'} ]} />
+            <TouchableOpacity onPress={()=>setReserType(item)} key={index} style={[{padding:10, paddingHorizontal:20, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:10, marginRight:10, justifyContent:'center', alignItems:'center'}, reserType == item && {backgroundColor:'#696969'} ]}>
+                <DefText text={item} style={[{fontSize:16, fontWeight:'500', fontFamily:Font.NotoSansMedium}, reserType == item && {color:'#fff'} ]} />
             </TouchableOpacity>
         )
     });
@@ -328,17 +329,18 @@ const ReservationAdd = (props) => {
      const [privacy1, setPrivacy1] = useState('');
      const [privacy2, setPrivacy2] = useState('');
 
-     const contentPrivacy = () => {
-         Api.send('service_list', {}, (args)=>{
+     const contentPrivacy = (page) => {
+         Api.send('service_personalPage', {'page':page}, (args)=>{
              let resultItem = args.resultItem;
              let arrItems = args.arrItems;
      
              if(resultItem.result === 'Y' && arrItems) {
                  //console.log('정책: ', arrItems[1]);
                  setContentPrivacyData(arrItems);
+                 if(arrItems != ''){
+                    setPrivacyModal(true);
 
-                 setPrivacy1(arrItems[3]);
-                 setPrivacy2(arrItems[1]);
+                 }
                 
              }else{
                  console.log('결과 출력 실패!', resultItem);
@@ -347,9 +349,9 @@ const ReservationAdd = (props) => {
          });
      }
  
-     useEffect(()=>{
-         contentPrivacy();
-     }, [])
+    //  useEffect(()=>{
+    //      contentPrivacy();
+    //  }, [])
 
 
     return (
@@ -361,43 +363,46 @@ const ReservationAdd = (props) => {
                         <DefText text='진료받으실 분의 개인정보를 입력해주세요.' style={{fontSize:15,color:'#000',fontWeight:'bold'}} />
                     </Box>
                     <Box backgroundColor='#f1f1f1' p={5} py='15px' borderRadius={10} mt={2.5}>
-                        <HStack>
+                      
                             <HStack alignItems='center'>
                                 <TouchableOpacity onPress={()=>setAgreeInfo1(!agreeInfo1)}>
-                                    <Box width='20px' height='20px' borderRadius='20px' borderWidth={1} borderColor={ agreeInfo1 ? '#f00' : '#666' } alignItems='center' justifyContent='center' mr={2.5}>
-                                        <CheckIcon width='10px' color={agreeInfo1 ? '#f00' : '#666'} />
+                                    <HStack alignItems={'center'}>
+                                        <Box width='20px' height='20px' borderRadius='20px' borderWidth={1} borderColor={ agreeInfo1 ? '#f00' : '#666' } alignItems='center' justifyContent='center' mr={2.5}>
+                                            <CheckIcon width='10px' color={agreeInfo1 ? '#f00' : '#666'} />
+                                        </Box>
+                                        <DefText text='고유식별정보 수집 및 이용약관' />
+                                    </HStack>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={()=>contentPrivacy('etc')} style={{marginTop:-4}}>
+                                    <Box borderBottomWidth={1} borderBottomColor='#888' ml={2.5}>
+                                        <DefText text='자세히' style={{fontSize:13,color:'#888'}} />
                                     </Box>
                                 </TouchableOpacity>
-                                <HStack alignItems='center'>
-                                    <DefText text='고유식별정보 처리에 대한 안내' />
-                                    <TouchableOpacity onPress={()=>modalButtons('1')}>
-                                        <Box borderBottomWidth={1} borderBottomColor='#888' ml={2.5}>
-                                            <DefText text='자세히' style={{fontSize:13,color:'#888'}} />
-                                        </Box>
-                                    </TouchableOpacity>
-                                </HStack>
-                            </HStack>
+            
                         </HStack>
                     </Box>
 
                     <Box backgroundColor='#f1f1f1' p={5} py='15px' borderRadius={10} mt={2.5}>
-                        <HStack>
+                       
                             <HStack alignItems='center'>
                                 <TouchableOpacity onPress={()=>setAgreeInfo2(!agreeInfo2)}>
-                                    <Box width='20px' height='20px' borderRadius='20px' borderWidth={1} borderColor={ agreeInfo2 ? '#f00' : '#666' } alignItems='center' justifyContent='center' mr={2.5}>
-                                        <CheckIcon width='10px' color={agreeInfo2 ? '#f00' : '#666'} />
+                                    <HStack alignItems={'center'}>
+                                        <Box width='20px' height='20px' borderRadius='20px' borderWidth={1} borderColor={ agreeInfo2 ? '#f00' : '#666' } alignItems='center' justifyContent='center' mr={2.5}>
+                                            <CheckIcon width='10px' color={agreeInfo2 ? '#f00' : '#666'} />
+                                        </Box>
+                                        <DefText text='개인(민감)정보 수집 및 이용약관' />
+                                    </HStack>
+                                </TouchableOpacity>
+                               
+                                    
+                                <TouchableOpacity onPress={()=>contentPrivacy('personal2')} style={{marginTop:-4}}>
+                                    <Box borderBottomWidth={1} borderBottomColor='#888' ml={2.5}>
+                                        <DefText text='자세히' style={{fontSize:13,color:'#888'}} />
                                     </Box>
                                 </TouchableOpacity>
-                                <HStack alignItems='center'>
-                                    <DefText text='개인정보 수집이용에 대한 안내' />
-                                    <TouchableOpacity onPress={()=>modalButtons('2')}>
-                                        <Box borderBottomWidth={1} borderBottomColor='#888' ml={2.5}>
-                                            <DefText text='자세히' style={{fontSize:13,color:'#888'}} />
-                                        </Box>
-                                    </TouchableOpacity>
-                                </HStack>
+                         
                             </HStack>
-                        </HStack>
+                        
                     </Box>
 
                     {
@@ -410,6 +415,8 @@ const ReservationAdd = (props) => {
                                 value={doctorName}
                                isDisabled={true}
                                 height='45px'
+                                borderRadius={10}
+                                borderColor='#f1f1f1'
                                 style={{marginTop:10, fontSize:14}}
                             />
                         </Box>
@@ -421,11 +428,14 @@ const ReservationAdd = (props) => {
                             <DefText text='이름' style={[styles.reportLabel]} />
                             <Input 
                                 placeholder='김건강'
+                                placeholderTextColor={'#a3a3a3'}
                                 _focus='transparent'
                                 value={nameInput}
                                 onChangeText={nameChange}
                                 height='45px'
-                                style={{marginTop:10, fontSize:14}}
+                                borderRadius={10}
+                                borderColor='#f1f1f1'
+                                style={[{marginTop:10, fontSize:16, color:'#a3a3a3'}, nameInput.length > 0 && {color:'#000', fontFamily:Font.NotoSansMedium, backgroundColor:'#f1f1f1'} ]}
                             />
                         </Box>
                         <Box mt={5}>
@@ -436,26 +446,28 @@ const ReservationAdd = (props) => {
                                 value={resNumber}
                                 onChangeText={resNumberChange}
                                 height='45px'
-                                style={{marginTop:10, fontSize:14}}
+                                borderRadius={10}
+                                borderColor='#f1f1f1'
+                                style={[{marginTop:10, fontSize:16, color:'#a3a3a3'}, resNumber.length > 0 && {color:'#000', fontFamily:Font.NotoSansMedium, backgroundColor:'#f1f1f1'} ]}
                                 keyboardType='phone-pad'
                                 maxLength={8}
                             />
                         </Box>
                         <Box mt={5}>
                             <DefText text='예약희망날짜' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <HStack justifyContent='space-between' px={5} alignItems='center' width='100%'  height='45px'  backgroundColor='#fff' borderWidth={1} borderColor='#dfdfdf' borderRadius={10} >
-                                <DefText text={dateTimeText} style={{fontSize:14}} />
+                            <HStack justifyContent='space-between' px={5} alignItems='center' width='100%'  height='45px'  backgroundColor='#fff' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} >
+                                <DefText text={dateTimeText} style={{fontFamily:Font.NotoSansMedium, fontWeight:'500'}} />
                                 <TouchableOpacity onPress={showDatePicker}>
-                                    <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
+                                    <Image source={require('../images/carlendarNew.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
                                 </TouchableOpacity>
                             </HStack>
                         </Box>
                         <Box mt={5}>
                             <DefText text='예약희망시간' style={[styles.reportLabel, {marginBottom:10}]} />
-                            <HStack justifyContent='space-between' px={5} alignItems='center' width='100%'  height='45px'  backgroundColor='#fff' borderWidth={1} borderColor='#dfdfdf' borderRadius={10} >
-                                <DefText text={timeText} style={{fontSize:14}} />
+                            <HStack justifyContent='space-between' px={5} pr='15px' alignItems='center' width='100%'  height='45px'  backgroundColor='#fff' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} >
+                                <DefText text={timeText} style={{fontFamily:Font.NotoSansMedium, fontWeight:'500'}} />
                                 <TouchableOpacity onPress={showTimePicker}>
-                                    <Image source={require('../images/datepickerIcon.png')} alt='시계' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
+                                    <Image source={require('../images/timeIcons.png')} alt='시계' style={{width:26, resizeMode:'contain', }}  />
                                 </TouchableOpacity>
                             </HStack>
                         </Box>
@@ -465,82 +477,65 @@ const ReservationAdd = (props) => {
                                 {rTypes}
                             </HStack>
                         </Box>
-                        <Box mt={5}>
+                        <Box mt={5} mb='80px'>
                             <DefText text='남기고 싶은 말' style={[styles.reportLabel]} />
-                            <Box p={2.5} backgroundColor='#fff' borderWidth={1} borderColor='#dfdfdf' borderRadius={10} mt='10px'>
+                            {/* <Box p={2.5} backgroundColor='#fff' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} mt='10px'> */}
                                 <Input
                                     placeholder='예약시 남기고 싶은 내용을 입력하세요'
                                     height='100px'
                                     width='100%'
                                     backgroundColor='transparent'
-                                    borderWidth={0}
+                                    borderWidth={1}
+                                    borderColor='#f1f1f1'
+                                    borderRadius={10}
                                     //onSubmitEditing={schButtons}
                                     value={reservationContent}
                                     onChangeText={contentChanges}
-                                    style={{fontSize:14}}
+                                    style={[{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium, fontWeight:'500'}, reservationContent.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                     multiline={true}
                                     textAlignVertical='top'
                                     _focus='transparent'
+                                    marginTop={2.5}
                                 />
-                            </Box>
+                            {/* </Box> */}
                         </Box>
                     </Box>
                 </Box>
             </ScrollView>
             {
                 reserveStatus == 'u' ?
-                <Box p={2.5} px={5}>
-                    <TouchableOpacity onPress={reservationUpdates} style={[styles.buttonDef]}>
-                    <DefText text='예약내역수정' style={styles.buttonDefText} />
-                    </TouchableOpacity>
+                <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                    <SaveButton onPress={reservationUpdates} />
                 </Box>
                 :
-                <Box p={2.5} px={5}>
-                    <TouchableOpacity onPress={reservationComple} style={[styles.buttonDef]}>
-                    <DefText text='예약상담요청' style={styles.buttonDefText} />
-                    </TouchableOpacity>
+                <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                    <SaveButton onPress={reservationComple} />
                 </Box>
             }
             
             <Modal isOpen={privacyModal} onClose={()=>setPrivacyModal(false)}>
                 <Modal.Content maxWidth={width-40}>
                     <Modal.Body>
-                        {
-                            privacyNumber == '1' ?
-                            <Box>
-                                <DefText text='고유식별정보 처리에 대한 안내' style={{fontSize:18, color:'#000'}} />
-                                <Box mt={5}>
-                                    <HTML 
-                                        ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontFamily', 'br']}
-                                        ignoredTags={['head', 'script', 'src']}
-                                        imagesMaxWidth={Dimensions.get('window').width - 40}
-                                        source={{html: privacy1.content}} 
-                                        tagsStyles={StyleHtml}
-                                        containerStyle={{ flex: 1, }}
-                                        contentWidth={Dimensions.get('window').width}  
-                                    />
-                                </Box>
+  
+                        <Box>
+                            <DefText text={contentPrivacyData.title} style={{color:'#000', fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
+                            <Box mt={5}>
+                                <HTML 
+                                    ignoredStyles={[ 'width', 'height', 'margin', 'padding']}
+                                    ignoredTags={['head', 'script', 'src']}
+                                    imagesMaxWidth={Dimensions.get('window').width - 40}
+                                    source={{html: contentPrivacyData.content}} 
+                                    tagsStyles={StyleHtml}
+                                    containerStyle={{ flex: 1, }}
+                                    contentWidth={Dimensions.get('window').width}  
+                                />
                             </Box>
-                            :
-                            <Box>
-                                <DefText text='개인정보 수집이용에 대한 안내' style={{fontSize:18, color:'#000'}} />
-                                <Box mt={5}>
-                                    <HTML 
-                                        ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontFamily', 'br']}
-                                        ignoredTags={['head', 'script', 'src']}
-                                        imagesMaxWidth={Dimensions.get('window').width - 40}
-                                        source={{html: privacy2.content}} 
-                                        tagsStyles={StyleHtml}
-                                        containerStyle={{ flex: 1, }}
-                                        contentWidth={Dimensions.get('window').width}  
-                                    />
-                                </Box>
-                            </Box>
-                        }
+                        </Box>
+                           
                         <HStack justifyContent='center' mt={2.5} >
                            
                            
-                            <TouchableOpacity style={{width:(width-160), height:45, borderWidth:1, borderColor:'#999', borderRadius:3, alignItems:'center', justifyContent:'center', marginTop:20}} onPress={()=>setPrivacyModal(false)} >
+                            <TouchableOpacity style={{width:(width-100), height:45, backgroundColor:'#696969', borderRadius:10, alignItems:'center', justifyContent:'center', marginTop:20}} onPress={()=>setPrivacyModal(false)} >
                                 <DefText text='확인' style={[styles.counselButtonText]} />
                             </TouchableOpacity>
                     
@@ -581,8 +576,10 @@ const styles = StyleSheet.create({
         width:'auto'
     },
     counselButtonText: {
-        fontSize:14,
-        color:'#333'
+       
+        color:'#fff',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     },
     buttonDef:{
         height:40,
@@ -596,9 +593,9 @@ const styles = StyleSheet.create({
         color:'#fff'
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696969',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
     },
     reportDataText: {
         fontSize:15,

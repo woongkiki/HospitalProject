@@ -19,7 +19,7 @@ const NoticeView = (props) => {
              <HeaderComponents headerTitle='공지사항' navigation={navigation} />
              <ScrollView>
                  <Box p={5}>
-                     <Box style={{paddingBottom:20, borderBottomWidth:1, borderBottomColor:'#707070'}}>
+                     <Box style={{paddingBottom:20, borderBottomWidth:1, borderBottomColor:'#f1f1f1'}}>
                         <DefText text={params.subject} style={styles.noticeTitle} />
                         <DefText text={params.wdate} style={styles.noticeDates} />
                      </Box>

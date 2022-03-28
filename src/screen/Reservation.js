@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Box, Image, HStack, VStack, Modal } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import HeaderHospital from '../components/HeaderHospital';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
@@ -221,10 +221,8 @@ const Reservation = (props) => {
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('ReservationAdd')}} style={[styles.buttonDef]}>
-                   <DefText text='예약추가' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('ReservationAdd')}} />
             </Box>
         </Box>
     );

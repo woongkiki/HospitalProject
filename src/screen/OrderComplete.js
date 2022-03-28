@@ -4,6 +4,7 @@ import { Box, VStack, HStack, Image, Input, Modal } from 'native-base';
 import HeaderOrders from '../components/HeaderOrders';
 import { DefText } from '../common/BOOTSTRAP';
 import { numberFormat } from '../common/dataFunction';
+import Font from '../common/Font';
 
 const OrderComplete = (props) => {
 
@@ -18,6 +19,10 @@ const OrderComplete = (props) => {
             screen: 'Home',
             
         });
+
+        // navigation.reset({
+        //     routes: [{ screen:'Tab_Navigation', name:'Home', msg:'' }],
+        // });
     }
 
     return (
@@ -25,25 +30,28 @@ const OrderComplete = (props) => {
             <HeaderOrders headerTitle='주문완료' />
             <ScrollView>
                 <Box p={5}>
-                    <Box alignItems='center'>
-                        <DefText text='주문완료' style={{fontSize:17, lineHeight:20}} />
-                    </Box>
-                    <Box p={5} borderWidth={1} borderColor='#666' mt={5}>
-                        <HStack justifyContent='space-between' alignItems='center'>
+                   
+                    <Box p={5} backgroundColor='#fff' shadow={8} borderRadius={10}>
+                       
                             <Box>
-                                <DefText text={params.itemTitle + '(2개)'} />
+                                <HStack justifyContent={'space-between'}>
+                                    <DefText text={'상품명 : ' + params.itemTitle} />
+                                    <DefText text={params.amount + '개'} />
+                                </HStack>
                                 {
                                     params.itemOptionName != '' &&
-                                    <DefText text={params.itemOptionName + ':' + params.itemOptionTitle + ' (+' + params.itemOptionPrice + '원)'} style={{fontSize:13, color:'#666', marginTop:5}}/>
+                                    <DefText text={params.itemOptionTitle + ' : ' + params.itemOptionName + ' (+' + params.itemOptionPrice + '원)'} style={{fontSize:14, color:'#696969', marginTop:5}}/>
                                 }
                             </Box>
                             
-                            <DefText text={ numberFormat(params.itemPrice) + '원'} />
-                        </HStack>
+                            <Box alignItems={'flex-end'} mt={5}>
+                                <DefText text={ '총금액 : ' + numberFormat(params.itemPrice) + '원'} style={{fontFamily:Font.NotoSansBold}} />
+                            </Box>
+                
                     </Box>
 
-                    <Box mt={10}>
-                        <DefText text={'주문 감사드립니다.'+`\n`+'배송이 시작되면 알림을 보내드립니다.'} style={{textAlign:'center'}} />
+                    <Box mt={'40px'}>
+                        <DefText text={'주문 감사드립니다.'+`\n`+'배송이 시작되면 알림을 보내드립니다.'} style={{textAlign:'center', color:'#696969', fontFamily:Font.NotoSansMedium}} />
                     </Box>
                    
                     
@@ -65,26 +73,26 @@ const OrderComplete = (props) => {
 
 const styles = StyleSheet.create({
     buttonDef:{
-        height:40,
+        height:45,
         alignItems:'center',
         justifyContent:'center',
-        backgroundColor:'#666',
-        borderRadius:5,
+        backgroundColor:'#090A73',
+        borderRadius:10,
         marginTop:10,
     },
     buttonDefWhite:{
-        height:40,
+        height:45,
         alignItems:'center',
         justifyContent:'center',
         backgroundColor:'#fff',
-        borderRadius:5,
+        borderRadius:10,
         
         borderWidth:1,
-        borderColor:'#666'
+        borderColor:'#696969'
     },
     buttonDefText:{
-        fontSize:14,
-        color:'#fff'
+        color:'#fff',
+        fontFamily:Font.NotoSansMedium
     }
 })
 

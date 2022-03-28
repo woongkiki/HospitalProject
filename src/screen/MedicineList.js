@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, HStack, Image, Modal } from 'native-base';
 import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, FlatList, ActivityIndicator } from 'react-native';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import HeaderMedicine from '../components/HeaderMedicine';
 import { medicineDatas, medicineDatasType1, medicineDatasType2 } from '../Utils/DummyData';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
-
+import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 
 const { width, height } = Dimensions.get('window');
 const ButtonWidth = width * 0.3 - 5;
+
 
 const MedicineList = ( props ) => {
 
@@ -77,9 +79,18 @@ const MedicineList = ( props ) => {
 
 
         return (
-            <TouchableOpacity key={index} style={[ {paddingHorizontal:20, marginBottom:20}, index == 0 && {marginTop:10}]}>
-                <Box backgroundColor='#fff' p={5} px={5} borderRadius='10px' alignItems='center' shadow={8}>
-                    <HStack alignItems='center' width='100%'>
+            <TouchableOpacity onPress={()=>navigation.navigate('MedicineListView', {'medicineIdx':item.idx})} onLongPress={()=>DeleteIdx(item.idx)} key={index} style={[ {paddingHorizontal:20, marginBottom:20}, index == 0 && {marginTop:10}, index+1 == drugScheduleDatas.length && {marginBottom:100}]}>
+
+
+                <Box backgroundColor={ item.finished == 'N' ? '#fff' : '#eee'} p={5} px={5} borderRadius='10px' alignItems='center' shadow={8}>
+                {
+                    item.finished == 'Y' &&
+                    <Box position={'absolute'} right={'20px'} top={'20px'}>
+                        <DefText text='복약종료' style={{color:'#f00'}} />
+                    </Box>
+                }
+                
+                    <HStack alignItems='center' width='100%' flexWrap={'wrap'} justifyContent={'center'}>
                         <Box height='100%' alignItems='flex-start' justifyContent='flex-start' marginRight={2.5}>
                             {
                                 item.type == '조제약' ?
@@ -97,11 +108,11 @@ const MedicineList = ( props ) => {
                             }
                             
                         </Box>
-                        <Box width='65%' marginLeft={2.5}>
+                        <Box width='60%' marginLeft={2.5} >
                             
                             <DefText text={item.type} style={{fontSize:13, color:'#000'}} />
                             <DefText text={item.name} style={{fontSize:15, color:'#000', fontWeight:'bold'}} />
-                            <HStack mt={2.5}>
+                            <HStack mt={2.5} flexWrap={'wrap'}>
                                 <HStack alignItems='center' mr={2.5}>
                                     <DefText text='복약순응도' style={{fontSize:14, color:'#000', marginRight:5}} />
                                     <DefText text={item.percent + '%'} style={{fontSize:14, color:'#000', fontWeight:'bold'}} />
@@ -116,24 +127,65 @@ const MedicineList = ( props ) => {
                             </Text>
                         </Box>
                         {
-                            item.dtype != 'P' &&
+                            item.dtype != 'P' ?
                             <Image source={{uri:item.upfile}} alt='약 샘플' style={{width:60, height:60}} resizeMode='stretch' />
+                            :
+                            <Box style={{width:60, height:60}} />
                         }
                         
                     </HStack>
                 </Box>
+
             </TouchableOpacity>
         )
     }
 
+    // const MedicineFormReplace = async () => {
+    //     await setMedicineModal(false);
+    //     await navigation.navigate('MedicineForm');
+    // }
+
+    // const MedicineFormReplace2 = async () => {
+    //     await setMedicineModal(false);
+    //     await navigation.navigate('MedicineForm2');
+    // }
+
     const MedicineFormReplace = async () => {
         await setMedicineModal(false);
-        await navigation.navigate('MedicineForm');
+        await navigation.navigate('MedicineForm', {'dateTimeText':'', 'scheduleText':'', 'isMedicineDate':'', 'selectCategory':'', 'selectIdxCategory':''});
     }
 
     const MedicineFormReplace2 = async () => {
         await setMedicineModal(false);
-        await navigation.navigate('MedicineForm2');
+        await navigation.navigate('MedicineForm2',{'diseaseDatas':'', 'scheduleText':'', 'isMedicineDate':'', 'selectCategory':'', 'medicine':'', 'medicineIdx':''});
+    }
+
+    //삭제모달
+    const [deleteIdx, setDeleteIdx] = useState('');
+    const [deleteModal, setDeleteModal] = useState(false);
+
+    const DeleteIdx = (idx) => {
+        setDeleteIdx(idx);
+        setDeleteModal(true);
+    }
+
+    const DeleteSubmit = () => {
+        //console.log('deleteIdx:::', deleteIdx);
+
+        Api.send('drug_delete', {'id':userInfo.id,  'token':userInfo.appToken, idx:deleteIdx}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+               // console.log('결과 정보: ', arrItems);
+                ToastMessage(resultItem.message);
+                setDeleteModal(false);
+                drugScheduleHandler2();
+            }else{
+                console.log('결과 출력 실패!', resultItem);
+              // ToastMessage(resultItem.message);
+            }
+        });
     }
 
     return (
@@ -150,7 +202,7 @@ const MedicineList = ( props ) => {
                     >
                         <DefText 
                             text='ALL' 
-                            style={{color:'#fff'}}
+                            style={[{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}, medicineCate === '' && {color:'#fff'}]}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -159,7 +211,7 @@ const MedicineList = ( props ) => {
                     >
                         <DefText 
                             text='조제약' 
-                            style={{color:'#fff'}}
+                            style={[{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}, medicineCate === 'P' && {color:'#fff'}]}
                         />
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -168,11 +220,12 @@ const MedicineList = ( props ) => {
                     >
                         <DefText 
                             text='영양제' 
-                            style={{color:'#fff'}}
+                            style={[{color:'#000', fontFamily:Font.NotoSansMedium, fontWeight:'500'}, medicineCate === 'N' && {color:'#fff'}]}
                         />
                     </TouchableOpacity>
                 </HStack>
             </Box>
+            
             {
                 !medicineLoadings ?
                 <Box alignItems='center' justifyContent='center' flex={1}>
@@ -194,10 +247,14 @@ const MedicineList = ( props ) => {
                 />
             }
 
-            <Box p={2.5} px={5}>
+            {/* <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{setMedicineModal(!medicineModal)}} style={[styles.buttonDef]}>
                    <DefText text='복약관리 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
+            </Box> */}
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{setMedicineModal(!medicineModal)}} />
             </Box>
             <Modal isOpen={medicineModal} onClose={() => setMedicineModal(false)}>
             
@@ -215,6 +272,23 @@ const MedicineList = ( props ) => {
                                 <DefText text='건강보조식품(영양제)' style={styles.modalButtonsText} />
                             </TouchableOpacity>
                         </VStack>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal>
+
+            <Modal isOpen={deleteModal} onClose={() => setDeleteModal(false)}>
+            
+                <Modal.Content maxWidth={width-40}>
+                    <Modal.Body>
+                        <DefText text='복약기록을 삭제하시겠습니까?' style={{textAlign:'center'}}/>
+                        <HStack justifyContent='space-between' mt={5}>
+                            <TouchableOpacity style={styles.logoutButton} onPress={DeleteSubmit}>
+                                <DefText text='확인' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.logoutButton} onPress={()=>setDeleteModal(false)}>
+                                <DefText text='취소' style={styles.logoutButtonText} />
+                            </TouchableOpacity>
+                        </HStack>
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
@@ -256,6 +330,19 @@ const styles = StyleSheet.create({
     },
     buttonDefText:{
         fontSize:14,
+        color:'#fff'
+    },
+
+    logoutButton : {
+        height:40,
+        width:(width-80) *0.47,
+        borderRadius:10,
+        backgroundColor:'#696968',
+        alignItems:'center',
+        justifyContent:'center'
+    },
+    logoutButtonText: {
+        fontSize:15,
         color:'#fff'
     }
 })

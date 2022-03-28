@@ -12,13 +12,13 @@ import { connect } from 'react-redux';
 import { StackActions } from '@react-navigation/native';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 
-const PasswordChange = (props) => {
+const PasswordChange3 = (props) => {
 
     const { navigation, route, member_logout } = props;
 
     const { params } = route;
 
-    console.log(params);
+    //console.log(params);
 
     const {width} = Dimensions.get('window');
 
@@ -38,28 +38,28 @@ const PasswordChange = (props) => {
 
     const _PasswordChangeSubmit = () => {
         if(!passwordInput){
-            ToastMessage('비밀번호를 입력하세요.');
+            ToastMessage('간편비밀번호를 입력하세요.');
             return false;
         }
 
         if(!rePasswordInput){
-            ToastMessage('비밀번호를 다시한번 입력하세요.');
+            ToastMessage('간편비밀번호를 다시한번 입력하세요.');
             return false;
         }
 
         if(passwordInput != rePasswordInput){
-            ToastMessage('비밀번호가 일치하지 않습니다.');
+            ToastMessage('간편비밀번호가 일치하지 않습니다.');
             return false;
         }
 
-        Api.send('member_chgPassword', {'id':params.id, 'password':passwordInput, 'password2':rePasswordInput}, (args)=>{
+        Api.send('member_chgPassword2', {'id':params.id, 'password':passwordInput, 'password2':rePasswordInput}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
             if(resultItem.result === 'Y' && arrItems) {
 
                console.log('출력확인..',arrItems);
-               ToastMessage(resultItem.message);
+               //ToastMessage(resultItem.message);
                setPasswordChangeModal(true);
 
             }else{
@@ -82,45 +82,43 @@ const PasswordChange = (props) => {
 
         //ToastMessage('로그아웃 합니다.');
         //navigation.replace('Login');
-        //navigation.dispatch(StackActions.replace('Login'));
-
-        navigation.reset({
-            routes: [{ name: 'Login' }],
-        });
+        navigation.dispatch(StackActions.replace('Login'));
     }
 
     const _PasswordSubmits = async () => {
         await setPasswordChangeModal(false);
-        await LogOut();
-    }
+        navigation.replace('AcountInfo');
 
-    // const _PasswordSubmits = async () => {
-    //     await setPasswordChangeModal(false);
-    //     await navigation.navigate('Login');
-    // }
+    //    navigation.reset({
+    //         routes: [{ name: 'Tab_Navigation', screen: 'Home' }],
+    //     });
+        //await LogOut();
+    }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <ScrollView>
-                <HeaderComponents navigation={navigation} headerTitle='비밀번호 변경' />
+                <HeaderComponents navigation={navigation} headerTitle='간편비밀번호 변경' />
                 <Box p={5}>
                     <VStack>
-                        <DefText text='변경하실 비밀번호를 입력하세요.' style={{textAlign:'center'}} />
+                        <DefText text='변경하실 간편비밀번호를 입력하세요.' style={{textAlign:'center'}} />
                     </VStack>
                
                     <VStack mt={5}>
                         <Box>
                             <HStack>
-                                <DefText text='비밀번호' style={{fontSize:14}} />
+                                <DefText text='간편비밀번호' style={{fontSize:14}} />
                                 <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
                             </HStack>
                             <Box mt='15px'>
                                 <DefInput 
-                                    placeholderText='비밀번호를 입력해주세요.'
+                                    placeholderText='간편비밀번호를 입력해주세요. (최대 6자리)'
                                     inputValue = {passwordInput}
                                     onChangeText = {passwordChange}
                                     multiline = {false}
                                     secureTextEntry={true}
+                                    keyboardType={'number-pad'}
+                                    maxLength={6}
                                 />
                                 <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
                                     <Image 
@@ -132,16 +130,18 @@ const PasswordChange = (props) => {
                         </Box>
                         <Box mt={5}>
                             <HStack>
-                                <DefText text='비밀번호 확인' style={{fontSize:14}} />
+                                <DefText text='간편비밀번호 확인' style={{fontSize:14}} />
                                 <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
                             </HStack>
                             <Box mt='15px'>
                                 <DefInput 
-                                    placeholderText='비밀번호를 다시 입력해주세요.'
+                                    placeholderText='간편비밀번호를 다시 입력해주세요. (최대 6자리)'
                                     inputValue = {rePasswordInput}
                                     onChangeText = {rePasswordChange}
                                     multiline = {false}
                                     secureTextEntry={true}
+                                    keyboardType={'number-pad'}
+                                    maxLength={6}
                                 />
                                 <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
                                     <Image 
@@ -152,7 +152,7 @@ const PasswordChange = (props) => {
                             </Box>
                         </Box>
                         <Box mt='60px'>
-                            <Button onPress={_PasswordChangeSubmit} text='비밀번호 변경' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
+                            <Button onPress={_PasswordChangeSubmit} text='간편비밀번호 변경' buttonStyle={{borderRadius:8}} textStyle={{fontSize:14}}  />
                         </Box>
                     </VStack>
                 </Box>
@@ -161,8 +161,7 @@ const PasswordChange = (props) => {
                 <Modal.Content maxWidth={width-100}>
                     <Modal.Body>
                         <Box>
-                            <DefText text='비밀번호가 변경되었습니다.' style={{color:'#333'}} />
-                            <DefText text='변경된 비밀번호로 로그인해주세요.' style={{marginTop:10, color:'#333'}} />
+                            <DefText text='간편비밀번호가 변경되었습니다.' style={{color:'#333'}} />
                             <Box alignItems='center'>
                                 <Button onPress={_PasswordSubmits} text='확인' buttonStyle={{borderRadius:8, height:40, marginTop:20, width:width*0.3}} textStyle={{fontSize:14}}  />
                             </Box>
@@ -186,4 +185,4 @@ export default connect(
         member_out: (user) => dispatch(UserAction.member_out(user)), //로그아웃
 
     })
-)(PasswordChange);
+)(PasswordChange3);

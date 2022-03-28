@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, HStack, Image, Modal, CheckIcon, Input } from 'native-base';
-import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, TouchableWithoutFeedback, SafeAreaView } from 'react-native';
-import { DefText, DefInput } from '../common/BOOTSTRAP';
+import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, TouchableWithoutFeedback, SafeAreaView, ActivityIndicator } from 'react-native';
+import { DefText, DefInput, SaveButton } from '../common/BOOTSTRAP';
 import HeaderMedicine from '../components/HeaderMedicine';
 import HeaderComponents from '../components/HeaderComponents';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -11,6 +11,7 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
 import DiseaseSchedule from './DiseaseSchedule';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -59,6 +60,7 @@ const MedicineForm2 = ( props ) => {
    
     //질병검색 인풋창
     const [schTextInput, setSchTextInput] = useState('');
+    const [schTextInput2, setSchTextInput2] = useState('');
     const schTextChange = (text) => {
         setSchTextInput(text);
     }
@@ -66,31 +68,47 @@ const MedicineForm2 = ( props ) => {
     const [schDisLoading, setSchDisLoading] = useState(false);
     const [schDisData, setSchDisData] = useState([]);
 
-    //질병 검색 버튼 클릭시
-    const schButtons = async () => {
-        if(schTextInput.length==0){
-            ToastMessage('검색어를 입력하세요.');
-            return false;
-        }
+    const [emptyState, setEmptyState] = useState(false);
 
-        await setSchDisLoading(false);
+    //질병 검색 버튼 클릭시
+    //콜레라
+    const schButtons = async () => {
+        await setSchDisData([]);
+        await setSchDisLoading(true);
+        setEmptyState(false);
+        setSchTextInput2(schTextInput)
         await Api.send('disease_list', {'id':userInfo.id,  'token':userInfo.appToken, 'schText':schTextInput}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
+            
             if(resultItem.result === 'Y' && arrItems) {
-                console.log('복약 스케줄 정보: ', arrItems);
-               // console.log(arrItems);
-                setSchDisData(arrItems);
+               
+                console.log(arrItems);
+                if(arrItems?.empty === true) {
+                    setEmptyState(true);
+                } else {
+                    setSchDisData(arrItems);
+                    setEmptyState(false);
+                }
+                
+                 setSchDisLoading(false);
                 //setReserveList(arrItems)
             }else{
                 //console.log('결과 출력 실패!', resultItem);
                 ToastMessage(resultItem.message);
+
+                setSchDisLoading(false);
             }
         });
-        await setSchDisLoading(true);
+
         //ToastMessage(schText);
     }
+
+    useEffect(()=>{
+        console.log('하하하하::::', schDisData);
+        console.log('상태::', schDisLoading);
+    }, [])
 
     //질병 검색 및 나이..
     const [diseaseData, setDiseaseData] = useState('');
@@ -191,6 +209,7 @@ const MedicineForm2 = ( props ) => {
             setMedicineTimes(paramsMe)
         }
     }
+    //콜레라
 
     const medicineDataAdds = (medicine,idx) => {
 
@@ -315,14 +334,35 @@ const MedicineForm2 = ( props ) => {
     }
 
 
+    const [chrinicData, setChrinicData] = useState('');
 
+    const mansungDisease = () => {
+        Api.send('disease_chronic', { 'id':userInfo.id, 'token':userInfo.appToken }, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('만성질환', arrItems);
+
+                setChrinicData(arrItems.disease);
+
+            }else{
+                console.log('만성질환 출력 실패!', resultItem);
+                ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    useEffect(()=>{
+        mansungDisease();
+    }, [])
 
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='복약관리' navigation={navigation} />
             <ScrollView>
-                <Box p={5} >
+                <Box p={5} paddingBottom='100px'>
                     {/* <Box>
                         <Box>
                             <DefText text='대표이미지를 등록해주세요.' style={{fontSize:14}} />
@@ -344,17 +384,20 @@ const MedicineForm2 = ( props ) => {
                     <Box>
                         <HStack>
                             <DefText text='병원이름' style={styles.reportLabel} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
                         <Box mt={2.5}>
                             <Input
                                 placeholder='약을 처방받은 병원명을 입력하세요.'
+                                placeholderTextColor={'#a3a3a3'}
                                 height='45px'
                                 width={width-40}
                                 backgroundColor='transparent'
+                                borderRadius={10}
                                 _focus='transparent'
                                 borderWidth={1}
-                                style={{fontSize:14}}
+                                borderColor='#f1f1f1'
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, hospitalNames.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                 value={hospitalNames}
                                 onChangeText={hospitalChanges}
                             />
@@ -363,16 +406,16 @@ const MedicineForm2 = ( props ) => {
                     <Box mt={5}>
                         <HStack>
                             <DefText text='질병' style={styles.reportLabel} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
   
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} backgroundColor={ disease.length > 0 && {backgroundColor:'#f1f1f1'}}>
                             <TouchableOpacity onPress={()=>{setDiseaseModal(!diseaseModal)}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
                                 {
                                     disease != '' ?
-                                    <DefText text={disease} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={disease} style={{fontSize:16, color:'#333', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='질병을 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='질병을 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
                             </TouchableOpacity>
                         </Box>
@@ -381,87 +424,88 @@ const MedicineForm2 = ( props ) => {
                     <Box mt={5}>
                         <HStack>
                             <DefText text='복약스케줄' style={styles.reportLabel} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
                         <DefText text='복약 시작일' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'medicineArray':medicineName, 'medicineIdxArray':medicineIdx})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} backgroundColor={ medicineStartDate && '#f1f1f1'}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'medicineArray':medicineName, 'medicineIdxArray':medicineIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
                                 {
                                     medicineStartDate ?
-                                    <DefText text={medicineStartDate} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineStartDate} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약 시작일을 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약 시작일을 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
                             </TouchableOpacity>
                         </Box>
 
                         <DefText text='복약주기' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
-                                {
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} backgroundColor={ medicineSchedule && '#f1f1f1'}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'medicineArray':medicineName, 'medicineIdxArray':medicineIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                            {
                                     medicineSchedule != '' ?
-                                    <DefText text={medicineSchedule == '0' ? '매일' : medicineSchedule} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineSchedule == '0' ? '매일' : medicineSchedule} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약주기를 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약주기를 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
-                            </Box>
+                            </TouchableOpacity>
                         </Box>
                         <DefText text='복약일수' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} backgroundColor={ medicineTimes && '#f1f1f1'}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'medicineArray':medicineName, 'medicineIdxArray':medicineIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
                                 {
                                     medicineTimes != '' ?
-                                    <DefText text={medicineTimes == '0' ? '계속' : medicineTimes} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineTimes == '0' ? '계속' : medicineTimes} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약일수를 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약일수를 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
-                            </Box>
+                            </TouchableOpacity>
                         </Box>
                         <DefText text='복약시간' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
-                                <HStack>
-                                {
-                                    medicineCheck != '' ?
-                                    medicineCheck.map((item, index)=> {
+                        <Box mt={2.5} borderWidth={1} borderColor='#f1f1f1' borderRadius={10} backgroundColor={ medicineCheck && '#f1f1f1'}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'medicineArray':medicineName, 'medicineIdxArray':medicineIdx, 'm_page':2})}} style={{paddingLeft:15, width:'100%',  justifyContent:'center', paddingVertical:10}}>
+                                <HStack flexWrap={'wrap'}>
+                                    {
+                                        medicineCheck != '' ?
+                                        medicineCheck.map((item, index)=> {
 
-                                        let comma;
-                                        if(index != 0 ){
-                                            comma = ',';
-                                        }else{
-                                            comma = '';
-                                        }
+                                            let comma;
+                                            if(index != 0 ){
+                                                comma = ',';
+                                            }else{
+                                                comma = '';
+                                            }
 
-                                        return(
-                                            <Box key={index}>
-                                                <DefText text={comma + item} />
-                                            </Box>
-                                        )
-                                    })
-                                    :
-                                    <DefText text='언제 복약예정인지 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
-                                }
+                                            return(
+                                                <Box key={index}>
+                                                    <DefText text={comma + item} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}}/>
+                                                </Box>
+                                            )
+                                        })
+                                        :
+                                        <DefText text='언제 복약예정인지 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
+                                    }
                                 </HStack>
-                            </Box>
+                            </TouchableOpacity>
+                           
                         </Box>
                         <Box mt={5}>
                             <HStack>
                                 <DefText text='약' style={styles.reportLabel} />
-                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                             </HStack>
                             <TouchableOpacity style={{ width:'100%', marginTop:10, justifyContent:'center'}} onPress={()=>{navigation.navigate('MedicineAdd', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx,'medicine':medicineName, 'medicineIdx':medicineIdx})}}>
-                                <HStack alignItems='center' p={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5} >
+                                <HStack alignItems='center' p={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} >
                                     <Image source={require( '../images/medicineAdd.png')} alt='의약품 추가' style={{marginRight:10}} />
-                                    <DefText text='의약품 추가' style={{color:'#333'}} />
+                                    <DefText text='의약품 추가' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 </HStack>
                             </TouchableOpacity>
                             {
                                 medicineName != '' &&
                                 medicineName.map((item, index)=>{
                                     return(
-                                        <Box key={index} height='45px' px={4} justifyContent='center' borderWidth={1} borderColor='#ddd' borderRadius={5} mt={2.5}>
+                                        <Box key={index} height='45px' px={4} justifyContent='center' borderWidth={1} borderColor='#f1f1f1' borderRadius={10} mt={2.5} backgroundColor='#f1f1f1'>
                                             <HStack alignItems='center' justifyContent='space-between'>
-                                                <DefText text={item} style={{fontSize:14, color:'#333'}} />
+                                                <DefText text={item} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                                 <TouchableOpacity onPress={ () => { medicineDataRemoves(item) }}>
                                                     <Image source={require('../images/categoryDelButton.png')} alt='항목삭제' />
                                                 </TouchableOpacity>
@@ -491,11 +535,11 @@ const MedicineForm2 = ( props ) => {
                         </HStack>
                         <ScrollView>
                             <Box p={5}>
-                                <DefText text='선택한 질환' />
+                                <DefText text='선택한 질환' style={{fontSize:16, fontFamily:Font.NotoSansMedium, color:'#696969'}} />
                                 {
                                     disease ?
                                     <HStack mt={2.5}>
-                                        <Box py={1} px={4} backgroundColor='#696968' borderRadius={4}>
+                                        <Box py={1} px={4} backgroundColor='#696969' borderRadius={10}>
                                             <DefText text={disease} style={{fontSize:14, color:'#fff'}} />
                                             
                                         </Box>
@@ -505,6 +549,7 @@ const MedicineForm2 = ( props ) => {
                                 }
                                  <Box mt={5}>
                                     <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
+                                        
                                         <Input
                                             placeholder='질병명으로 검색하세요.'
                                             height='45px'
@@ -515,19 +560,23 @@ const MedicineForm2 = ( props ) => {
                                             value={schTextInput}
                                             onChangeText={schTextChange}
                                         />
+                       
                                         <TouchableOpacity onPress={schButtons}>
                                             <Image source={require('../images/schIcons.png')} alt='검색' />
                                         </TouchableOpacity>
                                     </HStack>
                                 </Box>
-                                {   //콜레라
-                                    schDisData.length > 0 && 
-                                    <Box mt={5}>
+                                
+                                    
+                                {
+                                    !schDisLoading ?
+                                    <Box mt={ schTextInput2 && 5}>
                                         <HStack alignItems='flex-end'>
-                                            <DefText text={schTextInput + '의 질병 검색결과'}/>
+                                            <DefText text={schTextInput2 ? `${schTextInput2}의 검색결과` : ""}/>
                                         </HStack>
                                         <HStack flexWrap='wrap'>
                                             {
+                                                schDisData != '' &&
                                                 schDisData.map((item, index)=>{
                                                     return(
                                                         <TouchableOpacity key={index} style={[styles.disButton, disease === item.name && {backgroundColor:'#666'} ]} onPress={()=>diseaseSelectButton(item.name, item.idx)}>
@@ -538,47 +587,74 @@ const MedicineForm2 = ( props ) => {
                                             }
                                         </HStack>
                                     </Box>
-                                }
-                                {
-                                    schDisData.length == 0 && 
-                                    <Box mt={5}>
-                                        <HStack alignItems='flex-end'>
-                                            <DefText text='연령별 주요질환' />
-                                            <DefText text={diseaseAge + '세 기준'} style={{fontSize:13,color:'#999', marginLeft:10}} />
-                                        </HStack>
-                                        <HStack flexWrap='wrap'>
-                                        {
-                                            diseaseData.length>0 && 
-                                            diseaseData.map((item, index)=>{
-                                                return (
-                                                    <TouchableOpacity key={index} style={[styles.disButton, disease == item.name && {backgroundColor:'#666'}]} onPress={()=>diseaseSelectButton(item.name, item.idx)}>
-                                                        <DefText text={item.name} style={[styles.disText, disease == item.name && {color:'#fff'}]} />
-                                                    </TouchableOpacity>
-                                                )
-                                            })
-                                        }
-                                        </HStack>
+                                    :
+                                    <Box py={5}>
+                                        <ActivityIndicator size='large' color='#333' marginTop={20} marginBottom={20} />
                                     </Box>
                                 }
-                               
-                                <Box mt={5} >
-                                    <TouchableOpacity onPress={diseaseDatasSave} style={styles.medicineButtons}>
-                                        <DefText text='저장' style={styles.medicineButtonsText} />
-                                    </TouchableOpacity>
+                                    
+                                
+                                {
+                                    emptyState &&
+                                    <Box py={'40px'} alignItems={'center'} >
+                                        <DefText  text='검색하신 질병정보가 없습니다.' style={{color:'#666'}}/>
+                                    </Box>
+                                }
+
+                                {
+                                    chrinicData != '' && 
+                                    <Box mb={5}>
+                                        <DefText text='만성질환' style={{fontSize:16, fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                        {
+                                            chrinicData.length > 0 &&
+                                            <HStack flexWrap={'wrap'}>
+                                                {
+                                                     chrinicData.map((item, index)=> {
+                                                        return(
+                                                            <TouchableOpacity key={index} style={[styles.disButton, disease == item.name && {backgroundColor:'#666'}]} onPress={()=>diseaseSelectButton(item.name, item.idx)}>
+                                                                <DefText text={item.name} style={[styles.disText, disease == item.name && {color:'#fff'}]} />
+                                                            </TouchableOpacity>       
+                                                        )
+                                                    })
+                                                }
+                                            </HStack>
+                                        }
+                                    </Box>
+                                }
+                                <Box mb='80px'>
+                                    <HStack alignItems='flex-end'>
+                                        <DefText text='연령별 주요질환' style={{fontSize:16, fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                                        <DefText text={diseaseAge + '세 기준'} style={{color:'#000', marginLeft:10, fontFamily:Font.NotoSansMedium}} />
+                                    </HStack>
+                                    <HStack flexWrap='wrap'>
+                                    {
+                                        diseaseData.length>0 && 
+                                        diseaseData.map((item, index)=>{
+                                            return (
+                                                <TouchableOpacity key={index} style={[styles.disButton, disease == item.name && {backgroundColor:'#666'}]} onPress={()=>diseaseSelectButton(item.name, item.idx)}>
+                                                    <DefText text={item.name} style={[styles.disText, disease == item.name && {color:'#fff'}]} />
+                                                </TouchableOpacity>
+                                            )
+                                        })
+                                    }
+                                    </HStack>
                                 </Box>
+                          
+                               
+                                
                             </Box>
                             
                         </ScrollView>
-                       
+                        <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                            <SaveButton onPress={diseaseDatasSave} />
+                        </Box>
                     </Box>
                 </SafeAreaView>
             </Modal>
 
 
-            <Box p={2.5}>
-                <TouchableOpacity onPress={medicineAdds} style={styles.medicineButtons}>
-                    <DefText text='저장' style={styles.medicineButtonsText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={medicineAdds} />
             </Box>
         </Box>
     );
@@ -586,16 +662,16 @@ const MedicineForm2 = ( props ) => {
 
 const styles = StyleSheet.create({
     medicineButtons : {
-        backgroundColor:'#999',
+        backgroundColor:'#090A73',
         borderRadius:5,
         alignItems:'center',
         justifyContent:'center',
-        height: 40,
+        height: 45,
     },
     medicineButtonsText: {
-        fontSize:15,
+
         color:'#fff',
-        
+        fontFamily:Font.NotoSansMedium
     },
     medicineAdds : {
         position: 'absolute',
@@ -604,13 +680,13 @@ const styles = StyleSheet.create({
         right:10
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696968',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
     },
     reportLabelSmall : {
-        fontSize:13,
-        color:'#666'
+        fontSize:14,
+        color:'#696968'
     },
     disButton: {
         paddingVertical:5,

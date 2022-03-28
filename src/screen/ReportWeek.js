@@ -7,6 +7,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import ReportWeeks from '../components/ReportWeeks';
 import ReportMonths from '../components/ReportMonths';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -38,16 +39,17 @@ const ReportWeek = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <HStack flexWrap='wrap' justifyContent='space-between' mb={5}>
-                        <TouchableOpacity onPress={()=>categoryChange('1')} style={[{width:(width-40)*0.48, height:30, alignItems:'center', justifyContent:'center', borderRadius:5}, reportCategory == '1' ? {backgroundColor:'#696968'} : {backgroundColor:'#DBDBDB'}]}>
-                            <DefText text='주간' style={[{fontSize:14}, reportCategory == '1' ? {color:'#fff'} : {color:'#696968'}]} />
+                        <TouchableOpacity onPress={()=>categoryChange('1')} style={[{width:(width-40)*0.48, height:30, alignItems:'center', justifyContent:'center', borderRadius:10}, reportCategory == '1' ? {backgroundColor:'#696968'} : {backgroundColor:'#f1f1f1'}]}>
+                            <DefText text='주간' style={[{fontWeight:'500', fontFamily:Font.NotoSansMedium}, reportCategory == '1' ? {color:'#fff'} : {color:'#696968'}]} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>categoryChange('2')} style={[{width:(width-40)*0.48, height:30, alignItems:'center', justifyContent:'center', borderRadius:5}, reportCategory == '2' ? {backgroundColor:'#696968'} : {backgroundColor:'#DBDBDB'}]}>
-                            <DefText text='월간' style={[{fontSize:14}, reportCategory == '2' ? {color:'#fff'} : {color:'#696968'}]} />
+                        <TouchableOpacity onPress={()=>categoryChange('2')} style={[{width:(width-40)*0.48, height:30, alignItems:'center', justifyContent:'center', borderRadius:10}, reportCategory == '2' ? {backgroundColor:'#696968'} : {backgroundColor:'#f1f1f1'}]}>
+                            <DefText text='월간' style={[{fontWeight:'500', fontFamily:Font.NotoSansMedium}, reportCategory == '2' ? {color:'#fff'} : {color:'#696968'}]} />
                         </TouchableOpacity>
                     </HStack>
+                    
                     {
                         reportCategory == '1' &&
-                        <ReportWeeks navigation={navigation} userInfo={userInfo} />
+                        <ReportWeeks navigation={navigation} />
                     }
                     {
                         reportCategory == '2' && 

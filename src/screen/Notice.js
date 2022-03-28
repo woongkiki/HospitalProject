@@ -48,7 +48,7 @@ const Notice = (props) => {
             <Box key={index} px={5}>
                 <TouchableOpacity 
                     
-                    style={{ paddingVertical:20, borderBottomWidth:1, borderBottomColor:'#707070'}}
+                    style={{ paddingVertical:15, borderBottomWidth:1, borderBottomColor:'#f1f1f1'}}
                     onPress={()=>{navigation.navigate('NoticeView', item)}}
                 >
                     <DefText text={item.subject} style={styles.noticeTitle} />

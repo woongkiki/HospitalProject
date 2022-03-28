@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -212,7 +213,7 @@ const styles = StyleSheet.create({
         height:45,
         width:(width-80) *0.47,
         borderRadius:10,
-        backgroundColor:'#696968',
+        backgroundColor:'#090A73',
         alignItems:'center',
         justifyContent:'center'
     },
@@ -221,15 +222,15 @@ const styles = StyleSheet.create({
         color:'#fff'
     },
     buttonDef:{
-        height:40,
+        height:45,
         alignItems:'center',
         justifyContent:'center',
-        backgroundColor:'#666',
-        borderRadius:5
+        backgroundColor:'#090A73',
+        borderRadius:10
     },
     buttonDefText:{
-        fontSize:14,
-        color:'#fff'
+        color:'#fff',
+        fontFamily:Font.NotoSansMedium
     }
 })
 

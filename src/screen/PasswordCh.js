@@ -7,6 +7,8 @@ import HeaderComponents from '../components/HeaderComponents';
 import {email_check, phoneFormat} from '../common/dataFunction';
 import Api from '../Api';
 import messaging from '@react-native-firebase/messaging';
+import { connect } from 'react-redux';
+import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Font from '../common/Font';
 
 //시간초 카운터용
@@ -14,9 +16,11 @@ let t1;
 let tcounter;
 let temp;
 
-const PasswordLost = (props) => {
+const PasswordCh = (props) => {
 
-    const { navigation } = props;
+    const { navigation, userInfo } = props;
+
+    //console.log(userInfo);
 
     const {width} = Dimensions.get('window');
     const phoneInputWidth = (width - 40) * 0.55;
@@ -125,28 +129,10 @@ const PasswordLost = (props) => {
 
         const token = await messaging().getToken();
 
-        if(!emailInput){
-            ToastMessage('이메일을 입력하세요.');
-            return false;
-        }
-
-        if(!nameInput){
-            ToastMessage('이름을 입력하세요.');
-            return false;
-        }
-
-        if(!phoneNumber){
-            ToastMessage('휴대폰 번호를 입력하세요.');
-            return false;
-        }
-
-        if(phoneIntervel){
-            ToastMessage(tcounter + '초 후에 재발송할 수 있습니다.');
-            return false;
-        }
+     
 
 
-        Api.send('member_sms', {'id':emailInput, 'nameInput':nameInput, 'phoneNumber':phoneNumber, 'token':token}, (args)=>{
+        Api.send('member_sms', {'id':userInfo.email, 'nameInput':userInfo.name, 'phoneNumber':phoneNumber, 'token':token}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
@@ -159,7 +145,7 @@ const PasswordLost = (props) => {
 
             }else{
                 console.log('결과 출력 실패!', resultItem);
-                //ToastMessage(resultItem.message);
+                ToastMessage(resultItem.message);
             }
         })
 
@@ -183,7 +169,7 @@ const PasswordLost = (props) => {
             return false;
         }
 
-        await Api.send('member_smsChk', {'id':emailInput, 'nameInput':nameInput, 'phoneNumber':phoneNumber, 'token':token, 'sms':certiNumber}, (args)=>{
+        await Api.send('member_smsChk', {'id':userInfo.email, 'nameInput':userInfo.name, 'phoneNumber':phoneNumber, 'token':token, 'sms':certiNumber}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
@@ -226,20 +212,7 @@ const PasswordLost = (props) => {
     //계정정보 확인하기
     const _PasswordChange = () => {
 
-        if(!emailInput){
-            ToastMessage('이메일을 입력하세요.');
-            return false;
-        }
-
-        if(!email_check(emailInput)){ // 이메일 유효성 검사
-            ToastMessage('이메일 형식으로 입력하세요.');
-            return false;
-        }
-
-        if(!nameInput){
-            ToastMessage('이름을 입력하세요.');
-            return false;
-        }
+      
 
         if(!phoneNumber){
             ToastMessage('휴대폰번호를 입력하세요.');
@@ -259,24 +232,24 @@ const PasswordLost = (props) => {
     //비밀번호 변경페이지로 이동
     const _PasswordChangeSubmit = async () => {
         await setCertiFormComplete(false);
-        await navigation.navigate('PasswordChange', {'id':emailInput});
+        await navigation.navigate('PasswordChange2', {'id':userInfo.email});
     }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-             <HeaderComponents navigation={navigation} headerTitle='비밀번호찾기' />
+             <HeaderComponents navigation={navigation} headerTitle='비밀번호 변경' />
             <ScrollView>
                
                 <Box p={5}>
                     <VStack mb='35px'>
-                        <DefText text='계정정보를 입력하신 후' style={{textAlign:'center', fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
+                        <DefText text='비밀번호 변경을 위해' style={{textAlign:'center', fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
                         <DefText text='문자인증으로 본인확인해주세요.' style={{textAlign:'center', fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
                     </VStack>
                     <VStack>
-                        <Box>
+                        {/* <Box>
                             <HStack>
-                                <DefText text='이메일' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
-                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
+                                <DefText text='이메일' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
                             </HStack>
                             <DefInput 
                                 placeholderText='이메일을 입력해주세요.'
@@ -288,8 +261,8 @@ const PasswordLost = (props) => {
                         </Box>
                         <Box mt={5}>
                             <HStack>
-                                <DefText text='이름' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}}  />
-                                <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}}  />
+                                <DefText text='이름' style={{fontSize:14}} />
+                                <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
                             </HStack>
                             <DefInput 
                                 placeholderText='이름을 입력해주세요.'
@@ -298,8 +271,8 @@ const PasswordLost = (props) => {
                                 multiline = {false}
                                 inputStyle={{marginTop:15}}
                             />
-                        </Box>
-                        <Box mt={5}>
+                        </Box> */}
+                        <Box>
                             <HStack>
                                 <DefText text='휴대폰번호 인증' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
                                 <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
@@ -322,7 +295,7 @@ const PasswordLost = (props) => {
                                             borderRadius:8, 
                                             width:phoneCertiButtonWidth, 
                                             borderWidth:1, 
-                                            borderColor:'#707070', 
+                                            borderColor:'#f1f1f1', 
                                             height:48
                                         },  
                                         certiNumberButton ? 
@@ -330,11 +303,10 @@ const PasswordLost = (props) => {
                                     ]} 
                                     textStyle={[
                                         {
-                                            fontSize:16,
-                                            fontFamily:Font.NotoSansMedium
+                                            fontSize:16
                                         },
                                         certiNumberButton ? 
-                                        {color:'#999'} : {color:'#707070'}
+                                        {color:'#696969'} : {color:'#000'}
                                     ]}
                                     onPress={smsSendButton}
                                 />
@@ -358,19 +330,20 @@ const PasswordLost = (props) => {
                                         {
                                             borderRadius:8,
                                             borderWidth:1, 
-                                            borderColor:'#f1f1f1', 
+                                            borderColor:'#707070', 
                                             height:48, 
                                             marginTop:15
                                         },
                                         certiComplete ? 
-                                        { backgroundColor:'#f1f1f1', borderWidth:0 } : { backgroundColor : '#fff', borderColor:'#f1f1f1', borderWidth:1 }
+                                        { backgroundColor:'#f1f1f1', borderWidth:0 } : { backgroundColor : '#696969', borderWidth:1 }
                                     ]} 
                                     textStyle={[
                                         {
-                                            fontSize:14, 
+                                            fontSize:16, 
+                                            fontFamily:Font.NotoSansMedium
                                         },
                                         certiComplete ? 
-                                        {color:'#999'} : {color:'#707070'}
+                                        {color:'#696969'} : {color:'#fff'}
                                     ]}
                                     onPress={_smsCertiButton}
                                 />
@@ -381,16 +354,19 @@ const PasswordLost = (props) => {
                 </Box>
             </ScrollView>
             <Box p={2.5}>
-                <Button onPress={_PasswordChange} text='계정정보 확인' buttonStyle={{borderRadius:10}}   />
+                <TouchableOpacity onPress={_PasswordChange} style={{backgroundColor:'#090A73', justifyContent:'center', alignItems:'center', height:45, borderRadius:10}}>
+                    <DefText text='다음' style={{color:'#fff', fontFamily:Font.NotoSansMedium}} />
+                </TouchableOpacity>
+                {/* <Button onPress={_PasswordChange} text='다음' buttonStyle={{borderRadius:10}} textStyle={{fontFamily:Font.NotoSansMedium, fontWeight:'500'}}  /> */}
             </Box>
             <Modal isOpen={certiFormComplete} onClose={() => setCertiFormComplete(false)} >
                 <Modal.Content maxWidth={width-100}>
                     <Modal.Body>
                         <Box>
-                            <DefText text='계정정보가 확인되었습니다.' style={{color:'#333'}} />
-                            <DefText text='비밀번호 변경페이지로 이동합니다.' style={{marginTop:10, color:'#333'}} />
+                            <DefText text='본인확인 완료되었습니다.' style={{color:'#000', fontFamily:Font.NotoSansMedium}} />
+                            <DefText text='비밀번호 변경페이지로 이동합니다.' style={{marginTop:10, color:'#000', fontFamily:Font.NotoSansMedium}} />
                             <Box alignItems='center'>
-                                <Button onPress={_PasswordChangeSubmit} text='확인' buttonStyle={{borderRadius:8, height:40, marginTop:20, width:width*0.3}} textStyle={{fontSize:14}}  />
+                                <Button onPress={_PasswordChangeSubmit} text='확인' buttonStyle={{borderRadius:10, height:45, marginTop:20, width:width*0.3, backgroundColor:'#090A73'}} textStyle={{fontSize:16, fontFamily:Font.NotoSansMedium}}  />
                             </Box>
                         </Box>
                     </Modal.Body>
@@ -400,4 +376,14 @@ const PasswordLost = (props) => {
     );
 };
 
-export default PasswordLost;
+
+export default connect(
+({ User }) => ({
+    userInfo: User.userInfo, //회원정보
+}),
+(dispatch) => ({
+    member_login: (user) => dispatch(UserAction.member_login(user)), //로그인
+    member_info: (user) => dispatch(UserAction.member_info(user)), //회원 정보 조회
+    
+})
+)(PasswordCh);

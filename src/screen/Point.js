@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 const {width, height} = Dimensions.get('window');
 const CateWidh = (width - 40) * 0.31;
@@ -57,7 +58,7 @@ const Point = (props) => {
             <ScrollView>
                 <Box p={5}>
                     <Box>
-                        <HStack pb={2.5} mb={2.5} borderBottomWidth={1} borderBottomColor='#999' justifyContent='space-between'>
+                        <HStack pb={2.5} mb={2.5} borderBottomWidth={1} borderBottomColor='#f1f1f1' justifyContent='space-between'>
                             <DefText text='잔여포인트' style={styles.pointTitle} />
                             {
                                 pointAll != '' && 
@@ -66,13 +67,13 @@ const Point = (props) => {
                            
                         </HStack>
                         <HStack justifyContent='space-between'>
-                            <TouchableOpacity onPress={()=>{CategoryChange('')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '' && {backgroundColor:'#707070'} ]}>
+                            <TouchableOpacity onPress={()=>{CategoryChange('')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '' && {backgroundColor:'#696969'} ]}>
                                 <DefText text='전체' style={[styles.cateButtonText, pointCategory === '' && {color:'#fff'}]} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>{CategoryChange('1')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '1' && {backgroundColor:'#707070'}]}>
+                            <TouchableOpacity onPress={()=>{CategoryChange('1')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '1' && {backgroundColor:'#696969'}]}>
                                 <DefText text='1개월' style={[styles.cateButtonText, pointCategory === '1' && {color:'#fff'}]} />
                             </TouchableOpacity>
-                            <TouchableOpacity onPress={()=>{CategoryChange('6')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '6' && {backgroundColor:'#707070'}]}>
+                            <TouchableOpacity onPress={()=>{CategoryChange('6')}} style={[{width:CateWidh}, styles.cateButton, pointCategory === '6' && {backgroundColor:'#696969'}]}>
                                 <DefText text='6개월' style={[styles.cateButtonText, pointCategory === '6' && {color:'#fff'}]} />
                             </TouchableOpacity>
                         </HStack>
@@ -83,7 +84,7 @@ const Point = (props) => {
                             pointLists.length > 0 ? 
                             pointLists.map((item, index)=> {
                                 return(
-                                    <Box key={index} py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
+                                    <Box key={index} py={'15px'} borderBottomWidth={1} borderBottomColor='#f1f1f1' style={[index ==0 && {borderTopWidth:1, borderTopColor:'#f1f1f1'}]}>
                                         <DefText text={item.title} style={styles.pointDataTitle} />
                                         <HStack justifyContent='space-between' alignItems='center'>
                                             <DefText text={item.wdate} style={{fontSize:14,color:'#a2a2a2'}} />
@@ -104,7 +105,7 @@ const Point = (props) => {
                             })
                             :
                             <Box alignItems='center' justifyContent='center' height={height-250}>
-                                <DefText text='포인트 내역이 없습니다.' style={{color:'#666'}} />
+                                <DefText text='포인트 내역이 없습니다.' style={{color:'#696969'}} />
                             </Box>
                         }
                     </Box>
@@ -119,23 +120,26 @@ const styles = StyleSheet.create({
         height:30,
         backgroundColor:'#fff',
         borderWidth:1,
-        borderRadius:5,
-        borderColor:'#999',
+        borderRadius:10,
+        borderColor:'#f1f1f1',
         alignItems:'center',
         justifyContent:'center'
     },
     cateButtonText:{
         fontSize:14,
-        color:'#666'
+        color:'#a3a3a3',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium
     },
     pointTitle:{
-        fontSize:16,
         color:'#000',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold,
     },
     pointDataTitle:{
         fontSize:16,
-        fontWeight:'bold'
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold,
     }
 
 })

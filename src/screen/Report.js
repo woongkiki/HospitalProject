@@ -367,7 +367,7 @@ const Report = (props) => {
                                 </Box>
                             </Box>
                             <Box mt={2.5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                                <DefText text='정상혈당 달성도' style={[styles.reportLabel], {marginBottom:10}} />
+                                <DefText text='정상혈당 달성도' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <VStack>
                                     <DefText text={'전체 : 90% (총 12회, 달성 11회)'} style={{fontSize:14, color:'#333'}}/>
                                     <DefText text={'공복 : 100% (총 7회, 달성 7회)'} style={{fontSize:14, color:'#333', marginTop:10}}/>
@@ -375,7 +375,7 @@ const Report = (props) => {
                                 </VStack>
                             </Box>
                             <Box mt={5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                                <DefText text='혈당 값 추세' style={[styles.reportLabel], {marginBottom:10}} />
+                                <DefText text='혈당 값 추세' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <Box width={ (width-80) + 'px'} >
                                     <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
                                         <Box width={(width - 40) *0.2 + 'px'} />
@@ -784,7 +784,7 @@ const Report = (props) => {
                             </Box>
 
                             <Box mt={2.5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                                <DefText text='정상혈당 달성도' style={[styles.reportLabel], {marginBottom:10}} />
+                                <DefText text='정상혈당 달성도' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <VStack>
                                     <DefText text={'전체 : 90% (총 12회, 달성 11회)'} style={{fontSize:14, color:'#333'}}/>
                                     <DefText text={'공복 : 100% (총 7회, 달성 7회)'} style={{fontSize:14, color:'#333', marginTop:10}}/>
@@ -792,7 +792,7 @@ const Report = (props) => {
                                 </VStack>
                             </Box>
                             <Box mt={5} backgroundColor='#F1F1F1' borderRadius={10} p={5}>
-                                <DefText text='혈당 값 추세' style={[styles.reportLabel], {marginBottom:10}} />
+                                <DefText text='혈당 값 추세' style={[styles.reportLabel, {marginBottom:10}]} />
                                 <Box>
                                     <HStack justifyContent='space-between' borderBottomWidth={1} borderBottomColor='#999'>
                                         <Box width={(width - 40) *0.2 + 'px'} />
