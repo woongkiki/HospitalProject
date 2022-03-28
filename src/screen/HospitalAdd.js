@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
 import { Box, Image, HStack, VStack, Input } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { DefText, SaveButton } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
@@ -32,7 +32,7 @@ const HospitalAdd = (props) => {
             return false;
         }
 
-        Api.send('member_membership', {'id':userInfo.id, 'token':userInfo.token, 'joinCode':hospitalCode}, (args)=>{
+        Api.send('member_membership', {'id':userInfo.id, 'token':userInfo.appToken, 'joinCode':hospitalCode}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
@@ -41,7 +41,7 @@ const HospitalAdd = (props) => {
 
                 //console.log(resultItem);
                 ToastMessage(resultItem.message);
-                navigation.navigate('AcountInfo');
+                navigation.navigate('HospitalList');
     
             }else{
                 console.log('결과 출력 실패!', resultItem);
@@ -52,32 +52,32 @@ const HospitalAdd = (props) => {
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderComponents navigation={navigation} headerTitle='병원추가' />
+            <HeaderComponents navigation={navigation} headerTitle='회원권 조회' />
             <ScrollView>
                 <Box p={5}>
-                    <Box>
-                        <HStack>
-                            <DefText text='병원코드' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
-                        </HStack>
-                        <Input 
-                            placeholder='추가하실 병원코드를 입력하세요.'
-                            inputValue = {hospitalCode}
-                            onChangeText = {hospitalChange}
-                            multiline = {false}
-                            style={{marginTop:15, fontSize:14}}
-                            _focus='transparent'
-                            height='45px'
-                        />
-                    </Box>
-
-                    <Box mt={5}>
-                        <TouchableOpacity onPress={hospitalAdds} style={styles.buttonDef}>
-                            <DefText text='병원 추가' style={styles.buttonDefText} />
-                        </TouchableOpacity>
-                    </Box>
+                    <HStack>
+                        <DefText text='병원코드' style={[styles.reportLabel]} />
+                        <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
+                    </HStack>
+                    <Input 
+                        placeholder='추가하실 병원코드를 입력하세요.'
+                        placeholderTextColor={'#a3a3a3'}
+                        inputValue = {hospitalCode}
+                        onChangeText = {hospitalChange}
+                        multiline = {false}
+                        borderWidth={1}
+                        borderColor='#f1f1f1'
+                        borderRadius={10}
+                        style={[{fontSize:16, fontFamily:Font.NotoSansMedium, marginTop:10}, hospitalCode.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                        _focus='transparent'
+                        height='45px'
+                    />
+                   
                 </Box>
             </ScrollView>
+            <Box position={'absolute'} bottom={"30px"} right={"20px"}>
+                <SaveButton onPress={hospitalAdds} />
+            </Box>
         </Box>
     );
 };
@@ -93,7 +93,12 @@ const styles = StyleSheet.create(({
     buttonDefText:{
         fontSize:14,
         color:'#fff'
-    }
+    },
+    reportLabel : {
+        color:'#696968',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
+    },
 }))
 
 export default connect(

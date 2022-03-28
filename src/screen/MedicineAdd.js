@@ -76,7 +76,7 @@ const MedicineAdd = (props) => {
                     <Box>
                         <HStack alignItems='center' height='50px' backgroundColor='#F1F1F1' borderRadius={5}>
                             <Input
-                                placeholder='질병명으로 검색하세요.'
+                                placeholder='처방전에 기록된 의약품으로 검색해보세요.'
                                 height='45px'
                                 width={width-80}
                                 backgroundColor='transparent'

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
 import { Box, Image, HStack } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { InquiryListData } from '../Utils/DummyData';
 import { connect } from 'react-redux';
@@ -71,7 +71,7 @@ const InquiryList = (props) => {
             <Box key={index}>
                 <TouchableOpacity activeOpacity={0.9} onPress={()=>{InqSelectHandle(index)}} style={{paddingVertical:15, paddingHorizontal: 20, borderBottomWidth:1, borderBottomColor:'#eee'}}>
                     <HStack>
-                        <HStack>
+                        <HStack  width='75%'>
                             <DefText text='Q' style={[item.status == 'Y' ? {color:'#5EB5E0'} : {color:'#f00'}, {fontWeight:'bold', marginRight:10}]} />
                             <DefText text={item.subject} style={{fontSize:16, fontWeight:'bold'}} />
                         </HStack>
@@ -131,10 +131,8 @@ const InquiryList = (props) => {
                     <DefText text='등록된 문의내역이 없습니다.' />
                 </Box>
             }
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('InquiryForm')}} style={[styles.buttonDef]}>
-                    <DefText text='문의하기' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('InquiryForm')}} />
             </Box>
         </Box>
     );

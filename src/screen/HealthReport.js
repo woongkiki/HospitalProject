@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList, ActivityIndicator, ImageBackground } from 'react-native';
 import { Box, Image, HStack, VStack } from 'native-base';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import { NoticeData, medicineDatas, dnaReport } from '../Utils/DummyData';
 import { connect } from 'react-redux';
@@ -9,6 +9,7 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import ToastMessage from '../components/ToastMessage';
 import Api from '../Api';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
 
 
 const {width} = Dimensions.get('window');
@@ -19,6 +20,7 @@ const HealthReport = ( props ) => {
     const {navigation, userInfo} = props;
 
     //console.log(userInfo);
+    const hospitalButtonWidth2 = (width-40) * 0.27;
 
     //console.log(props);
     const [reportLoading, setReportLoading] = useState(true);
@@ -37,7 +39,7 @@ const HealthReport = ( props ) => {
         console.log(name);
 
 
-        Api.send('member_disease', {'id':userInfo.id, 'token':userInfo.appToken, 'disease':name}, (args)=>{
+        Api.send('member_diseaseDelete', {'id':userInfo.id, 'token':userInfo.appToken, 'disease':name}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
 
@@ -150,113 +152,125 @@ const HealthReport = ( props ) => {
                             <HStack mt={2.5} justifyContent='space-between'>
                                 <TouchableOpacity
                                     onPress={()=>{reportButton(1)}}
-                                    style={[{
-                                            backgroundColor:'#D2D2D2',
-                                            width:hospitalButtonWidth,
-                                            height:hospitalButtonWidth,
-                                            borderRadius:10,
-                                            justifyContent:'center',
-                                            alignItems:'center'
-                                        },
-                                        buttonIdx === 1 && {backgroundColor:'#696968'}
-                                    ]}
-                                    
+                                    style={{marginTop:-5, marginLeft:-5}}
                                 >
-                                    <Box alignItems='center'>
-                                        <Image
-                                            source={require('../images/healthReportIcon1.png')}
-                                            alt='병원정보'
-                                            style={{width:40}}
-                                            resizeMode='contain'
-                                        />
-                                        <DefText text='병원정보' style={{ fontSize:13, color:'#fff'}} />
-                                    </Box>
+                                    {
+                                        buttonIdx == 1 ?
+                                        <ImageBackground
+                                            source={require('../images/blackShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon01W.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='병원정보'/>
+                                            <DefText text='병원정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                        
+                                        :
+                                        <ImageBackground
+                                            source={require('../images/grayShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon01B.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='병원정보'/>
+                                            <DefText text='병원정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                    }
                                 </TouchableOpacity>
+
                                 <TouchableOpacity
                                     onPress={()=>{reportButton(2)}}
-                                    style={[{
-                                            backgroundColor:'#D2D2D2',
-                                            width:hospitalButtonWidth,
-                                            height:hospitalButtonWidth,
-                                            borderRadius:10,
-                                            justifyContent:'center',
-                                            alignItems:'center'
-                                        },
-                                        buttonIdx === 2 && {backgroundColor:'#696968'}
-                                    ]}
-                                    
+                                    style={{marginTop:-5, marginLeft:-5}}
                                 >
-                                    <Box alignItems='center'>
-                                        <Image
-                                            source={require('../images/healthReportIcon2.png')}
-                                            alt='질환기록'
-                                            style={{width:40}}
-                                            resizeMode='contain'
-                                        />
-                                        <DefText text='질환기록' style={{ fontSize:13, color:'#fff'}} />
-                                    </Box>
+                                    {
+                                        buttonIdx == 2 ?
+                                        <ImageBackground
+                                            source={require('../images/blackShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon02W.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='질환기록'/>
+                                            <DefText text='질환기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                        
+                                        :
+                                        <ImageBackground
+                                            source={require('../images/grayShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon02B.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='질환기록'/>
+                                            <DefText text='질환기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                    }
                                 </TouchableOpacity>
+
                                 <TouchableOpacity
                                     onPress={()=>{reportButton(3)}}
-                                    style={[{
-                                            backgroundColor:'#D2D2D2',
-                                            width:hospitalButtonWidth,
-                                            height:hospitalButtonWidth,
-                                            borderRadius:10,
-                                            justifyContent:'center',
-                                            alignItems:'center'
-                                        },
-                                        buttonIdx === 3 && {backgroundColor:'#696968'}
-                                    ]}
-                                    
+                                    style={{marginTop:-5, marginLeft:-5}}
                                 >
-                                    <Box alignItems='center'>
-                                        <Image
-                                            source={require('../images/healthReportIcon3.png')}
-                                            alt='복약기록'
-                                            style={{width:40}}
-                                            resizeMode='contain'
-                                        />
-                                        <DefText text='복약기록' style={{ fontSize:13, color:'#fff'}} />
-                                    </Box>
+                                    {
+                                        buttonIdx == 3 ?
+                                        <ImageBackground
+                                            source={require('../images/blackShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon03W.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='복약기록'/>
+                                            <DefText text='복약기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                        
+                                        :
+                                        <ImageBackground
+                                            source={require('../images/grayShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon03B.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='복약기록'/>
+                                            <DefText text='복약기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                    }
                                 </TouchableOpacity>
+
                                 <TouchableOpacity
                                     onPress={()=>{reportButton(4)}}
-                                    style={[{
-                                            backgroundColor:'#D2D2D2',
-                                            width:hospitalButtonWidth,
-                                            height:hospitalButtonWidth,
-                                            borderRadius:10,
-                                            justifyContent:'center',
-                                            alignItems:'center'
-                                        },
-                                        buttonIdx === 4 && {backgroundColor:'#696968'}
-                                    ]}
-                                    
+                                    style={{marginTop:-5, marginLeft:-5}}
                                 >
-                                    <Box alignItems='center'>
-                                        <Image
-                                            source={require('../images/healthReportIcon4.png')}
-                                            alt='유전기록'
-                                            style={{width:40}}
-                                            resizeMode='contain'
-                                        />
-                                        <DefText text='유전기록' style={{ fontSize:13, color:'#fff'}} />
-                                    </Box>
+                                    {
+                                        buttonIdx == 4 ?
+                                        <ImageBackground
+                                            source={require('../images/blackShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon04W.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='유전기록'/>
+                                            <DefText text='유전기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                        
+                                        :
+                                        <ImageBackground
+                                            source={require('../images/grayShadowBox.png')}
+                                            style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                        >
+                                            
+                                            <Image source={require('../images/healthReportIcon04B.png')} style={{width:40, height:40, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='유전기록'/>
+                                            <DefText text='유전기록' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                        </ImageBackground>
+                                    }
                                 </TouchableOpacity>
+
                             </HStack>
                             {
                                 buttonIdx === 1 &&
                                 <>
-                                    <Box p={5} backgroundColor='#F1F1F1' borderRadius={10} mt={5}>
-                                        <DefText text='김건강님의 건강프로필입니다.' />
+                                    <Box p={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={2.5}>
+                                        <DefText text={names + '님의 건강프로필입니다.'} />
                                     </Box>
                                     <Box mt={5}>
                                         <HStack>
                                             <DefText text='건강리포트' style={styles.reportDataText} />
                                             <TouchableOpacity onPress={()=>navigation.navigate('Inbody')}>
                                                 <Box borderBottomWidth={1} borderBottomColor='#666' ml={1}>
-                                                    <DefText text='체성분데이터' style={[styles.reportDataText, {fontWeight:'bold'}]} />
+                                                    <DefText text='체성분데이터' style={[styles.reportDataText]} />
                                                 </Box>
                                             </TouchableOpacity>
                                             <DefText text='와 연동됩니다.' style={[styles.reportDataText]} />
@@ -264,8 +278,8 @@ const HealthReport = ( props ) => {
                             
                                     </Box>
                                     <Box>
-                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={20} mt={5}>
-                                            <HStack width={(width-60)*0.25} >
+                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={10} mt={5}>
+                                            <HStack width={(width-60)*0.3} >
                                                 <DefText text='신장' style={[styles.reportDataText]} />
                                                 <DefText text='(cm)' style={[styles.reportDataText]} />
                                             </HStack>
@@ -276,8 +290,8 @@ const HealthReport = ( props ) => {
                                                 </Box>
                                             }
                                         </HStack>
-                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={20} mt={2.5}>
-                                            <HStack width={(width-60)*0.25} >
+                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={10} mt={2.5}>
+                                            <HStack width={(width-60)*0.3} >
                                                 <DefText text='체중' style={[styles.reportDataText]} />
                                                 <DefText text='(kg)' style={[styles.reportDataText]} />
                                             </HStack>
@@ -288,8 +302,8 @@ const HealthReport = ( props ) => {
                                                 </Box>
                                             }
                                         </HStack>
-                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={20} mt={2.5}>
-                                            <HStack width={(width-60)*0.25} >
+                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={10} mt={2.5}>
+                                            <HStack width={(width-60)*0.3} >
                                                 <DefText text='체지방량' style={[styles.reportDataText]} />
                                                 <DefText text='(kg)' style={[styles.reportDataText]} />
                                             </HStack>
@@ -301,8 +315,8 @@ const HealthReport = ( props ) => {
                                             }
                                             
                                         </HStack>
-                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={20} mt={2.5}>
-                                            <HStack width={(width-60)*0.25} >
+                                        <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={10} mt={2.5}>
+                                            <HStack width={(width-60)*0.3} >
                                                 <DefText text='골격근량' style={[styles.reportDataText]} />
                                                 <DefText text='(kg)' style={[styles.reportDataText]} />
                                             </HStack>
@@ -315,7 +329,7 @@ const HealthReport = ( props ) => {
                                         
                                         </HStack>
                                         <HStack px={5} py={2.5} backgroundColor='#f1f1f1' borderRadius={20} mt={2.5}>
-                                            <HStack width={(width-60)*0.25} >
+                                            <HStack width={(width-60)*0.3} >
                                                 <DefText text='복부지방수치' style={[styles.reportDataText]} />
                                                 <DefText text='(%)' style={[styles.reportDataText]} />
                                             </HStack>
@@ -334,11 +348,11 @@ const HealthReport = ( props ) => {
                             {
                                 buttonIdx === 2 && 
                                 <>
-                                    <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={5}>
-                                        <DefText text='과거 앓았던 질환에 대한 기록을 남겨주세요.' style={{fontWeight:'bold'}} />
-                                        <DefText text='최신 데이터는 추가를 통해 업데이트 가능합니다.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                    <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={2.5}>
+                                        <DefText text='과거 앓았던 질환에 대한 기록을 남겨주세요.' style={{fontWeight:'bold', fontFamily:Font.NotoSansMedium}} />
+                                        <DefText text='최신 데이터는 추가를 통해 업데이트 가능합니다.' style={{fontSize:14, color:'#696969', marginTop:5}} />
                                     </Box>
-                                    <Box mt={5}>
+                                    <Box mt={5} pb='80px'>
                                         <DefText text='질환기록' style={[styles.reportLabel]} />
                                         {
                                             myInfo != '' &&
@@ -347,7 +361,7 @@ const HealthReport = ( props ) => {
                                             {
                                                 diseaseInfo.map((item, index)=> {
                                                     return (
-                                                        <Box key={index} px={2.5} py={2.5} backgroundColor='#f1f1f1' mt={2.5} borderRadius={15} mr={2.5}>
+                                                        <Box key={index} px={2.5} py={2.5} backgroundColor='#f1f1f1' mt={2.5} borderRadius={10} mr={2.5}>
                                                             <HStack alignItems='center'>
                                                                 <DefText text={item} style={{marginRight:10, fontSize:14, fontWeight:'bold'}} />
                                                                 <TouchableOpacity onPress={()=>{disDataDelete(item)}}>
@@ -373,16 +387,16 @@ const HealthReport = ( props ) => {
                         {
                             buttonIdx === 3 && 
                             <>
-                                <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={5}>
-                                    <DefText text='드시는 약에 대한 기록입니다.' style={{fontWeight:'bold'}} />
-                                    <DefText text='복약관리에서 입력하시면 자동으로 기록됩니다.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={2.5}>
+                                    <DefText text='드시는 약에 대한 기록입니다.' style={{fontWeight:'bold', fontFamily:Font.NotoSansMedium}} />
+                                    <DefText text='복약관리에서 입력하시면 자동으로 기록됩니다.' style={{fontSize:14, color:'#696969', marginTop:5}} />
                                 </Box>
                                 <Box mt={5}>
                                     <HStack>
                                         <DefText text='복약관리' style={styles.reportDataText} />
                                         <TouchableOpacity onPress={()=>navigation.navigate('Medicine')}>
                                             <Box borderBottomWidth={1} borderBottomColor='#666' ml={1}>
-                                                <DefText text='복약기록데이터' style={[styles.reportDataText, {fontWeight:'bold'}]} />
+                                                <DefText text='복약기록데이터' style={[styles.reportDataText]} />
                                             </Box>
                                         </TouchableOpacity>
                                         <DefText text='와 연동됩니다.' style={[styles.reportDataText]} />
@@ -418,7 +432,7 @@ const HealthReport = ( props ) => {
                                                             <Box width='65%' >
                                                                 
                                                                 <DefText text={item.dtype == 'P' ? '조제약' : '영양제'} style={{fontSize:13, color:'#000'}} />
-                                                                <DefText text='2형 당뇨병' style={{fontSize:15, color:'#000', fontWeight:'bold'}} />
+                                                                <DefText text={item.title} style={{fontSize:15, color:'#000', fontWeight:'bold', marginTop:5}} />
                                                                 <HStack mt={2.5}>
                                                                     <HStack alignItems='center' mr={2.5}>
                                                                         <DefText text='복약순응도' style={{fontSize:14, color:'#000', marginRight:10}} />
@@ -451,11 +465,11 @@ const HealthReport = ( props ) => {
                         {
                             buttonIdx === 4 &&
                             <>
-                                <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={5}>
-                                    <DefText text='질환중 가족력이 있는 여부를 체크해주세요.' style={{fontWeight:'bold'}} />
-                                    <DefText text='건강은 가족력과 밀접한 관련이 있습니다.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10} mt={2.5}>
+                                    <DefText text='질환중 가족력이 있는 여부를 체크해주세요.' style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                                    <DefText text='건강은 가족력과 밀접한 관련이 있습니다.' style={{fontSize:14, color:'#696969', marginTop:5}} />
                                 </Box>
-                                <Box mt={5} pb={5}>
+                                <Box mt={5} pb={'80px'}>
                                     <DefText text='가족력 질환' style={styles.reportDataText} />
                                     {
                                         myInfo != '' &&
@@ -468,16 +482,16 @@ const HealthReport = ( props ) => {
                                                             <HStack justifyContent='space-between' alignItems='center' px={2.5} pl={4} style={styles.dnaDisName}>
                                                                 <DefText text={item.key} style={styles.dnaTitle} />
                                                                 <HStack>
-                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('1') && {backgroundColor:'#666'}]}>
+                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('1') && {backgroundColor:'#696969'}]}>
                                                                         <DefText text='조부모' style={[styles.dnaSelectButtonText]} />
                                                                     </Box>
-                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('2') && {backgroundColor:'#666'}]}>
+                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('2') && {backgroundColor:'#696969'}]}>
                                                                         <DefText text='부' style={[styles.dnaSelectButtonText]} />
                                                                     </Box>
-                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('3') && {backgroundColor:'#666'}]}>
+                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('3') && {backgroundColor:'#696969'}]}>
                                                                         <DefText text='모' style={[styles.dnaSelectButtonText]} />
                                                                     </Box>
-                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('4') && {backgroundColor:'#666'}]}>
+                                                                    <Box style={[styles.dnaSelectButton, {marginRight:5}, item.value.includes('4') && {backgroundColor:'#696969'}]}>
                                                                         <DefText text='형제자매' style={[styles.dnaSelectButtonText]} />
                                                                     </Box>
                                                                 </HStack>
@@ -502,18 +516,14 @@ const HealthReport = ( props ) => {
             {
                 buttonIdx === 2 && 
      
-                 <Box p={2.5} px={5}>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('MyDiseaseReport')}} style={[styles.buttonDef]}>
-                        <DefText text='질환기록 추가' style={styles.buttonDefText} />
-                    </TouchableOpacity>
+                <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                    <AddButton onPress={()=>{navigation.navigate('MyDiseaseReport')}} />
                 </Box>
             }
             {
                 buttonIdx === 4 && 
-                <Box p={2.5} px={5}>
-                    <TouchableOpacity onPress={()=>{navigation.navigate('DnaSelect')}} style={[styles.buttonDef]}>
-                        <DefText text='유전기록 추가' style={styles.buttonDefText} />
-                    </TouchableOpacity>
+                <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                    <AddButton onPress={()=>{navigation.navigate('DnaSelect')}} />
                 </Box>
             }
         </Box>
@@ -522,27 +532,31 @@ const HealthReport = ( props ) => {
 
 const styles = StyleSheet.create({
     myInfoName : {
-        fontSize:15,
-        color:'#333',
+        color:'#000',
         fontWeight:'bold',
+        fontFamily:Font.NotoSansBold,
         marginBottom:10
     },
     myInfoAge : {
         fontSize:14,
-        color:'#666'
+        color:'#696969',
+        fontFamily:Font.NotoSansMedium,
     },
     myInfoGender:{
         fontSize:14,
-        color:'#666'
+        color:'#696969',
+        fontFamily:Font.NotoSansMedium,
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696969',
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     reportDataText: {
-        fontSize:15,
-        color:'#333'
+        fontSize:16,
+        color:'#000',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium
     },
     dnaDisName:{
         height:40,
@@ -551,19 +565,20 @@ const styles = StyleSheet.create({
     },
     dnaTitle:{
         fontSize:14,
-        color:'#333',
-        fontWeight:'bold'
+        color:'#000',
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     dnaSelectButton:{
         height:30,
-        backgroundColor:'#D2D2D2',
+        backgroundColor:'#a3a3a3',
         justifyContent:'center',
         alignItems:'center',
         borderRadius:10,
         paddingHorizontal:10
     },
     dnaSelectButtonText: {
-        fontSize:13,
+        fontSize:14,
         color:'#fff',
     },
     buttonDef:{

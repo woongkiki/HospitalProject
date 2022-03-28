@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import { Box, VStack, HStack, Image, Input } from 'native-base';
+import { Box, VStack, HStack, Image, Input, Select } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet } from 'react-native';
-import {DefInput, DefText} from '../common/BOOTSTRAP';
+import {DefInput, DefText, SaveButton} from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import ToastMessage from '../components/ToastMessage';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -121,41 +122,15 @@ const InbodyAdd = (props) => {
     }
 
 
+    const [status, setStatus] = useState(false);
+
+
     //직접입력 저장
     const InputSubmit = () => {
 
-        if(!weight){
-            ToastMessage('체중 값을 입력하세요.');
-            return false;
-        }
-
-        if(!feet){
-            ToastMessage('키 값을 입력하세요.');
-            return false;
-        }
-
-        if(!neck){
-            ToastMessage('목둘레 값을 입력하세요.')
-            return false;
-        }
-
-        if(!waist){
-            ToastMessage('허리둘레 값을 입력하세요.');
-            return false;
-        }
-
-        if(!heep){
-            ToastMessage('엉덩이 둘레 값을 입력하세요.');
-            return false;
-        }
-
-        if(!thigh){
-            ToastMessage('허벅지 둘레 값을 입력하세요.');
-            return false;
-        }
 
 
-        Api.send('bodyProfile_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'inbody':'N', 'weight':weight, 'height':feet, 'neck':neck, 'waist':waist, 'hip':heep, 'leg':thigh}, (args)=>{
+        Api.send('bodyProfile_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'inbody':'N', 'weight':weight, 'height':feet, 'neck':neck, 'waist':waist, 'hip':heep, 'leg':thigh, 'calcType':calcType}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
@@ -211,6 +186,9 @@ const InbodyAdd = (props) => {
     }
 
 
+    const [calcType, setCalcType] = useState('1');
+
+
     //인바디용 저장..
     const InputSubmitInBody = () => {
         if(!weightInBody){
@@ -238,10 +216,11 @@ const InbodyAdd = (props) => {
             return false;
         }
 
-        Api.send('bodyProfile_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'inbody':'Y', 'weight':weightInBody, 'height':feetInBody, 'fat':fatPercents, 'muscle':skeleton, 'abdFat':fatLevel}, (args)=>{
+        Api.send('bodyProfile_insert', {'id':userInfo.id,  'token':userInfo.appToken, 'bdate':dateTimeText, 'inbody':'Y', 'weight':weightInBody, 'height':feetInBody, 'fat':fatPercents, 'muscle':skeleton, 'abdFat':fatLevel, 'calcType': calcType}, (args)=>{
             let resultItem = args.resultItem;
             let arrItems = args.arrItems;
     
+           
             if(resultItem.result === 'Y' && arrItems) {
 
                 console.log('바디 프로필 인바디 수치로 입력하기::::::: ', resultItem);
@@ -253,6 +232,8 @@ const InbodyAdd = (props) => {
             }else{
                 console.log(resultItem.message);
                 ToastMessage(resultItem.message);
+
+                console.log('arg::', calcType);
             }
         });
     }
@@ -262,15 +243,17 @@ const InbodyAdd = (props) => {
             <HeaderComponents headerTitle='체성분 입력' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
-                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                         <Box>
-                            <DefText text='체성분결과 또는 체중을 기록하세요' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='체성분 측정 가이드를 참조해주세요.' style={{fontSize:14, marginTop:10}} />
+ 
+                            <DefText text='체성분결과 또는 체중을 기록하세요' style={{fontSize:16, fontFamily:Font.NotoSansMedium}} />
+                            <DefText text='체성분 측정 가이드를 참조해주세요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight }} />
+
                             <TouchableOpacity
                                 style={{
                                     width:100,
                                     height:30,
-                                    backgroundColor:'#696968',
+                                    backgroundColor:'#090A73',
                                     borderRadius:10,
                                     alignItems:'center',
                                     justifyContent:'center',
@@ -278,30 +261,45 @@ const InbodyAdd = (props) => {
                                 }}
                                 onPress={()=>{navigation.navigate('Tab_Navigation', {'screenNumber':2})}}
                             >
-                                <DefText text='가이드' style={{color:'#fff', fontSize:15}} />
+                                <DefText text='가이드' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                             </TouchableOpacity>
                         </Box>
-                        <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
+                        <Image source={require('../images/inbodyTopImage.png')} style={{width:71, height:71, resizeMode:'contain'}} alt='체크이미지' />
                     </HStack>
                     <HStack justifyContent='space-between' mt={5}>
-                        <TouchableOpacity onPress={()=>tabChangeBtn('1')} style={[styles.tabButtons, tabOn == '1' && {backgroundColor:'#666'}]}>
+                        <TouchableOpacity onPress={()=>tabChangeBtn('1')} style={[styles.tabButtons, tabOn == '1' && {backgroundColor:'#696968'}]}>
                             <DefText text='직접입력' style={[styles.tabButtonsText, tabOn == '1' && {color:'#fff'}]} />
                         </TouchableOpacity>
-                        <TouchableOpacity onPress={()=>tabChangeBtn('2')} style={[styles.tabButtons, tabOn == '2' && {backgroundColor:'#666'}]}>
+                        <TouchableOpacity onPress={()=>tabChangeBtn('2')} style={[styles.tabButtons, tabOn == '2' && {backgroundColor:'#696968'}]}>
                             <DefText text='인바디기기 입력' style={[styles.tabButtonsText ,tabOn == '2' && {color:'#fff'}]} />
                         </TouchableOpacity>
                     </HStack>
                     <HStack mt={5} p={2.5} px={5} backgroundColor='#f1f1f1' borderRadius={10} justifyContent='space-between' alignItems='center'>
-                        <DefText text='측정일자' />
+                        <DefText text='측정일자' style={{fontFamily:Font.NotoSansMedium}} />
                         <HStack alignItems='center' >
                             <DefText text={dateTimeText} />
                             <TouchableOpacity onPress={showDatePicker}>
-                                <Image source={require('../images/datepickerIcon.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
+                                <Image source={require('../images/carlendarNew.png')} alt='달력' style={{width:20, resizeMode:'contain', marginLeft:10}}  />
                             </TouchableOpacity>
                         </HStack>
                     </HStack>
                     {
                         tabOn == '1' && 
+                        <Box paddingBottom={'80px'}>
+                        <Box mt={5}>
+                            <DefText text='체질량계산법' style={[styles.reportLabel, {marginBottom:10}]} />
+                            <Select
+                                selectedValue={calcType}
+                                height='48px'
+                                fontSize={16}
+                                borderRadius={10}
+                                style={{fontFamily:Font.NotoSansMedium, color:'#000'}}
+                                onValueChange={(itemValue) => setCalcType(itemValue)}
+                            >
+                                <Select.Item label='LBM Equation - Hume' value='1' />
+                                <Select.Item label='U.S. Navy' value='2' />
+                            </Select>
+                        </Box>
                         <Box>
                             <HStack mt={5} justifyContent='space-between'>
                                 <Box width={(width-40)*0.47} >
@@ -309,14 +307,17 @@ const InbodyAdd = (props) => {
                                     
                                     <Input
                                         placeholder='66.6'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={weight}
                                         onChangeText={weightChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, weight.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -327,119 +328,148 @@ const InbodyAdd = (props) => {
                                     
                                     <Input
                                         placeholder='174.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={feet}
                                         onChangeText={feetChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, feet.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
                     
                                 </Box>
                             </HStack>
+                
                             <HStack mt={5} justifyContent='space-between'>
+                             
                                 <Box width={(width-40)*0.47} >
                                     <DefText text='목둘레(cm)' style={[styles.reportLabel, {marginBottom:10}]} />
                                     
                                     <Input
                                         placeholder='37.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={neck}
                                         onChangeText={neckChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, neck.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
+                                        isDisabled={calcType == '1'}
                                     />
                     
-                                </Box>
+                                            </Box>
+                         
                                 <Box width={(width-40)*0.47} >
                                     <DefText text='허리둘레(cm)' style={[styles.reportLabel, {marginBottom:10}]} />
                                     
                                     <Input
                                         placeholder='87.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={waist}
                                         onChangeText={waistChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, waist.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
+                                        isDisabled={calcType == '1'}
                                     />
                     
                                 </Box>
                             </HStack>
+            
+                            
                             <HStack mt={5} justifyContent='space-between'>
-                                <Box width={(width-40)*0.47} >
-                                    <DefText text='엉덩이 둘레(cm)' style={[styles.reportLabel, {marginBottom:10}]} />
-                                    
-                                    <Input
-                                        placeholder='80.0'
-                                        height='45px'
-                                        width='100%'
-                                        backgroundColor='transparent'
-                                        borderWidth={1}
-                                        //onSubmitEditing={schButtons}
-                                        value={heep}
-                                        onChangeText={heepChange}
-                                        style={{fontSize:15}}
-                                        keyboardType='phone-pad'
-                                        _focus='transparent'
-                                    />
-                    
-                                </Box>
+                               
+                                    <Box width={(width-40)*0.47} >
+                                        <DefText text='엉덩이 둘레(cm)' style={[styles.reportLabel, {marginBottom:10}]} />
+                                        
+                                        <Input
+                                            placeholder='80.0'
+                                            placeholderTextColor={'#a3a3a3'}
+                                            height='45px'
+                                            width='100%'
+                                            backgroundColor='transparent'
+                                            borderWidth={1}
+                                            borderColor='#f1f1f1'
+                                            borderRadius={10}
+                                            //onSubmitEditing={schButtons}
+                                            value={heep}
+                                            onChangeText={heepChange}
+                                            style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, heep.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                                            keyboardType='phone-pad'
+                                            _focus='transparent'
+                                            isDisabled={calcType == '1'}
+                                        />
+                        
+                                    </Box>
+                          
+                                
                                 <Box width={(width-40)*0.47} >
                                     <DefText text='허벅지 둘레(cm)' style={[styles.reportLabel, {marginBottom:10}]} />
                                     
                                     <Input
                                         placeholder='57.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                            borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={thigh}
                                         onChangeText={thighChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, thigh.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
+                                        isDisabled={calcType == '1'}
                                     />
                     
                                 </Box>
                             </HStack>
-                            <TouchableOpacity onPress={InputSubmit} style={[styles.buttonDef, {marginTop:20}]}>
-                                <DefText text='저장' style={styles.buttonDefText} />
-                            </TouchableOpacity>
+                            
+                        </Box>
                         </Box>
                     }
 
                     {
                         tabOn == '2' && 
-                        <Box>
+                        <Box paddingBottom={'80px'}>
                             <HStack mt={5} justifyContent='space-between'>
                                 <Box width={(width-40)*0.47} >
                                     <DefText text='체중(kg)' style={[styles.reportLabel, {marginBottom:10}]} />
                                     
                                     <Input
                                         placeholder='66.6'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={weightInBody}
                                         onChangeText={weightInBodyChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, weightInBody.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -450,14 +480,17 @@ const InbodyAdd = (props) => {
                                     
                                     <Input
                                         placeholder='174.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={feetInBody}
                                         onChangeText={feetInBodyChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, feetInBody.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -470,14 +503,17 @@ const InbodyAdd = (props) => {
                                     
                                     <Input
                                         placeholder='37.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={fatPercents}
                                         onChangeText={fatPercentChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, fatPercents.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -488,14 +524,17 @@ const InbodyAdd = (props) => {
                                     
                                     <Input
                                         placeholder='87.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={skeleton}
                                         onChangeText={skeletonChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, skeleton.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -504,18 +543,21 @@ const InbodyAdd = (props) => {
                             </HStack>
                             <HStack mt={5} justifyContent='space-between'>
                                 <Box width={(width-40)*0.47} >
-                                    <DefText text='복부지방수치(%)' style={[styles.reportLabel, {marginBottom:10}]} />
+                                    <DefText text='복부지방수치' style={[styles.reportLabel, {marginBottom:10}]} />
                                     
                                     <Input
                                         placeholder='15.0'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='45px'
                                         width='100%'
                                         backgroundColor='transparent'
                                         borderWidth={1}
+                                        borderColor='#f1f1f1'
+                                        borderRadius={10}
                                         //onSubmitEditing={schButtons}
                                         value={fatLevel}
                                         onChangeText={fatLevelChange}
-                                        style={{fontSize:15}}
+                                        style={[{fontFamily:Font.NotoSansMedium, fontSize:16}, fatLevel.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         keyboardType='phone-pad'
                                         _focus='transparent'
                                     />
@@ -523,14 +565,29 @@ const InbodyAdd = (props) => {
                                 </Box>
                                 
                             </HStack>
-                            <TouchableOpacity onPress={InputSubmitInBody} style={[styles.buttonDef, {marginTop:20}]}>
+                            {/* <TouchableOpacity onPress={InputSubmitInBody} style={[styles.buttonDef, {marginTop:20}]}>
                                 <DefText text='저장' style={styles.buttonDefText} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
+                            
                         </Box>
                     }
                     
                 </Box>
+                
             </ScrollView>
+            {
+                tabOn=='1' &&
+                <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                    <SaveButton onPress={InputSubmit} />
+                </Box>
+            }
+            {
+                tabOn == '2' && 
+                <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                    <SaveButton onPress={InputSubmitInBody} />
+                </Box>
+            }
+            
             <DateTimePickerModal
                 isVisible={isDatePickerVisible}
                 mode="date"
@@ -551,12 +608,11 @@ const styles = StyleSheet.create({
         alignItems:'center'
     },
     tabButtonsText: {
-        fontSize:13,
-        color:'#333',
+        lineHeight:30,
+        color:'#000',
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
+        color:'#696968',
         fontWeight:'bold'
     },
     datetimeText: {

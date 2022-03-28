@@ -48,7 +48,7 @@ const Intro = (props) => {
 
             if(member_info_list.state){
 
-                // console.log('자동로그인 완료...');
+                console.log('자동로그인 완료...');
 
                 // console.log(member_info_list);
                 setTimeout(() => {
@@ -75,7 +75,7 @@ const Intro = (props) => {
     return (
         <Box flex={1} backgroundColor='#fff' justifyContent='center' alignItems='center'>
             <VStack  alignItems='center'>
-                <Image source={require('../images/LoginLogo.png')} alt='logo'  />
+                <Image source={require('../images/introLogo0216.png')} alt='logo' style={{width:140, height:140, resizeMode:'contain'}}  />
                 <ActivityIndicator size={'large'} color="#333" style={{marginTop:50}} />
                 <DefText text='회원 정보를 확인 중입니다...' style={{fontSize:15, color:'#111', marginTop:40}} />
             </VStack>

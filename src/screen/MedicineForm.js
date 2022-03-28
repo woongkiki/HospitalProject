@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Box, VStack, HStack, Image, Modal, CheckIcon } from 'native-base';
+import { Box, VStack, HStack, Image, Modal, CheckIcon, Input } from 'native-base';
 import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, TouchableWithoutFeedback } from 'react-native';
-import { DefText, DefInput } from '../common/BOOTSTRAP';
+import { DefText, DefInput, SaveButton } from '../common/BOOTSTRAP';
 import HeaderMedicine from '../components/HeaderMedicine';
 import HeaderComponents from '../components/HeaderComponents';
 import ImagePicker from 'react-native-image-crop-picker';
@@ -10,6 +10,9 @@ import { actionCreators as UserAction } from '../redux/module/action/UserAction'
 import Api from '../Api';
 import ToastMessage from '../components/ToastMessage';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import Font from '../common/Font';
+
+const {width} = Dimensions.get('window');
 
 const MedicineForm = (props) => {
 
@@ -31,8 +34,8 @@ const MedicineForm = (props) => {
     const _changeProfileImg = () =>{
         console.log('이미지 변경');
         ImagePicker.openPicker({
-            width: 110,
-            height: 100,
+            width: 400,
+            height: 400,
             cropping: true,
             cropperCircleOverlay: true
           }).then(image => {
@@ -165,10 +168,10 @@ const MedicineForm = (props) => {
         <Box flex={1} backgroundColor='#fff'>
             <HeaderComponents headerTitle='복약관리' navigation={navigation} />
             <ScrollView>
-                <Box p={5}>
+                <Box p={5} paddingBottom='100px'>
                     <Box>
                         <Box>
-                            <DefText text='대표이미지를 등록해주세요.' style={{fontSize:14}} />
+                            <DefText text='대표이미지를 등록해주세요.' style={[styles.reportLabel]} />
                         </Box>
                         <Box justifyContent='center' alignItems='center'>
                             <TouchableOpacity style={{width:100, height:100, borderRadius:100, marginTop:15}} onPress={_changeProfileImg}>
@@ -186,73 +189,109 @@ const MedicineForm = (props) => {
                     </Box>
                     <Box mt={5}>
                         <HStack>
-                            <DefText text='약 이름' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='약 이름' style={[styles.reportLabel]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
-                        <DefInput 
+                        {/* <DefInput 
                             placeholderText='약 이름을 입력해주세요.'
                             inputValue = {medicineName}
                             onChangeText = {medicineChange}
                             multiline = {false}
                             inputStyle={{marginTop:15}}
-                        />
+                        /> */}
+                        <Box mt={2.5}>
+                            <Input
+                                placeholder='약 이름을 입력해주세요.'
+                                placeholderTextColor={'#a3a3a3'}
+                                height='45px'
+                                width={width-40}
+                                backgroundColor='transparent'
+                                borderRadius={10}
+                                _focus='transparent'
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                value={medicineName}
+                                onChangeText={medicineChange}
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, medicineName.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                               
+                            />
+                        </Box>
                     </Box>
                     <Box mt={5}>
                         <HStack>
-                            <DefText text='섭취량' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='섭취량' style={[styles.reportLabel]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
-                        <DefInput 
+                        {/* <DefInput 
                             placeholderText='섭취량을 입력해주세요.'
                             inputValue = {medicineEat}
                             onChangeText = {medicineEatChange}
                             multiline = {false}
                             inputStyle={{marginTop:15}}
-                        />
+                        /> */}
+
+                        <Box mt={2.5}>
+                            <Input
+                                placeholder='섭취량을 입력해주세요.'
+                                placeholderTextColor={'#a3a3a3'}
+                                height='45px'
+                                width={width-40}
+                                backgroundColor='transparent'
+                                borderRadius={10}
+                                _focus='transparent'
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                value={medicineEat}
+                                onChangeText={medicineEatChange}
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, medicineEat.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
+                               
+                            />
+                        </Box>
                     </Box>
                     <Box mt={5}>
                         <HStack>
-                            <DefText text='복약스케줄' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='복약스케줄' style={[styles.reportLabel]} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5, fontFamily:Font.NotoSansBold}} />
                         </HStack>
                         <DefText text='복약 시작일' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule2', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule2', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
                                 {
                                     medicineStartDate ?
-                                    <DefText text={medicineStartDate} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineStartDate} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약 시작일을 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약 시작일을 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
                             </TouchableOpacity>
                         </Box>
 
                         <DefText text='복약주기' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule2', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
                                 {
                                     medicineSchedule != '' ?
-                                    <DefText text={medicineSchedule == '0' ? '매일' : medicineSchedule} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineSchedule == '0' ? '매일' : medicineSchedule} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약주기를 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약주기를 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
-                            </Box>
+                            </TouchableOpacity>
                         </Box>
                         <DefText text='복약일수' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
-                                {
+                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#f1f1f1' borderRadius={10}>
+
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule2', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'm_page':1})}} style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
+                            {
                                     medicineTimes != '' ?
-                                    <DefText text={medicineTimes == '0' ? '계속' : medicineTimes} style={{fontSize:14, color:'#333'}} />
+                                    <DefText text={medicineTimes == '0' ? '계속' : medicineTimes} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                     :
-                                    <DefText text='복약일수를 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='복약일수를 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}} />
                                 }
-                            </Box>
+                            </TouchableOpacity>
                         </Box>
                         <DefText text='복약시간' style={[styles.reportLabelSmall, {marginTop:10}]} />
-                        <Box mt={2.5} height='45px' borderWidth={1} borderColor='#ddd' borderRadius={5}>
-                            <Box style={{paddingLeft:15, width:'100%',  height:45, justifyContent:'center'}}>
-                                <HStack>
+                        <Box mt={2.5} borderWidth={1} borderColor='#f1f1f1' borderRadius={10}>
+                            <TouchableOpacity onPress={()=>{navigation.navigate('DiseaseSchedule2', {'dateTimeText':medicineStartDate, 'scheduleText':medicineSchedule, 'isMedicineDate':medicineTimes, 'selectCategory':medicineCheck, 'selectIdxCategory':medicineCheckIdx, 'm_page':2})}} style={{paddingLeft:15, width:'100%',  paddingVertical:12, justifyContent:'center'}}>
+                                <HStack flexWrap={'wrap'}>
                                 {
                                     medicineCheck != '' ?
                                     medicineCheck.map((item, index)=> {
@@ -266,15 +305,16 @@ const MedicineForm = (props) => {
 
                                         return(
                                             <Box key={index}>
-                                                <DefText text={comma + item} />
+                                                <DefText text={comma + item} style={{fontSize:16, color:'#000', fontFamily:Font.NotoSansMedium}} />
                                             </Box>
                                         )
                                     })
                                     :
-                                    <DefText text='언제 복약예정인지 입력하세요.' style={{fontSize:14, color:'#aaa'}} />
+                                    <DefText text='언제 복약예정인지 입력하세요.' style={{fontSize:16, color:'#a3a3a3', fontFamily:Font.NotoSansMedium}}  />
                                 }
                                 </HStack>
-                            </Box>
+                            </TouchableOpacity>
+                            
                         </Box>
                     </Box>
                     {/* <Box mt={5}>
@@ -318,10 +358,8 @@ const MedicineForm = (props) => {
                     </Box> */}
                 </Box>
             </ScrollView>
-            <Box p={2.5}>
-                <TouchableOpacity onPress={MedicineAdds} style={styles.medicineButtons}>
-                    <DefText text='저장' style={styles.medicineButtonsText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={MedicineAdds} />
             </Box>
         </Box>
     );
@@ -341,13 +379,13 @@ const styles = StyleSheet.create({
         
     },
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696968',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium
     },
     reportLabelSmall : {
-        fontSize:13,
-        color:'#666'
+        fontSize:14,
+        color:'#696968'
     },
 })
 

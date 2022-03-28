@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, HStack, Image, Modal, CheckIcon } from 'native-base';
 import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, View, ActivityIndicator } from 'react-native';
-import { DefText } from '../common/BOOTSTRAP';
+import { AddButton, DefText } from '../common/BOOTSTRAP';
 import HeaderMedicine from '../components/HeaderMedicine';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import { useFocusEffect } from '@react-navigation/native';
 import ToastMessage from '../components/ToastMessage';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -191,74 +192,104 @@ const Medicine = (props) => {
             <HeaderMedicine navigation={navigation} headerTitle='복약관리' medicineList={MedicineListButton} />
             {
                 medicineLoading ? 
-                <>
+                <Box flex={1}>
                     {
                         drugScheduleData == '' ?
                         <Box justifyContent='center' alignItems='center' flex={1}>
                             <Image source={require('../images/medicineIconsG.png')} alt={'복약을 관리하세요'} />
-                            <DefText text='복약사항을 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                            <DefText text='복약사항을 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#696969', fontFamily:Font.NotoSansMediu, fontWeight:'500'}} />
                             {/* <ActivityIndicator size='large' color='#333' /> */}
                         </Box>
                         :
                         <ScrollView>
                             <Box p={5}>
-                                <HStack height='150px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                                <HStack height='141px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                                     <Box width={(width * 0.65) + 'px'}>
                                         <DefText text='약먹기이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                                        <DefText text='약을 잘먹으면 큰병을 예방할 수 있어요.' style={{fontSize:15}} />
+                                        <DefText text='약을 잘먹으면 큰병을 예방할 수 있어요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
                                         <TouchableOpacity
                                             style={{
                                                 width:100,
                                                 height:30,
-                                                backgroundColor:'#696968',
+                                                backgroundColor:'#090A73',
                                                 borderRadius:10,
                                                 alignItems:'center',
                                                 justifyContent:'center',
-                                                marginTop:20
+                                                marginTop:10
                                             }}
                                             onPress={navigationMove}
                                         >
-                                            <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                            <DefText text='알아보기' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                                         </TouchableOpacity>
                                     </Box>
-                                    <Image source={require('../images/checkIcons.png')} alt='복약관리체크' />
+                                    <Image source={require('../images/medicineIconNew.png')} alt='복약관리체크' style={{width:73, height:73, resizeMode:'contain'}} />
                                 </HStack>
                                 <Box mt={5} backgroundColor='#F1F1F1' borderRadius='30px' height='30px' justifyContent='center' px={4} >
-                                    <DefText text={'복약순응도 (전체) : ' + drugSchedulePercent.percent + '%'} style={{fontSize:14,color:'#696968'}} />
+                                    <DefText text={'복약순응도 (전체) : ' + drugSchedulePercent.percent + '%'} style={{fontSize:14,color:'#000', fontFamily:Font.NotoSansMedium}} />
                                 </Box>
                 
                                 <VStack>
                                     <Box>
-                                        {/* 아침 식전 */}
+                                        {/* 아침 식전 김*/}
+                       
                                         {
                                             /* 아침식전 */
                                             drugScheduleMoringBefore &&
-                                            <HStack justifyContent='flex-end'>
+                                            <HStack alignItems='center' justifyContent='space-between'>
+                                                <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
+                                                    {/* <DefText text='7:30 AM' style={{fontSize:12, color:'#77838F'}} /> */}
+                                                </Box>
                                                 <Box width='72%' flexWrap='wrap'>
                                                 {
                                                     drugScheduleMoringBefore.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={5} mt={4}>
                                                                     <HStack alignItems='center' flexWrap='wrap' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box>
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                         
@@ -274,15 +305,32 @@ const Medicine = (props) => {
                                         {/* 아침 */}
                                         <HStack alignItems='center' justifyContent='space-between' mt={5}>
                                             <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
-                                                <DefText text='8:00 AM' style={{fontSize:12, color:'#77838F'}} />
+                                                <DefText text='7:30 AM' style={{fontSize:12, color:'#77838F'}} />
                                             </Box>
-                                            <HStack width='72%' alignItems='center'>
-                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
-                                                <DefText text={drugScheduleData[1.5]} style={{fontSize:14, color:'#666'}} />
-                                            </HStack>
+                                            <Box shadow={5} width='72%' backgroundColor={'#fff'} px={2.5} borderRadius={10}>
+                                                <HStack  alignItems='center'>
+                                                    <ImageBackground
+                                                        source={require('../images/mskyBox.png')}
+                                                        style={{
+                                                            width:60,
+                                                            height:60,
+                                                            resizeMode:'contain',
+                                                            justifyContent:'center',
+                                                            alignItems:'center',
+                                                            marginLeft:-3,
+                                                            marginBottom:-2
+                                                        }}
+                                                    >
+                                                        <Image source={require('../images/medicineEatIcon.png')} alt='아침' style={{width:26, height:26, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                    </ImageBackground>
+                                                    <Box width='75%' pl='5px'>
+                                                        <DefText text={drugScheduleData[1.5]} style={{fontSize:14, color:'#000', fontFamily:Font.NotoSansMedium}} />
+                                                    </Box>
+                                                </HStack>
+                                            </Box>
                                         </HStack>
                                         {
-                                            /* 아침식후 */
+                                            /* 아침식후 영 */
                                             drugScheduleMoringAfter &&
                                             <HStack justifyContent='flex-end'>
                                                 <Box width='72%'>
@@ -290,26 +338,52 @@ const Medicine = (props) => {
                                                     drugScheduleMoringAfter.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box>
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:26, height:26, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
 
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -334,25 +408,51 @@ const Medicine = (props) => {
                                                     drugScheduleLunchBefore.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box>
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -368,10 +468,28 @@ const Medicine = (props) => {
                                             <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
                                                 <DefText text='12:30 PM' style={{fontSize:12, color:'#77838F'}} />
                                             </Box>
-                                            <HStack width='72%' alignItems='center'>
-                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
-                                                <DefText text={drugScheduleData[3.5]} style={{fontSize:14, color:'#666'}} />
-                                            </HStack>
+                                            <Box shadow={5} width='72%' backgroundColor={'#fff'} px={2.5} borderRadius={10}>
+                                                <HStack  alignItems='center'>
+                                                    <ImageBackground
+                                                        source={require('../images/mskyBox.png')}
+                                                        style={{
+                                                            width:60,
+                                                            height:60,
+                                                            resizeMode:'contain',
+                                                            justifyContent:'center',
+                                                            alignItems:'center',
+                                                            marginLeft:-3,
+                                                            marginBottom:-2
+                                                        }}
+                                                    >
+                                                        <Image source={require('../images/medicineEatIcon.png')} alt='점심' style={{width:26, height:26, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                    </ImageBackground>
+                                                    <Box width='75%' pl='5px'>
+                                                        <DefText text={drugScheduleData[3.5]} style={{fontSize:14, color:'#000', fontFamily:Font.NotoSansMedium}} />
+                                                    </Box>
+                                                </HStack>
+                                            </Box>
+                                          
                                         </HStack>
                                         {/* 점심 식후 */}
                                         {
@@ -383,25 +501,51 @@ const Medicine = (props) => {
                                                     drugScheduleLunchAfter.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box>
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -425,25 +569,51 @@ const Medicine = (props) => {
                                                     drugScheduleDinnerBefore.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box >
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -457,12 +627,29 @@ const Medicine = (props) => {
                                         }
                                         <HStack alignItems='center' justifyContent='space-between' mt={5}>
                                             <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
-                                                <DefText text='6:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                                <DefText text='6:00 PM' style={{fontSize:12, color:'#77838F'}} />
                                             </Box>
-                                            <HStack width='72%' alignItems='center'>
-                                                <Image source={require('../images/eatIcons.png')} alt='아침' style={{marginRight:10}} />
-                                                <DefText text={drugScheduleData[5.5]} style={{fontSize:14, color:'#666'}} />
-                                            </HStack>
+                                            <Box shadow={5} width='72%' backgroundColor={'#fff'} px={2.5} borderRadius={10}>
+                                                <HStack  alignItems='center'>
+                                                    <ImageBackground
+                                                        source={require('../images/mskyBox.png')}
+                                                        style={{
+                                                            width:60,
+                                                            height:60,
+                                                            resizeMode:'contain',
+                                                            justifyContent:'center',
+                                                            alignItems:'center',
+                                                            marginLeft:-3,
+                                                            marginBottom:-2
+                                                        }}
+                                                    >
+                                                        <Image source={require('../images/medicineEatIcon.png')} alt='저녁' style={{width:26, height:26, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                    </ImageBackground>
+                                                    <Box width='75%' pl='5px'>
+                                                        <DefText text={drugScheduleData[5.5]} style={{fontSize:14, color:'#000', fontFamily:Font.NotoSansMedium}} />
+                                                    </Box>
+                                                </HStack>
+                                            </Box>
                                         </HStack>
                                         {
                                             /* 저녁 식후 */
@@ -473,25 +660,51 @@ const Medicine = (props) => {
                                                     drugScheduleDinnerAfter.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box >
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -515,25 +728,51 @@ const Medicine = (props) => {
                                                     drugScheduleNightBefore.map((item, index)=>{
                                                         return(
                                                             <TouchableOpacity onPress={()=>drugDataCheck(item)} key={index} activeOpacity={0.9}>
-                                                                <Box key={index}  p={2.5} backgroundColor='#fff' borderRadius={20} shadow={8} mt={4}>
+                                                                <Box key={index}  px={2.5} backgroundColor='#fff' borderRadius={10} shadow={8} mt={4}>
                                                                     <HStack alignItems='center' justifyContent='space-between'>
-                                                                        <Box width='25%'>
+                                                                        <Box>
                                                                             {
                                                                                 item.type == 'P' ?
-                                                                                <Image source={require('../images/medicineIcon1.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicinePIcon.png')} alt={item.name} style={{width:24, height:24, resizeMode:'contain', marginLeft:-6, marginTop:-6}} />
+                                                                                </ImageBackground>
                                                                                 :
-                                                                                <Image source={require('../images/medicineIcon2.png')} alt={item.name} />
+                                                                                <ImageBackground
+                                                                                    source={require('../images/mgreenBox.png')}
+                                                                                    style={{
+                                                                                        width:60,
+                                                                                        height:60,
+                                                                                        resizeMode:'contain',
+                                                                                        justifyContent:'center',
+                                                                                        alignItems:'center',
+                                                                                        marginLeft:-3,
+                                                                                        marginBottom:-2
+                                                                                    }}
+                                                                                >
+                                                                                    <Image source={require('../images/medicineNIcon.png')} alt={item.name} style={{width:22, height:22, resizeMode:'contain', marginLeft:-5, marginTop:-5}} />
+                                                                                </ImageBackground>
                                                                             }
                                                                         
                                                                         </Box>
-                                                                        <Box style={{marginLeft:0, width:'70%'}}>
-                                                                            <DefText text={item.name} style={[{fontSize:14}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
+                                                                        <Box style={{marginLeft:0, width:'75%'}}>
+                                                                            <DefText text={item.name} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                             <DefText text={item.subinfo} style={[{fontSize:14, color:'#77838F'}, item.check && {textDecorationLine: 'line-through', textDecorationStyle: 'solid'}]} />
                                                                         </Box>
                                                                         {
                                                                             item.check && 
-                                                                            <Box position='absolute' right='20px' top='50%' marginTop='-9px'>
-                                                                                <CheckIcon color='#f00' style={{width:18, height:18}} />
+                                                                            <Box position='absolute' right='20px' top='17px' >
+                                                                                <CheckIcon color='#000' style={{width:12, height:12}} />
                                                                             </Box>
                                                                         }
                                                                     </HStack>
@@ -545,14 +784,32 @@ const Medicine = (props) => {
                                                 </Box>
                                             </HStack>
                                         }
-                                        <HStack alignItems='center' justifyContent='space-between' mt={5} >
+                                       
+                                        <HStack alignItems='center' justifyContent='space-between' mt={5} mb='80px'>
                                             <Box width='23%' p={2.5} marginRight='15px' alignItems='center'>
-                                                <DefText text='11:30 PM' style={{fontSize:12, color:'#77838F'}} />
+                                                <DefText text='10:00 PM' style={{fontSize:12, color:'#77838F'}} />
                                             </Box>
-                                            <HStack width='72%' alignItems='center' backgroundColor='#f1f1f1' p={2.5} borderRadius={5}>
-                                                
-                                                <DefText text={'잠들기 전'} style={{fontSize:14, color:'#666'}} />
-                                            </HStack>
+                                            <Box shadow={5} width='72%' backgroundColor={'#fff'} px={2.5} borderRadius={10}>
+                                                <HStack  alignItems='center'>
+                                                    <ImageBackground
+                                                        source={require('../images/mskyBox.png')}
+                                                        style={{
+                                                            width:60,
+                                                            height:60,
+                                                            resizeMode:'contain',
+                                                            justifyContent:'center',
+                                                            alignItems:'center',
+                                                            marginLeft:-3,
+                                                            marginBottom:-2
+                                                        }}
+                                                    >
+                                                        <Image source={require('../images/moonIcons.png')} alt='잠들기 전' style={{width:26, height:26, resizeMode:'contain', marginLeft:-5, marginTop:-7}} />
+                                                    </ImageBackground>
+                                                    <Box width='75%' pl='5px'>
+                                                        <DefText text={'잠들기 전'} style={{fontSize:14, color:'#000', fontFamily:Font.NotoSansMedium}} />
+                                                    </Box>
+                                                </HStack>
+                                            </Box>
                                         </HStack>
                                     </Box>
                                 </VStack>
@@ -560,7 +817,7 @@ const Medicine = (props) => {
                         </ScrollView>
                     }
                     
-                </>
+                </Box>
                 :
                 <Box flex={1} alignItems='center' justifyContent='center'>
                     <ActivityIndicator size='large' color='#333' />
@@ -568,10 +825,14 @@ const Medicine = (props) => {
             }
            
 
-            <Box p={2.5} px={5}>
+            {/* <Box p={2.5} px={5}>
                 <TouchableOpacity onPress={()=>{setMedicineModal(!medicineModal)}} style={[styles.buttonDef]}>
                    <DefText text='복약관리 추가' style={styles.buttonDefText} />
                 </TouchableOpacity>
+            </Box> */}
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{setMedicineModal(!medicineModal)}} />
             </Box>
           
             <Modal isOpen={medicineModal} onClose={() => setMedicineModal(false)}>

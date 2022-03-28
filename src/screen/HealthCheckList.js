@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { Box, VStack, HStack, Image, CheckIcon, Input, Modal, Toast } from 'native-base';
-import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, Alert } from 'react-native';
+import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, Alert, ImageBackground } from 'react-native';
 import {DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderFood from '../components/HeaderFood';
 import HeaderComponents from '../components/HeaderComponents';
@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 const hospitalButtonWidth = (width-40) * 0.23;
@@ -24,7 +25,9 @@ const HealthCheckList = (props) => {
 
     const {params} = route;
 
-    console.log(params);
+    //console.log(params);
+
+    const hospitalButtonWidth2 = (width-40) * 0.27;
 
     //console.log(params);
 
@@ -102,8 +105,8 @@ const HealthCheckList = (props) => {
 
     const timeButtons = times.map((times, idx)=> {
         return(
-            <TouchableOpacity onPress={()=>timesSelectButton(times)} key={idx} style={[{padding:10, paddingHorizontal:20, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:15, marginRight:10, justifyContent:'center', alignItems:'center'}, timesSelect == times && {backgroundColor:'#666'} ]}>
-                <DefText text={times} style={[{fontSize:14, fontWeight:'bold'}, timesSelect == times && {color:'#fff'} ]} />
+            <TouchableOpacity onPress={()=>timesSelectButton(times)} key={idx} style={[{padding:5, paddingHorizontal:10, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:10, marginRight:10, justifyContent:'center', alignItems:'center'}, timesSelect == times && {backgroundColor:'#696969'} ]}>
+                <DefText text={times} style={[{fontSize:14, fontFamily:Font.NotoSansMedium, fontFamily:Font.NotoSansBold}, timesSelect == times && {color:'#fff'} ]} />
             </TouchableOpacity>
         )
     });
@@ -249,7 +252,7 @@ const HealthCheckList = (props) => {
             if(resultItem.result === 'Y' && arrItems) {
                 
                 
-                console.log('연령별 질환정보::::::',arrItems.painList);
+                console.log('연령별 질환정보::::::',arrItems);
                 setAgeInfo(arrItems.age)
                 setAgeDisease(arrItems.painList);
 
@@ -280,153 +283,152 @@ const HealthCheckList = (props) => {
             <HeaderComponents headerTitle='체크리스트' navigation={navigation} />
             <ScrollView>
                 <Box p={5}>
-                    <HStack height='115px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                    <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                         <Box width={ (width-80) * 0.67 + 'px'}>
-                            <DefText text='건강 체크리스트를 기록해주세요.' style={{fontSize:16, fontWeight:'bold'}} />
-                            <DefText text='체크리스트는 정확한 자문에 도움이 됩니다.' style={{fontSize:14, marginTop:10 }} />
+                            <DefText text='건강 체크리스트를 기록해주세요.' style={{fontSize:16, fontWeight:Font.NotoSansBold, fontWeight:'bold'}} />
+                            <DefText text='체크리스트는 정확한 자문에 도움이 됩니다.' style={{fontSize:14, }} />
                         </Box>
-                        <Image source={require('../images/checkListIcons.png')} alt='체크이미지' />
+                        <Image source={require('../images/checklistIconsNew.png')} style={{width:72, height:84, resizeMode:'contain'}} alt='체크이미지' />
                     </HStack>
                     <Box mt={5}>
                         {/* <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} /> */}
                         <HStack justifyContent='space-between'>
-                            <Box
-                                
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth,
-                                        height:hospitalButtonWidth,
-                                        borderRadius:10,
-                                        justifyContent:'center',
-                                        alignItems:'center'
-                                    },
-                                    checkList == '1' && {backgroundColor:'#696968'}
-                                ]}
-                                
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/healthReportIcon1.png')}
-                                        alt='증상'
-                                        style={{width:40}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='증상' style={{ fontSize:13, color:'#fff'}} />
-                                </Box>
+                            <Box style={{marginTop:-5, marginLeft:-5}}>
+                                {
+                                    checkList == 1 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconW01.png')} style={{width:37, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='증상'/>
+                                        <DefText text='증상' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconB01.png')} style={{width:37, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='증상'/>
+                                        <DefText text='증상' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
                             </Box>
-                            <Box
-                                
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth,
-                                        height:hospitalButtonWidth,
-                                        borderRadius:10,
-                                        justifyContent:'center',
-                                        alignItems:'center'
-                                    },
-                                    checkList == '2' && {backgroundColor:'#696968'}
-                                ]}
-                                
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/healthReportIcon2.png')}
-                                        alt='신체부위'
-                                        style={{width:40}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='신체부위' style={{ fontSize:13, color:'#fff'}} />
-                                </Box>
+
+                            <Box style={{marginTop:-5, marginLeft:-5}}>
+                                {
+                                    checkList == 2 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconW02.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='신체부위'/>
+                                        <DefText text='신체부위' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconB02.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='신체부위'/>
+                                        <DefText text='신체부위' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
                             </Box>
-                            
-                            <Box
-                                
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth,
-                                        height:hospitalButtonWidth,
-                                        borderRadius:10,
-                                        justifyContent:'center',
-                                        alignItems:'center'
-                                    },
-                                    checkList == '3' && {backgroundColor:'#696968'}
-                                ]}
-                                
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/healthReportIcon4.png')}
-                                        alt='지속시간'
-                                        style={{width:40}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='지속시간' style={{ fontSize:13, color:'#fff'}} />
-                                </Box>
+
+                            <Box style={{marginTop:-5, marginLeft:-5}}>
+                                {
+                                    checkList == 3 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconW03.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='지속시간'/>
+                                        <DefText text='지속시간' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconB03.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='지속시간'/>
+                                        <DefText text='지속시간' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
                             </Box>
-                            <Box
-                                
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth,
-                                        height:hospitalButtonWidth,
-                                        borderRadius:10,
-                                        justifyContent:'center',
-                                        alignItems:'center'
-                                    },
-                                    checkList == '4' && {backgroundColor:'#696968'}
-                                ]}
-                                
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/counselIcons.png')}
-                                        alt='상담요청'
-                                        style={{width:40}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='상담요청' style={{ fontSize:13, color:'#fff'}} />
-                                </Box>
+
+                            <Box style={{marginTop:-5, marginLeft:-5}}>
+                                {
+                                    checkList == 4 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconW04.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='상담요청'/>
+                                        <DefText text='상담요청' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/chkIconB04.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='상담요청'/>
+                                        <DefText text='상담요청' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
                             </Box>
+
                         </HStack>
                         {
                             checkList == '1' &&
-                            <Box mt={5}>
+                            <Box mt={2.5}>
                                 <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10}>
-                                    <DefText text='증상에 관해 체크해주세요.' style={{fontWeight:'bold'}} />
-                                    <DefText text='중복체크 가능합니다.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                    <DefText text='증상을 선택해주세요.' style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                                    <DefText text='중복체크 가능합니다.' style={{fontSize:13, color:'#696969', marginTop:5}} />
                                 </Box>
                                 <Box mt={5}>
-                                    <HStack alignItems='flex-end'>
+                                    <HStack alignItems='center'>
                                         <DefText text='연령대 별 다빈도 질환' style={[styles.reportLabel]} />
-                                        <DefText text={'만'+ageInfo+'세 기준'} style={{fontSize:13,color:'#999', marginLeft:10}} />
+                                        <DefText text={'만'+ageInfo+'세 기준'} style={{color:'#000', marginLeft:10, fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
                                     </HStack>
                                     <HStack flexWrap='wrap'>
                                         {
-                                            ageDisease != '' && 
+                                            ageDisease != '' ?
                                             ageDisease.map((item, index)=>{
                                                 return (
-                                                    <TouchableOpacity key={index} onPress={()=>{categorySelectBtn(item)}}  style={[{padding:10, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:15, marginRight:10}, selectCategory.includes(item) == true && {backgroundColor:'#666'}]}>
-                                                        <DefText text={item} style={[{fontSize:14, fontWeight:'bold'}, selectCategory.includes(item) == true && {color:'#fff'}]} />
+                                                    <TouchableOpacity key={index} onPress={()=>{categorySelectBtn(item)}}  style={[{padding:10, paddingVertical:5, backgroundColor:'#f1f1f1', marginTop:10, borderRadius:15, marginRight:10}, selectCategory.includes(item) == true && {backgroundColor:'#696969'}]}>
+                                                        <DefText text={item} style={[{fontSize:14, fontFamily:Font.NotoSansMedium}, selectCategory.includes(item) == true && {color:'#fff'}]} />
                                                     </TouchableOpacity>
                                                 )
                                             })
+                                            :
+                                            <Box justifyContent={'center'} py={'50px'} alignItems='center' width='100%'>
+                                                <DefText text='등록된 연령대 별 질환이 없습니다.' style={{fontSize:14, color:'#696969'}} />
+                                            </Box>
                                         }
 
                                     </HStack>
                                 </Box>
-                                <Box mt={5}>
-                                    <TouchableOpacity style={[styles.buttonDef]} onPress={()=>onCheckChange('2')}>
-                                        <DefText text='다음' style={styles.buttonDefText} />
-                                    </TouchableOpacity>
-                                </Box>
+                                
                             </Box>
                         }
                         {
                             checkList == '2' &&
-                            <Box mt={5}>
+                            <Box mt={2.5}>
                                 <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10}>
-                                    <DefText text='불편한 부위가 있다면 체크해주세요.' style={{fontWeight:'bold'}} />
-                                    <DefText text='불편부위가 없으면 다음단계로 이동해주세요.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                    <DefText text='불편한 부위가 있다면 체크해주세요.' style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                                    <DefText text='불편부위가 없으면 다음단계로 이동해주세요.' style={{fontSize:14, color:'#696969', marginTop:5}} />
                                 </Box>
                                 
                                 {
@@ -474,8 +476,8 @@ const HealthCheckList = (props) => {
                                                 </HStack>  
                                             </Box>
 
-                                            <Box position='absolute' top='125px' left={0} px={2.5} py='5px' backgroundColor='#f1f1f1' borderRadius={5}>
-                                                <DefText text='오른쪽' style={{fontSize:14,color:'#333', fontWeight:'bold'}} />
+                                            <Box position='absolute' top='125px' left={0} px={2.5} py='5px' backgroundColor='#f1f1f1' borderRadius={10}>
+                                                <DefText text='오른쪽' style={{fontSize:14,color:'#000', fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
                                             </Box>
                                         </Box>
                                         <Box position='absolute' bottom={0} left={0} width={width-40} justifyContent='center' alignItems='center'>
@@ -485,11 +487,19 @@ const HealthCheckList = (props) => {
                                         </Box>
                                         
                                     </Box>
-                                    <Box mt={5}>
-                                        <TouchableOpacity style={[styles.buttonDef]} onPress={()=>onCheckChange('3')}>
+                                    {/* <HStack justifyContent={'space-between'} mt={5}>
+                                       
+                                        <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.48}]} onPress={()=>onCheckChange('1')}>
+                                            <DefText text='이전' style={styles.buttonDefText} />
+                                        </TouchableOpacity>
+                                
+                                    
+                                        <TouchableOpacity style={[styles.buttonDef, {width:(width-40)*0.48}]} onPress={()=>onCheckChange('3')}>
                                             <DefText text='다음' style={styles.buttonDefText} />
                                         </TouchableOpacity>
-                                    </Box>
+                                      
+                                    </HStack> */}
+                                   
                                     </>
                                 }
                                 {
@@ -1114,7 +1124,7 @@ const HealthCheckList = (props) => {
                                     </>
                                 }
 
-{
+                                {
                                     imageNumbers == 'armsLeft' &&
                                     <>
                                         <Box alignItems='center'  pt='20px'>
@@ -1185,25 +1195,33 @@ const HealthCheckList = (props) => {
 
                         {
                             checkList === '3' &&
-                            <Box mt={5}>
+                            <Box mt={2.5}>
                                 <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10}>
-                                    <DefText text='불편함이 지속된 시간이 어느정도 되셨나요?' style={{fontWeight:'bold'}} />
-                                    <DefText text='일상 생활하기에 불편한 정도를 체크해주세요.' style={{fontSize:13, color:'#666', marginTop:5}} />
+                                    <DefText text='불편함이 지속된 시간이 어느정도 되셨나요?' style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                                    <DefText text='일상 생활하기에 불편한 정도를 체크해주세요.' style={{fontSize:14, color:'#696969', marginTop:5}} />
                                 </Box>
                                 <HStack flexWrap='wrap' mt={2.5}>
                                     {timeButtons}
                                 </HStack>
-                                <Box mt={5}>
-                                    <TouchableOpacity style={[styles.buttonDef]} onPress={()=>onCheckChange('4')}>
+
+                                {/* <HStack justifyContent={'space-between'} mt={5}>
+                                       
+                                    <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.48}]} onPress={()=>onCheckChange('2')}>
+                                        <DefText text='이전' style={styles.buttonDefText} />
+                                    </TouchableOpacity>
+                            
+                                
+                                    <TouchableOpacity style={[styles.buttonDef, {width:(width-40)*0.48}]} onPress={()=>onCheckChange('4')}>
                                         <DefText text='다음' style={styles.buttonDefText} />
                                     </TouchableOpacity>
-                                </Box>
+                                    
+                                </HStack> */}
                             </Box>
                         }
 
                         {
                             checkList === '4' &&
-                            <Box mt={5}>
+                            <Box mt={2.5}>
                                 <Box px={5} py={2.5} backgroundColor='#F1F1F1' borderRadius={10}>
                                     <DefText text='상담받으실 내용을 적어주세요.' style={{fontWeight:'bold'}} />
                                 </Box>
@@ -1250,33 +1268,42 @@ const HealthCheckList = (props) => {
                                     </HStack>
                                 }
                                
-                                <Box p={2.5} backgroundColor='#f1f1f1' borderRadius={10} mt='12px'>
+                                
                                     <Input
                                         placeholder='자문받고 싶은 내용을 입력하세요'
+                                        placeholderTextColor={'#a3a3a3'}
                                         height='100px'
                                         width='100%'
                                         backgroundColor='transparent'
-                                        borderWidth={0}
+                                        borderWidth={1}
+                                        borderColor='#f1f1f1'
                                         //onSubmitEditing={schButtons}
                                         value={counselContent}
                                         onChangeText={counselContentChange}
-                                        style={{fontSize:14}}
+                                        style={[{marginTop:10, fontSize:14, fontWeight:'500', fontFamily:Font.NotoSansMedium}, counselContent.length > 0 && {backgroundColor:'#f1f1f1', color:'#000'}]}
                                         multiline={true}
                                         textAlignVertical='top'
                                         _focus={'transparent'}
                                     />
-                                </Box>
-                                 <Box mt={5}>
+                            
+                                 {/* <Box mt={5}>
                                     <HStack justifyContent='space-between'>
-                                        <TouchableOpacity onPress={SaveButton} style={[styles.buttonDef, {width:width*0.43}]}>
+                                        {
+                                            params.qaList1 == 1 &&
+                                            <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.28}]} onPress={()=>onCheckChange('3')}>
+                                                <DefText text='이전' style={styles.buttonDefText} />
+                                            </TouchableOpacity>
+                                        }
+                                       
+                                        <TouchableOpacity onPress={SaveButton} style={[styles.buttonDef, {width: params.qaList1 == 1 ? width*0.28 : width*0.43}]}>
                                             <DefText text='임시저장하기' style={styles.buttonDefText} />
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={navigationMove}  style={[styles.buttonDef, {width:width*0.43}]}>
+                                        <TouchableOpacity onPress={navigationMove}  style={[styles.buttonDef, {width:params.qaList1 == 1 ? width*0.28 : width*0.43}]}>
                                             <DefText text='상담요청하기' style={styles.buttonDefText} />
                                         </TouchableOpacity>
                                     </HStack>
                                     
-                                </Box>
+                                </Box> */}
                             </Box>
                         }
                        
@@ -1284,6 +1311,65 @@ const HealthCheckList = (props) => {
                     
                 </Box>
             </ScrollView>
+            {
+                checkList == '1' &&
+                <Box px={5} py={2.5}>
+                    <TouchableOpacity style={[styles.buttonDef]} onPress={()=>onCheckChange('2')}>
+                        <DefText text='다음' style={styles.buttonDefText} />
+                    </TouchableOpacity>
+                </Box>
+            }
+            {
+                checkList == '2' &&
+                <HStack justifyContent={'space-between'}  py={2.5} px={5}>
+                                       
+                    <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.48}]} onPress={()=>onCheckChange('1')}>
+                        <DefText text='이전' style={styles.buttonDefText} />
+                    </TouchableOpacity>
+            
+                
+                    <TouchableOpacity style={[styles.buttonDef, {width:(width-40)*0.48}]} onPress={()=>onCheckChange('3')}>
+                        <DefText text='다음' style={styles.buttonDefText} />
+                    </TouchableOpacity>
+                    
+                </HStack>
+            }
+            {
+                checkList == '3' &&
+                <HStack justifyContent={'space-between'} py={2.5} px={5}>
+                                       
+                    <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.48}]} onPress={()=>onCheckChange('2')}>
+                        <DefText text='이전' style={styles.buttonDefText} />
+                    </TouchableOpacity>
+            
+                
+                    <TouchableOpacity style={[styles.buttonDef, {width:(width-40)*0.48}]} onPress={()=>onCheckChange('4')}>
+                        <DefText text='다음' style={styles.buttonDefText} />
+                    </TouchableOpacity>
+                    
+                </HStack>
+            }
+            {
+                checkList == '4' &&
+                <Box px={5} py={2.5}>
+                    <HStack justifyContent='space-between'>
+                        {
+                            params.qaList1 == 1 &&
+                            <TouchableOpacity style={[styles.buttonDef,{width:(width-40)*0.48}]} onPress={()=>onCheckChange('3')}>
+                                <DefText text='이전' style={styles.buttonDefText} />
+                            </TouchableOpacity>
+                        }
+                        
+                        {/* <TouchableOpacity onPress={SaveButton} style={[styles.buttonDef, {width: params.qaList1 == 1 ? width*0.28 : width*0.43}]}>
+                            <DefText text='임시저장하기' style={styles.buttonDefText} />
+                        </TouchableOpacity> */}
+                        <TouchableOpacity onPress={navigationMove}  style={[styles.buttonDef, {width:params.qaList1 == 1 ? (width-40)*0.48 : width-40}]}>
+                            <DefText text='상담요청하기' style={styles.buttonDefText} />
+                        </TouchableOpacity>
+                    </HStack>
+                    
+                </Box>
+            }
         
             {/* <Modal isOpen={checkListSaveModal} backgroundColor='rgba(255,255,255,0.7)' onClose={()=>setCheckListSaveModal(false)}>
                 <Modal.Content maxWidth={width-40} backgroundColor='#fff'>
@@ -1321,24 +1407,26 @@ const HealthCheckList = (props) => {
 
 const styles = StyleSheet.create({
     reportLabel : {
-        fontSize:15,
-        color:'#666',
-        fontWeight:'bold'
+        color:'#696969',
+        fontWeight:'bold',
+        fontFamily:Font.NotoSansBold
     },
     reportLabelSmall : {
-        fontSize:13,
-        color:'#666'
+        fontSize:14,
+        color:'#696969',
+        fontFamily:Font.NotoSansMedium
     },
     buttonDef:{
-        height:40,
+        height:45,
         alignItems:'center',
         justifyContent:'center',
-        backgroundColor:'#666',
-        borderRadius:5
+        backgroundColor:'#090A73',
+        borderRadius:10
     },
     buttonDefText:{
-        fontSize:14,
-        color:'#fff'
+        color:'#fff',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     },
 
     checkIcons : {

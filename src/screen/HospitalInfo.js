@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Box, VStack, HStack, Image, Modal } from 'native-base';
-import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, Linking, SafeAreaView } from 'react-native';
+import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, Text, Linking, SafeAreaView, View } from 'react-native';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderHospital from '../components/HeaderHospital';
 import { hospitalInfoCategory, hospitalDoctorList } from '../Utils/DummyData';
@@ -11,13 +11,15 @@ import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import { BASE_URL } from '../Utils/APIConstant';
 import { ActivityIndicator } from 'react-native-paper';
+import Swiper from 'react-native-swiper';
+import Font from '../common/Font';
 
 const { width, height } = Dimensions.get('window');
 
 const hospitalButtonWidth = (width - 40) * 0.19;
 const hospitalButtonHeight= (width - 40) * 0.22;
 
-const hospitalButtonWidth2 = (width-40) * 0.23;
+const hospitalButtonWidth2 = (width-40) * 0.27;
 
 
 const HospitalInfo = ( props ) => {
@@ -28,10 +30,14 @@ const HospitalInfo = ( props ) => {
 
     //const {users} = params;
 
-    const [hospitalLoading, setHospitalLoading] = useState(false);
+    console.log('12321312312',userInfo.m_hcode);
 
+    const [hospitalLoading, setHospitalLoading] = useState(false);
+    const [hopistalImage, setHospitalImage] = useState('');
 
     const [hospitalInfos, setHospitalInfos] = useState('');
+
+    const [hospitalPhoto, setHospitalPhoto] = useState([]);
     const hospitatlInfoSend = async () => {
 
         await setHospitalLoading(false);
@@ -41,9 +47,12 @@ const HospitalInfo = ( props ) => {
             let arrItems = args.arrItems;
     
             if(resultItem.result === 'Y' && arrItems) {
-                //console.log('병원 정보: ', arrItems);
+                console.log('병원 정보: ', arrItems);
 
                 setHospitalInfos(arrItems);
+                setHospitalImage(arrItems.upfile)
+
+                setHospitalPhoto(arrItems.photo)
                 // ToastMessage(resultItem.message);
                 // navigation.goBack();
                 //setMemberInfos(arrItems);
@@ -61,6 +70,10 @@ const HospitalInfo = ( props ) => {
     useEffect(()=>{
        
         hospitatlInfoSend();
+        return(
+            setHospitalTab(1)
+
+        )
      
     },[])
 
@@ -177,110 +190,143 @@ const HospitalInfo = ( props ) => {
                 hospitalLoading ?
                 <ScrollView>
                     <VStack pb={5}>
-                        <Box>
+                        {
+                            hospitalPhoto != '' &&
+                            <Swiper loop={true}
+                                height={width/1.78}
+                                dot={
+                                    <View
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        width: 5,
+                                        height: 5,
+                                        borderRadius: 5,
+                                        marginLeft: 10,
+                                    }}
+                                    />
+                                }
+                                activeDot={
+                                <View
+                                    style={{
+                                    backgroundColor: 'transparent',
+                                    width: 5,
+                                    height: 5,
+                                    borderRadius: 5,
+                                    marginLeft: 10,
+                                    }}
+                                />
+                                }
+                                paginationStyle={{
+                                    bottom: '10%',
+                                    
+                                }}
+                            >
+                                {
+                                    hospitalPhoto != '' &&
+                                 
+                                    hospitalPhoto.map((item, index)=> {
+                                        return (
+                                            <Box key={index}>
+                                                <Image source={{uri:item}} style={{width:width, height:width/1.78, resizeMode:'stretch'}} alt={'슬라이드 번호' + (index + 1)} />
+                                            </Box>
+                                        )
+                                    })
+                                }
+                            </Swiper>
+                        }
+                        {/* <Box>
                             {
-                                hospitalInfos.logo ?
-                                <Image source={{uri:hospitalInfos.logo}} alt='병원정보이미지' width={width} height='200px' resizeMode='contain' />
+                                hospitalInfos.upfile ?
+                                <Image source={{uri:hospitalInfos.upfile}} alt='병원정보이미지' width={width} height='200px' resizeMode='cover' />
                                 :
                                 <Image source={require('../images/hospital_info_img.png')} alt='병원정보이미지' />
                             }
                             
-                        </Box>
-                        <HStack px={5} py={5} justifyContent='space-between'>
+                        </Box> */}
+                        <HStack px={5} py={5} pb={2.5} justifyContent='space-between'>
                             <TouchableOpacity
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth2,
-                                        height:hospitalButtonHeight,
-                                        borderRadius:10,
-                                        justifyContent:'center',
-                                        alignItems:'center'
-                                    },
-                                    hospitalTab === 1 && {backgroundColor:'#696968'}
-                                ]}
                                 onPress={()=>_hospitalTabButton(1)}
+                                style={{marginLeft:-5, marginTop:-5}}
                             >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/hospitalIcon.png')}
-                                        alt='병원정보'
-                                        style={{width:30}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='병원정보' style={{ fontSize:13, color:'#fff'}} />
-                                </Box>
+                                {
+                                    hospitalTab === 1 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/infoTabImgW01.png')} style={{width:37, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='병원정보'/>
+                                        <DefText text='병원정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/infoTabImgB01.png')} style={{width:37, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='병원정보'/>
+                                        <DefText text='병원정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
+                                
                             </TouchableOpacity>
-                            
                             <TouchableOpacity
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth2,
-                                        height:hospitalButtonHeight,
-                                        borderRadius:10,
-                                        justifyContent:'center'
-                                    },
-                                    hospitalTab === 2 && {backgroundColor:'#696968'}
-                                ]}
+                               style={{marginLeft:-5, marginTop:-5}}
                                 onPress={()=>_hospitalTabButton(2)}
                             >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/positionIcon.png')}
-                                        alt='위치정보'
-                                        style={{width:30}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='위치정보' style={{fontSize:13, color:'#fff'}} />
-                                </Box>
+                                {
+                                    hospitalTab === 2 ?
+                                    <ImageBackground
+                                        source={require('../images/blackShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/infoTabImgW02.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='위치정보'/>
+                                        <DefText text='위치정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                    
+                                    :
+                                    <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                        
+                                        <Image source={require('../images/infoTabImgB02.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='위치정보'/>
+                                        <DefText text='위치정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                    </ImageBackground>
+                                }
+                            </TouchableOpacity>
+  
+                            <TouchableOpacity
+                                style={{marginLeft:-5, marginTop:-5}}
+                                onPress={()=> phoneCall(hospitalInfos.tel)}
+                            >
+                                <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                    
+                                    <Image source={require('../images/infoTabImgB03.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='전화걸기'/>
+                                    <DefText text='전화걸기' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                </ImageBackground>
+                            </TouchableOpacity>
+                            
+                            <TouchableOpacity
+                                style={{marginLeft:-5, marginTop:-5}}
+                                onPress={()=>{ setHospitalTab(1); navigation.navigate('ReservationAdd')}}
+                            >
+                                <ImageBackground
+                                        source={require('../images/grayShadowBox.png')}
+                                        style={{width:hospitalButtonWidth2, height:hospitalButtonWidth2, resizeMode:'contain', alignItems:'center', justifyContent:'center'}}
+                                    >
+                                    
+                                    <Image source={require('../images/infoTabImgB04.png')} style={{width:43, height:43, resizeMode:'contain', marginLeft:-5, marginTop:-3}} alt='병원예약'/>
+                                    <DefText text='병원예약' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#696969', marginLeft:-5, marginTop:5}} />
+                                </ImageBackground>
                             </TouchableOpacity>
 
                             
-
-                            <TouchableOpacity
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth2,
-                                        height:hospitalButtonHeight,
-                                        borderRadius:10,
-                                        justifyContent:'center'
-                                    },
-                                    hospitalTab === 4 && {backgroundColor:'#696968'}
-                                ]}
-                                onPress={()=> phoneCall(hospitalInfos.tel)}
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/TelephoneIconNew.png')}
-                                        alt='전화걸기'
-                                        style={{width:30}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='전화걸기' style={{fontSize:13, color:'#fff'}} />
-                                </Box>
-                            </TouchableOpacity>
-
-                            <TouchableOpacity
-                                style={[{
-                                        backgroundColor:'#D2D2D2',
-                                        width:hospitalButtonWidth2,
-                                        height:hospitalButtonHeight,
-                                        borderRadius:10,
-                                        justifyContent:'center'
-                                    },
-                                    hospitalTab === 3 && {backgroundColor:'#696968'}
-                                ]}
-                                onPress={()=>navigation.navigate('ReservationAdd')}
-                            >
-                                <Box alignItems='center'>
-                                    <Image
-                                        source={require('../images/reservationIcons.png')}
-                                        alt='병원예약'
-                                        style={{width:30}}
-                                        resizeMode='contain'
-                                    />
-                                    <DefText text='병원예약' style={{fontSize:13, color:'#fff'}} />
-                                </Box>
-                            </TouchableOpacity>
                             
                             {/* <TouchableOpacity
                                 style={[{
@@ -306,13 +352,13 @@ const HospitalInfo = ( props ) => {
                             </TouchableOpacity> */}
                         </HStack>
 
-                        <Box px={5}>
+                        <Box px={5} pt={0}>
                             {
                                 hospitalTab === 1 &&
                                 <Box>
                                     <Box mb={5}>
                                         <DefText text='진료과목' style={styles.hospitalInfoTitle} />
-                                        <HStack>
+                                        <HStack flexWrap={'wrap'}>
                                             {
                                                 hospitalAllCategory.length > 0 ?
                                                 HospitalCategory
@@ -366,11 +412,19 @@ const HospitalInfo = ( props ) => {
                                             <>
                                                 <DefText text={hospitalInfos.address1 + ' ' + hospitalInfos.address2} style={styles.hospitalGreeting} />
                                                 <Box height={300} mt={2.5}>
-                                                    <WebView
-                                                        source={{
-                                                            uri:BASE_URL+'/hospitalMap.php?address='+hospitalInfos.address1+'&hospitalName='+hospitalInfos.name
-                                                        }}
-                                                    />
+                                                    {
+                                                        hospitalInfos &&
+                                                        <WebView
+                                                            source={{
+                                                                uri:BASE_URL+'/hospitalMap.php?address='+hospitalInfos.address1+'&hospitalName='+hospitalInfos.name
+                                                            }}
+                                                            style={{
+                                                                opacity:0.99,
+                                                                minHeight:1,
+                                                            }}
+                                                        />
+                                                    }
+
 
                                                     <TouchableOpacity activeOpacity={1} style={{position:'absolute',width:width-40, height:300, backgroundColor:'transparent'}} onPress={()=>{setMapPopVisible(true)}}>
 
@@ -442,19 +496,21 @@ const HospitalInfo = ( props ) => {
 
 const styles = StyleSheet.create({
     hospitalInfoTitle:{
-        fontSize:14,
-        color:'#696968',
-        marginBottom:10
+        fontSize:16,
+        color:'#696969',
+        marginBottom:10,
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
     },
     hospitalInfoCategory:{
-        backgroundColor:'#696968',
-        height:26,
-        borderRadius:5,
+        backgroundColor:'#696969',
+        height:30,
+        borderRadius:10,
         justifyContent:'center',
         paddingHorizontal:10
     },
     hospitalInfoCategoryText:{
-        fontSize:12,
+        fontSize:14,
         color:'#fff'
     },
     hospitalInfoTimeText:{

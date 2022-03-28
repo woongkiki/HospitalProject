@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Box, VStack, HStack, Image } from 'native-base';
 import { TouchableOpacity, Dimensions, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
-import {DefInput, DefText} from '../common/BOOTSTRAP';
+import {AddButton, DefInput, DefText} from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import LinearGradient from 'react-native-linear-gradient';
 import { StackActions } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
 import ToastMessage from '../components/ToastMessage';
 import { useFocusEffect } from '@react-navigation/native';
+import Font from '../common/Font';
 
 const {width} = Dimensions.get('window');
 
@@ -112,26 +113,31 @@ const Inbody = (props) => {
         },[])
     );
 
+    const InbodySubmit = () => {
+        navigation.navigate('InbodyList');
+    }
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderComponents headerTitle='체성분' navigation={navigation} />
+            <HeaderComponents headerTitle='체성분' navigation={navigation} listButton={true} bloodSugar={InbodySubmit} />
             {
                 !inbodyLoading ?
                 <>
                     {
                         allInbody != '' ? 
-                        <ScrollView>
+                        <ScrollView >
                             <Box p={5}>
-                                <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='30px' alignItems='center'>
+                                <HStack height='140px' justifyContent='space-between' px={4} backgroundColor='#F1F1F1' borderRadius='10px' alignItems='center'>
                                     <Box width={(width * 0.65) + 'px'}>
-                                        <DefText text='체성분 이야기' style={{fontSize:16, fontWeight:'bold'}} />
-                                        <DefText text='중요한 건강지표 "체성분"에 관해 알아보세요.' style={{fontSize:14, }} />
+                                        <DefText text='체성분 이야기' style={{fontSize:16, fontWeight:'500', fontFamily:Font.NotoSansMedium}} />
+                                        <DefText text='중요한 건강지표 "체성분"에 관해' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
+                                        <DefText text='알아보세요.' style={{fontSize:14, fontFamily:Font.NotoSansDemiLight}} />
+
                                         <TouchableOpacity
                                             style={{
                                                 width:100,
                                                 height:30,
-                                                backgroundColor:'#696968',
+                                                backgroundColor:'#090A73',
                                                 borderRadius:10,
                                                 alignItems:'center',
                                                 justifyContent:'center',
@@ -139,58 +145,68 @@ const Inbody = (props) => {
                                             }}
                                             onPress={navigationMove}
                                         >
-                                            <DefText text='알아보기' style={{color:'#fff', fontSize:15}} />
+                                            <DefText text='알아보기' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
                                         </TouchableOpacity>
                                     </Box>
-                                    <Image source={require('../images/checkIcons.png')} alt='체크이미지' />
+                                    <Image source={require('../images/inbodyTopImage.png')} style={{width:71, height:71, resizeMode:'contain'}} alt='체크이미지' />
                                 </HStack>
                                 <Box mt={5}>
-                                    <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} />
+                                    {/* <DefText text='식습관 통계' style={[styles.reportLabel, {marginBottom:10}]} /> */}
+                                    <DefText text='비만 동반질환 위험도' style={[styles.graphText, {marginBottom:10, color:'#696968', fontFamily:Font.NotoSansMedium}]} />
                                     <Box p={5}  backgroundColor='#f1f1f1' borderRadius={10}>
-                                        <HStack justifyContent='space-between' mb={5}>
-                                            <DefText text='비만 동반질환 위험도' style={[styles.graphText]} />
-                                            {
-                                                bmiAlert != '' &&
-                                                <DefText text={bmiAlert[1]} style={[styles.graphText]} />
-                                            }
-                                        </HStack>
-                                        <LinearGradient height={30} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['#34EB00', '#967A00', '#FF0000']} style={[{borderRadius:5, marginTop:10}]}>
-                                            <Box style={[{position:'absolute', bottom:20, left:fatDis+'%'}, bmiAlert != '' && {left:(bmiAlert[0]*10)+'%'}]}>
-                                                <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                        {
+                                            bmiAlert != '' &&
+                                            <DefText text={bmiAlert[1]} style={[styles.graphText, {marginBottom:10}]} />
+                                        }
+                                        <Box>
+                                            <LinearGradient height={23} start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={['rgba(234,68,22, 0.03)', 'rgba(234,68,22, 0.51)', '#EA4416']} style={[{borderRadius:5, marginTop:10}]}>
+                                                
+                                            </LinearGradient>
+                                            <Box style={[{position:'absolute', bottom:15, left:fatDis+'%'}, bmiAlert != '' && {left:(bmiAlert[0]*10)+'%'}]}>
+                                                <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                             </Box> 
-                                        </LinearGradient>
+                                        </Box>
                                     </Box>
                                 </Box>
-                                <Box mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
-                                    <HStack justifyContent='space-between'>
-                                        <DefText text='유형분석' style={[styles.graphText]}  />
-                                        {
-                                            bodyStatus != '' &&
+                                
+                                <DefText text='유형분석' style={[styles.graphText, {marginBottom:10, marginTop:20, color:'#696968'}]} />
+                                <Box p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                    {
+                                        bodyStatus != '' &&
+                                        <>
                                             <DefText text={bodyStatus.category} style={[styles.graphText]}  />
-                                        }
-                                    
-                                    </HStack>
+                                            <DefText text={bodyStatus.subinfo} style={[styles.graphText, {marginTop:10}]}  />
+                                        </>
+                                    }
                                     {/* <DefText text='근육이 발달한 단단한 건강체질입니다.' style={{fontSize:14, marginTop:10 }} /> */}
                                     <VStack mt={2.5}>
                                         <HStack py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                            <Box width={(width-80)*0.25}></Box>
-                                            <Box width={(width-80)*0.25}>
-                                                <DefText text='표준이하' style={[styles.tableThText]} />
+                                            <Box width={(width-80)*0.4}></Box>
+                                            <Box width={(width-80)*0.2}>
+                                                <DefText text='이하' style={[styles.tableThText]} />
                                             </Box>
-                                            <Box width={(width-80)*0.25}>
+                                            <Box width={(width-80)*0.2}>
                                                 <DefText text='표준' style={[styles.tableThText]} />
                                             </Box>
-                                            <Box width={(width-80)*0.25}>
+                                            <Box width={(width-80)*0.2}>
                                                 <DefText text='표준이상' style={[styles.tableThText]} />
                                             </Box>
                                         </HStack>
                                         <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999' >
-                                            <Box width={(width-80)*0.25}>
+                                            <Box width={(width-80)*0.2}>
                                                 <DefText text='체중' style={[styles.tableTdText]} />
+                                            </Box>
+                                            <Box width={(width-80)*0.2}>
+                                                {
+                                                    weight != '' ?
+                                                    <DefText text={weight+'kg'} style={[styles.graphText, {fontSize:14}]}  />
+                                                    :
+                                                    <DefText text='-' />
+                                                }
                                             </Box>
                                             {
                                                 bodyStatus != '' &&
-                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                <Box width={(width-80)*0.6}  pl={2.5}>
                                                     {
                                                         bodyStatus.weight_score == 0 &&
                                                         <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
@@ -207,12 +223,20 @@ const Inbody = (props) => {
                                             }
                                         </HStack>
                                         <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                            <Box width={(width-80)*0.25}>
+                                            <Box width={(width-80)*0.2}>
                                                 <DefText text='골격근량' style={[styles.tableTdText]} />
+                                            </Box>
+                                            <Box width={(width-80)*0.2}>
+                                                {
+                                                    muscle != '' ?
+                                                    <DefText text={muscle + 'kg'} style={[styles.graphText, {fontSize:14}]} />
+                                                    :
+                                                    <DefText text='-' />
+                                                }
                                             </Box>
                                             {
                                                 bodyStatus != '' &&
-                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                <Box width={(width-80)*0.6}  pl={2.5}>
                                                     {
                                                         bodyStatus.muscle_score == 0 &&
                                                         <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
@@ -229,12 +253,20 @@ const Inbody = (props) => {
                                             }
                                         </HStack>
                                         <HStack alignItems='center' py={2.5} borderBottomWidth={1} borderBottomColor='#999'>
-                                            <Box width={(width-80)*0.25}>
+                                            <Box width={(width-80)*0.2}>
                                                 <DefText text='체지방량' style={[styles.tableTdText]} />
+                                            </Box>
+                                            <Box width={(width-80)*0.2}>
+                                                {
+                                                    fatKg != '' ?
+                                                    <DefText text={fatKg +'kg'} style={[styles.graphText, {fontSize:14}]}  />
+                                                    :
+                                                    <DefText text='-' />
+                                                }
                                             </Box>
                                             {
                                                 bodyStatus != '' &&
-                                                <Box width={(width-80)*0.7}  pl={2.5}>
+                                                <Box width={(width-80)*0.6}  pl={2.5}>
                                                     {
                                                         bodyStatus.fat_score == 1 &&
                                                         <Box width={ '30%' } height='20px' backgroundColor='#696968' /> 
@@ -252,7 +284,7 @@ const Inbody = (props) => {
                                         </HStack>
                                     </VStack>
                                 </Box>
-                                <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                {/* <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
                                     <HStack justifyContent='space-between' alignItems='center'>
                                         <DefText text='체중' style={[styles.graphText]}  />
                                         {
@@ -282,8 +314,8 @@ const Inbody = (props) => {
                                         }
                                     
                                     </HStack>
-                                </Box>
-                                <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10}>
+                                </Box> */}
+                                <Box  mt={5} p={5} backgroundColor='#f1f1f1' borderRadius={10} mb='80px'>
                                     <Box>
                                         <HStack justifyContent='space-between' alignItems='center'>
                                             <DefText text='BMI' style={[styles.graphText]}  />
@@ -318,37 +350,37 @@ const Inbody = (props) => {
                                                     {
                                                         bmiData[1] == 1 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '4%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         bmiData[1] == 2 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '20%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         bmiData[1] == 3 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '37%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         bmiData[1] == 4 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '53%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         bmiData[1] == 5 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '70%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         bmiData[1] == 6 &&
                                                         <Box style={[{position:'absolute', bottom:20, left: '87%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                 </>
@@ -386,31 +418,31 @@ const Inbody = (props) => {
                                                 {
                                                     fatPercent[0] < 17.1 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 17.1 && fatPercent[0] < 23 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 23 && fatPercent[0] < 28 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 28 && fatPercent[0] < 38 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 38 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 </>
@@ -422,31 +454,31 @@ const Inbody = (props) => {
                                                 {
                                                     fatPercent[0] < 20.1 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 20.1 && fatPercent[0] < 27 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 27 && fatPercent[0] < 33 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 33 && fatPercent[0] < 43 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 {
                                                     fatPercent[0] >= 43 &&
                                                     <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
-                                                        <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                        <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                     </Box> 
                                                 }
                                                 </>
@@ -485,31 +517,31 @@ const Inbody = (props) => {
                                                     {
                                                         adbFat[1] == 1 &&
                                                         <Box style={[{position:'absolute', bottom:20, left:'6%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }  
                                                     {
                                                         adbFat[1] == 2 &&
                                                         <Box style={[{position:'absolute', bottom:20, left:'25%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }
                                                     {
                                                         adbFat[1] == 4 &&
                                                         <Box style={[{position:'absolute', bottom:20, left:'45%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }   
                                                     {
                                                         adbFat[1] == 5 &&
                                                         <Box style={[{position:'absolute', bottom:20, left:'65%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                            <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     } 
                                                     {
                                                         adbFat[1] == 6 &&
                                                         <Box style={[{position:'absolute', bottom:20, left:'85%'}]}>
-                                                            <Image source={require('../images/fatPosition.png')} alt='수치' />
+                                                           <Image source={require('../images/markerNew.png')} alt='수치' style={{width:30, height:30, resizeMode:'contain'}} />
                                                         </Box> 
                                                     }   
                                                 </>
@@ -522,8 +554,8 @@ const Inbody = (props) => {
                         </ScrollView>
                         :
                         <Box justifyContent='center' alignItems='center' flex={1}>
-                            <Image source={require('../images/inbodyIconG.png')} alt={'복약을 관리하세요'} />
-                            <DefText text='체성분정보를 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#666'}} />
+                            <Image source={require('../images/inbodyIconG.png')} alt={'체성분정보를 관리하세요'} />
+                            <DefText text='체성분정보를 추가하여 간편하게 관리하세요.' style={{marginTop:20, color:'#696969', fontFamily:Font.NotoSansMediu, fontWeight:'500'}} />
                             {/* <ActivityIndicator size='large' color='#333' /> */}
                         </Box>
                     }
@@ -535,11 +567,9 @@ const Inbody = (props) => {
                     <ActivityIndicator size='large' color='#333' />
                 </Box>
             }
-            
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={()=>{navigation.navigate('InbodyAdd')}} style={[styles.buttonDef]}>
-                   <DefText text='체성분 정보 추가' style={styles.buttonDefText} />
-                </TouchableOpacity>
+
+            <Box position={'absolute'} right={'30px'} bottom={'30px'}>
+                <AddButton onPress={()=>{navigation.navigate('InbodyAdd')}} />
             </Box>
         </Box>
     );
@@ -572,9 +602,9 @@ const styles = StyleSheet.create({
         color:'#fff'
     },
     graphText:{
-        fontSize:15,
-        color:'#333',
-        fontWeight:'bold'
+        color:'#000',
+        fontFamily:Font.NotoSansMedium,
+        fontWeight:'500'
     },
     tableThText: {
         fontSize:14,
@@ -586,7 +616,7 @@ const styles = StyleSheet.create({
         fontSize:14,
         color:'#333',
 
-        textAlign:'center'
+        textAlign:'left'
     },
     graphBox:{
         width: (width - 80) * 0.15,

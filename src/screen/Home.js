@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import { Box, VStack, HStack, Image, Modal, Input } from 'native-base';
-import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, View, Linking, Platform, Text, Alert } from 'react-native';
+import { Box, VStack, HStack, Image, Modal, Input, CheckIcon } from 'native-base';
+import { TouchableOpacity, ScrollView, StyleSheet, Dimensions, ImageBackground, View, Linking, Platform, Text, Alert, TouchableWithoutFeedback } from 'react-native';
 import { DefText } from '../common/BOOTSTRAP';
 import HeaderMain from '../components/HeaderMain';
 import { mainIconData, communityData, boardDatas } from '../Utils/DummyData';
@@ -13,9 +13,12 @@ import Api from '../Api';
 import Font from '../common/Font';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { Shadow, version } from 'react-native-shadow-2';
+import HTML from 'react-native-render-html';
+import StyleHtml from '../common/StyleHtml';
 
 const {width, height} = Dimensions.get('window');
-const iconButtonWidth = width * 0.25;
+const iconButtonWidth = width * 0.27;
 
 
 const boxWidths = width - 20;
@@ -33,12 +36,19 @@ const Home = (props) => {
 
     const {params} = route;
 
-    
+    useEffect(()=>{
+        const unsubscribe = () => {
+            navigation.addListener('focus', async () => {
+                member_info_handle();
+                HospitalReceive();
+            });
+        };
+        unsubscribe();
+    },[]);
 
     useEffect(()=>{
         if(params.msg){
-            ToastMessage(params.msg);
-            
+            ToastMessage(params.msg);   
         }
     },[]);
 
@@ -138,7 +148,7 @@ const Home = (props) => {
                             <Image source={{uri:item.imageUrl}} alt={item.title} style={{width:30, height:30, marginLeft:-5, marginTop:-5}} resizeMode='contain' />
                         }
 
-                        <DefText text={item.title} style={[styles.mainIconTitle, {marginLeft:-5}]} />
+                        <DefText text={item.title} style={[styles.mainIconTitle, {marginLeft:-5}, item.idx === 6 && {fontSize:12}]} />
                     </Box>
                 </ImageBackground>
                 
@@ -172,7 +182,7 @@ const Home = (props) => {
                     // console.log('병원 정보: ', arrItems);
 
                         
-                        console.log('홈 화면 배너정보:::', arrItems);
+                        //console.log('홈 화면 배너정보:::', arrItems);
                         //console.log(resultItem.message);
                         setHospitalBanners(arrItems);
 
@@ -207,7 +217,7 @@ const Home = (props) => {
 
                     if(resultItemHospital.result === 'Y' && arrItemsHospital){
 
-                       
+                       //console.log('병원게시판::', arrItemsHospital)
                         setHospitalNotice(arrItemsHospital);
 
                     }else{
@@ -248,14 +258,26 @@ const Home = (props) => {
     }
 
     const [counselPage, setCounselPage] = useState('1');
-    const counselPageChange = () => {
-        if(!qaList1){
-           // ToastMessage('상담유형을 선택하세요.');
-           Alert.alert('상담유형을 선택하세요.');
-            return false;
-        }
+    const counselPageChange = async (qa) => {
+        // if(!qaList1){
+        //    // ToastMessage('상담유형을 선택하세요.');
+        //    Alert.alert('상담유형을 선택하세요.');
+        //     return false;
+        // }
 
-        setCounselPage('2');
+        setQaList1(qa);
+
+        await setCounselModal(false);
+        await setCounselModalPwd(true)
+
+        // if(qaList1 == '1'){
+        //     setCounselPage('2');
+        // }else{
+        //     await setCounselModal(false);
+        //      await setCounselModalPwd(true)
+        // }
+
+        
     }
 
     const [counselModalPwd, setCounselModalPwd] = useState(false);
@@ -275,12 +297,22 @@ const Home = (props) => {
 
     const qaNavigationGo = () => {
 
-        if(!counselPwd){
-            ToastMessage('자문 비밀번호를 입력하세요.');
+        console.log('counselPwd', counselPwd);
+
+        if(!privacyAgree){
+            setCounselModalPwd(false);
+            ToastMessage('개인정보 수집이용에 대하여 동의를 체크해주세요');
+            return false;
+        }
+
+        if(!healthAgree){
+            setCounselModalPwd(false);
+            ToastMessage('건강상담 이용에 대하여 동의를 체크해주세요');
             return false;
         }
 
         if(userInfo.passwd2 != counselPwd){
+            setCounselModalPwd(false);
             ToastMessage('자문 비밀번호가 올바르지 않습니다.');
             return false;
         }
@@ -305,6 +337,7 @@ const Home = (props) => {
         if(userInfo != undefined){
             if(userInfo.m_hcode == hcode){
                 ToastMessage('이미 선택된 병원입니다.');
+                setHospitalChange(false);
                 return false;
             }
         }
@@ -351,7 +384,7 @@ const Home = (props) => {
             formData.append('token', userInfo.appToken);
             const member_info_list = await member_info(formData);
 
-         
+            console.log('회원정보:::::',member_info_list);
             setMemberHcode(member_info_list.result.m_hcode);
 
     };
@@ -417,43 +450,205 @@ const Home = (props) => {
   
     }
 
+    const [privacyAgree, setPrivacyAgree] = useState(false);
+    const [privacyAgreeModal, setPrivacyAgreeModal] = useState(false);
+    const [healthAgree, setHealthAgree] = useState(false);
+    const [healthAgreeModal, setHealthAgreeModal] = useState(false);
+
+    const [personalData, setPersonalData] = useState('');
+    const [bioData, setBioData] = useState('')
+
+    const PersonalRecieve = (page) => {
+        Api.send('service_personalPage', {'page':page}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                //console.log('개인정보보호방침::::: ', arrItems);
+                setPersonalData(arrItems);
+                if(arrItems != ''){
+                    setPrivacyAgreeModal(true);
+                }
+               
+            }else{
+                console.log('개인정보보호방침 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    const BioRecieve = () => {
+        Api.send('service_bio', {}, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                console.log('건강상담이용::::: ', arrItems);
+
+                setBioData(arrItems);
+               
+            }else{
+                console.log('건강상담이용 출력 실패!', resultItem);
+               // ToastMessage(resultItem.message);
+            }
+        });
+    }
+
+    useEffect(()=> {
+       // PersonalRecieve();
+        BioRecieve()
+
+        //console.log(Platform.OS, width);
+    }, [])
+    
 
     return (
         <Box flex={1} backgroundColor='#fff'>
-            <HeaderMain navigation={navigation} hospitalCode={memberHcode} hospitalChangeBtn={hospitalChangeButtonVisible} />
+            <HeaderMain navigation={navigation} hospitalCode={memberHcode} hospitalLogo={userInfo?.m_logo ? userInfo?.m_logo : ''} hospitalName={userInfo?.m_name ? userInfo?.m_name : ''} hospitalChangeBtn={hospitalChangeButtonVisible} />
             
             <ScrollView>
-                <Box pt={6}>
-                    <VStack px={5} >
-                        <Box>
-                            <Box alignItems='flex-end'>
-                                <Image source={require('../images/mainBannerImg.png')} alt='메인배너' />
+                <Box>
+                    
+                    <Box  >
+                        {
+                            userInfo?.m_main &&
+                            <Box  justifyContent={'center'} alignItems={'center'} >
+                                <Image source={{uri:userInfo.m_main}} alt='메인배너' width={width} height={width/1.78} resizeMode='stretch'/>
                             </Box>
-                            <Box position='absolute' top={2.5} left={0}>
-                                <DefText text={'안녕하세요 ' + memberInfos.name+'님'} style={{fontSize:15, color:'#000', marginBottom:10}} />
-                                {/* <DefText text={'안녕하세요 김건강님'} style={{color:'#000', marginBottom:10}} /> */}
-                                <DefText text={'건강을 지켜드리는'+`\n`+'주치의원 더힐링입니다.'} style={{fontSize:18, lineHeight:26, color:'#000'}} />
-                                <TouchableOpacity
-                                    style={{borderRadius:8, overflow:'hidden', width:100, height:30, marginTop:15, backgroundColor:"#696968", alignItems:'center', justifyContent:'center' }}
-                                    onPress={RequestSend}
-                                >
-                                    <Box shadow={8} >
-                                        <DefText text='상담요청' style={{fontSize:15, color:'#FFFFFF'}} />
-                                    </Box>
-                                </TouchableOpacity>
-                            </Box>
+                        }
+                        <Box position='absolute' bottom={'15px'} left={'25px'}>
+                            <TouchableOpacity
+                                style={{
+                                    width:100,
+                                    height:30,
+                                    backgroundColor:'#090A73',
+                                    borderRadius:10,
+                                    alignItems:'center',
+                                    justifyContent:'center',
+                                    marginTop:10 
+                                }}
+                                onPress={RequestSend}
+                            >
+                                <Box shadow={8} >
+                                    <DefText text='상담요청' style={{color:'#fff', fontSize:18, lineHeight:30, fontFamily:Font.NotoSansDemiLight}} />
+                                </Box>
+                            </TouchableOpacity>
                         </Box>
+                        {/* <Box position='absolute' top={2.5} left={0}>
+                            <DefText text={'안녕하세요 ' + memberInfos.name+'님'} style={{fontSize:15, color:'#000', marginBottom:10}} />
+                            
+                            <DefText text={'건강을 지켜드리는'+`\n`+'주치의원 더힐링입니다.'} style={{fontSize:18, lineHeight:26, color:'#000'}} />
+                            <TouchableOpacity
+                                style={{borderRadius:8, overflow:'hidden', width:100, height:30, marginTop:15, backgroundColor:"#696968", alignItems:'center', justifyContent:'center' }}
+                                onPress={RequestSend}
+                            >
+                                <Box shadow={8} >
+                                    <DefText text='상담요청' style={{fontSize:15, color:'#FFFFFF'}} />
+                                </Box>
+                            </TouchableOpacity>
+                        </Box> */}
+                    </Box>
                         
-                    </VStack>
+                
                     {/* 메인 버튼 */}
                     <VStack pl='15px'>
                         <Box mt={5}>
                             <ScrollView
                                 horizontal={true}
                                 showsHorizontalScrollIndicator={false}
+                                
                             >
-                                <HStack pr={5}>
-                                   {mainIconList}
+                                <HStack pr={'10px'}>
+                                   {/* {mainIconList} */}
+                                   <TouchableOpacity onPress={()=>navigation.navigate('Inbody')}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/yellowBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5}}>
+                                                <Image source={require('../images/inbodyImageNew.png')} alt='인바디' style={{width:48, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='인바디' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
+
+                                   <TouchableOpacity onPress={()=>navigation.navigate('FoodDiary')} style={{marginLeft:-7}}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/blueBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5, alignItems:'center'}}>
+                                                <Image source={require('../images/foodImageNew.png')} alt='인바디' style={{width:48, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='식단' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5, marginLeft:-5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
+
+                                   <TouchableOpacity onPress={()=>navigation.navigate('Medicine')} style={{marginLeft:-7}}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/greenBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5, alignItems:'center'}}>
+                                                <Image source={require('../images/medicineImageNew.png')} alt='복약' style={{width:48, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='복약' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5, marginLeft:-5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
+                                   
+                                   <TouchableOpacity onPress={()=>navigation.navigate('BloodSugar')} style={{marginLeft:-7}}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/bloodPBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5, alignItems:'center'}}>
+                                                <Image source={require('../images/bloodPImageNew.png')} alt='혈당' style={{width:48, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='혈당' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5, marginLeft:-5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
+
+                                   <TouchableOpacity onPress={()=>navigation.navigate('BloodPressure')} style={{marginLeft:-7}}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/yellowBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5, alignItems:'center'}}>
+                                                <Image source={require('../images/bloodPBoxNews.png')} alt='혈압' style={{width:59, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='혈압' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5, marginLeft:-5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
+
+                                   <TouchableOpacity onPress={()=>navigation.navigate('CustomCommunity')} style={{marginLeft:-7}}>
+                                        <ImageBackground
+                                            source={{uri:'https://khict0107.cafe24.com/images/blueBoxNew.png'}}
+                                            resizeMode='contain'
+                                            style={{
+                                                width:iconButtonWidth, height:iconButtonWidth, justifyContent:'center', alignItems:'center'
+                                            }}
+                                        >   
+                                            <Box style={{marginTop:-5, alignItems:'center'}}>
+                                                <Image source={require('../images/customComImageNew.png')} alt='맞춤건강정보' style={{width:44, height:48, resizeMode:'contain', marginLeft:-5}} />
+                                                <DefText text='맞춤건강정보' style={{fontSize:13, fontFamily:Font.NotoSansMedium, color:'#fff', marginTop:5, marginLeft:-5}} />
+                                            </Box>
+                                        </ImageBackground>
+                                   </TouchableOpacity>
                                 </HStack>
                             </ScrollView>
                         </Box>
@@ -461,7 +656,7 @@ const Home = (props) => {
                     {/* 메인 버튼 */}
                     {/* 빠른 예약 */}
                     <Box px={5} mt={5}>
-                        <TouchableOpacity onPress={()=>navigation.navigate('ReservationAdd')}>
+                        <TouchableOpacity onPress={()=>navigation.navigate('Reservation')}>
                             <ImageBackground 
                                 source={require('../images/mainShadowBox_11.png')}
                                 style={{ width:boxWidths, height:boxHeights,  marginLeft:-10, marginTop:-20, alignItems:'center', justifyContent:'center'}}
@@ -478,9 +673,9 @@ const Home = (props) => {
                                     <HStack alignItems='center' justifyContent='space-between' width={width-40} px='25px' >
                                         <VStack>
                                             <DefText text='병원예약' style={{fontSize: width > 360 ? 17 : 15, lineHeight:25}} />
-                                            <DefText text='해피콜로 예약을 도와드립니다.' style={{ marginTop:10, fontFamily:Font.NotoSansLight}} />
+                                            <DefText text='해피콜로 예약을 도와드립니다.' style={{ marginTop:10}} />
                                         </VStack>
-                                        <Image source={require('../images/reservationIcon.png')} alt='빠른예약' style={{width:45, height:45, resizeMode:'contain'}} />
+                                        <Image source={require('../images/TelephoneHomeNew.png')} alt='빠른예약' style={{width:48, height:48, resizeMode:'contain'}} />
                                     </HStack>
                                 </Box>
                             </ImageBackground>
@@ -509,9 +704,11 @@ const Home = (props) => {
                                     <HStack alignItems='center' justifyContent='space-between' width={width-40} px='25px'>
                                         <VStack>
                                             <DefText text='병원소개' style={{fontSize:width > 360 ? 17 : 15, lineHeight:25}} />
-                                            <DefText text='병원,의료진, 진료시간안내' style={{marginTop:10, fontFamily:Font.NotoSansLight}} />
+                                            <DefText text='병원,의료진, 진료시간안내' style={{marginTop:10}} />
                                         </VStack>
-                                        <Image source={require('../images/hospitalIconsNew.png')} alt='빠른예약' tyle={{width:37, height:45, resizeMode:'contain'}} />
+                                        <Box widht={60} height={60} alignItems='center' justifyContent={'center'} mr='10px'>
+                                            <Image source={require('../images/MedicalNew.png')} alt='빠른예약' style={{width:37, height:48, resizeMode:'contain'}} />
+                                        </Box>
                                     </HStack>
                                 </Box>
                             </ImageBackground>
@@ -540,9 +737,11 @@ const Home = (props) => {
                                         
                                         <VStack>
                                             <DefText text='클리닉 소개' style={{fontSize:width > 360 ? 17 : 15, lineHeight:25}} />
-                                            <DefText text='건강을 챙기는 클리닉안내' style={{marginTop:10, fontFamily:Font.NotoSansLight}} />
+                                            <DefText text='건강을 챙기는 클리닉안내' style={{marginTop:10, }} />
                                         </VStack>
-                                        <Image source={require('../images/clinicIconsNew.png')} style={{width:55, height:55}} alt='클리닉' />
+                                        <Box widht={60} height={60} alignItems='center' justifyContent={'center'}>
+                                            <Image source={require('../images/ClinicNew.png')} style={{width:55, height:55}} alt='클리닉' />
+                                        </Box>
                                     </HStack>
                                 </Box>
                             </ImageBackground>
@@ -554,7 +753,7 @@ const Home = (props) => {
                     {/* 당뇨 관리 */}
                     {
                         hospitalBanners != '' &&
-                        <Box px={5} mb={5} mt={ width > 360 ? -2.5 : -7}>
+                        <Box px={5} mb={5} mt={ width > 390 ? -2.5 : '-20px'}>
                             <TouchableOpacity onPress={()=>{navigation.navigate('ClinicViews', hospitalBanners)}} style={{width:width-40, height:110, backgroundColor:'#fff', borderRadius:10}}>
                                 <Image source={{uri:hospitalBanners.upfile}} style={{width:width - 40, height:110, resizeMode:'contain'}} alt={hospitalBanners.prdcode}  />
                             </TouchableOpacity>
@@ -601,7 +800,7 @@ const Home = (props) => {
                                                 hospitalNotice.map((item, index)=> {
                                                     return(
                                                         <TouchableOpacity key={index} onPress={()=>navigation.navigate('BoardView', item)}>
-                                                            <DefText text={textLengthOverCut(item.subject, 20)} style={[{fontSize:13, lineHeight:19, fontFamily:Font.NotoSansLight, color:'#000'}, index !== 0 && {marginTop:5} ]} />
+                                                            <DefText text={textLengthOverCut(item.subject, 20)} style={[{fontSize:13, lineHeight:19,  color:'#000'}, index !== 0 && {marginTop:5} ]} />
                                                         </TouchableOpacity>
                                                     )
                                                 })
@@ -622,45 +821,49 @@ const Home = (props) => {
             </ScrollView>
 
             <Modal isOpen={counselModal} style={{flex:1}} onClose={counselModalClosed}>
-                <Box p={5} pb={Platform.OS === 'ios' ? '40px' : 5} backgroundColor='#f1f1f1' position='absolute' bottom={0} left={0} width={width} borderTopLeftRadius={20} borderTopRightRadius={20}>
+                <Box p={5} py={'25px'} pb={Platform.OS === 'ios' ? '40px' : 5} backgroundColor='#fff' position='absolute' bottom={0} left={0} width={width} borderTopLeftRadius={20} borderTopRightRadius={20}>
                     {
                         counselPage == '1' &&
                         <>
-                            <DefText text='어떤 상담을 원하시나요?' style={{fontSize:15, color:'#333', fontWeight:'bold', marginBottom:10}} />
+                            <DefText text='어떤 상담을 원하시나요?' style={{color:'#333', fontWeight:'700', marginBottom:10, fontFamily:Font.NotoSansBold, fontSize:18, lineHeight:22}} />
                             <HStack flexWrap='wrap'>
                                 <Box>
-                                    <TouchableOpacity onPress={()=>qaListChange('1')} style={[styles.counselButton , qaList1 == '1' && {backgroundColor:'#999'}]}>
-                                        <DefText text='몸이 안좋아요. 왜 그럴까요?' style={[styles.counselButtonText, qaList1 == '1' && {color:'#fff'}]} />
+                                    <TouchableOpacity onPress={()=>counselPageChange('1')} style={[styles.counselButton , qaList1 == '1' && {backgroundColor:'#696969'}]}>
+                                        {/* <DefText text='몸이 안좋아요. 왜 그럴까요?' style={[styles.counselButtonText, qaList1 == '1' && {color:'#fff'}]} /> */}
+                                        <DefText text='진료전 아프거나 불편한 점이 있어요.' style={[styles.counselButtonText, qaList1 == '1' && {color:'#fff'}]} />
                                     </TouchableOpacity>
                                 </Box>
                             </HStack>
                             <HStack flexWrap='wrap'>
                                 <Box>
-                                    <TouchableOpacity onPress={()=>qaListChange('2')} style={[styles.counselButton, qaList1 == '2' && {backgroundColor:'#999'}]}>
-                                        <DefText text='병원 다녀왔는데도 여전히 안 좋아요.' style={[styles.counselButtonText, qaList1 == '2' && {color:'#fff'}]} />
+                                    <TouchableOpacity onPress={()=>counselPageChange('2')} style={[styles.counselButton, qaList1 == '2' && {backgroundColor:'#696969'}]}>
+                                        {/* <DefText text='병원 다녀왔는데도 여전히 안 좋아요.' style={[styles.counselButtonText, qaList1 == '2' && {color:'#fff'}]} /> */}
+                                        <DefText text='진료후 아프거나 문의사항이 있어요.' style={[styles.counselButtonText, qaList1 == '2' && {color:'#fff'}]} />
                                     </TouchableOpacity>
                                 </Box>
                             </HStack>
                             <HStack flexWrap='wrap'>
                                 <Box>
-                                    <TouchableOpacity onPress={()=>qaListChange('3')} style={[styles.counselButton, qaList1 == '3' && {backgroundColor:'#999'}]}>
-                                        <DefText text='건강상식, 이게 맞는 건가요?' style={[styles.counselButtonText, qaList1 == '3' && {color:'#fff'}]} />
+                                    <TouchableOpacity onPress={()=>counselPageChange('3')} style={[styles.counselButton, qaList1 == '3' && {backgroundColor:'#696969'}]}>
+                                        <DefText text='건강상식에 관해 궁금한 점이 있어요.' style={[styles.counselButtonText, qaList1 == '3' && {color:'#fff'}]} />
+                                        {/* <DefText text='건강상식, 이게 맞는 건가요?' style={[styles.counselButtonText, qaList1 == '3' && {color:'#fff'}]} /> */}
                                     </TouchableOpacity>
                                 </Box>
                             </HStack>
                             <HStack flexWrap='wrap'>
                                 <Box>
-                                    <TouchableOpacity onPress={()=>qaListChange('4')} style={[styles.counselButton, qaList1 == '4' && {backgroundColor:'#999'}]}>
-                                        <DefText text='그냥 궁금한게 있어요.' style={[styles.counselButtonText, qaList1 == '4' && {color:'#fff'}]} />
+                                    <TouchableOpacity onPress={()=>counselPageChange('4')} style={[styles.counselButton, qaList1 == '4' && {backgroundColor:'#696969'}]}>
+                                        <DefText text='예약이나 가격에 관한 기타 문의사항이 있습니다.' style={[styles.counselButtonText, qaList1 == '4' && {color:'#fff'}]} />
+                                        {/* <DefText text='그냥 궁금한게 있어요.' style={[styles.counselButtonText, qaList1 == '4' && {color:'#fff'}]} /> */}
                                     </TouchableOpacity>
                                 </Box>
                             </HStack>
                            
-                            <HStack justifyContent='flex-end' mt={2.5}>
+                            {/* <HStack justifyContent='flex-end' mt={2.5}>
                                 <TouchableOpacity onPress={counselPageChange} style={[styles.counselButton]}>
                                     <DefText text='다음' />
                                 </TouchableOpacity>
-                            </HStack>
+                            </HStack> */}
                         </>
                     }
                     {
@@ -684,32 +887,130 @@ const Home = (props) => {
                     
                 </Box>
             </Modal>
+            
             <Modal isOpen={counselModalPwd} onClose={()=>setCounselModalPwd(false)}>
-                <Modal.Content maxWidth={width-40}>
-                    <Modal.Body>
-                        <DefText text='자문을 위한 자문 비밀번호를 입력하세요.' />
-                        <Input 
-                            value={counselPwd}
-                            onChangeText={counselChange}
-                            _focus='transparent'
-                            height='45px'
-                            style={{marginTop:10, fontSize:14}}
-                            placeholder='자문 비밀번호 입력'
-                        />
-                        <HStack justifyContent='space-between' mt={2.5}>
-                            <TouchableOpacity onPress={qaNavigationGo} style={{width:(width-80)*0.47, height:45, borderWidth:1, borderColor:'#999', borderRadius:3, alignItems:'center', justifyContent:'center'}}>
-                                <DefText text='확인' style={[styles.counselButtonText]} />
-                            </TouchableOpacity>
-                           
-                            <TouchableOpacity style={{width:(width-80)*0.47, height:45, borderWidth:1, borderColor:'#999', borderRadius:3, alignItems:'center', justifyContent:'center'}} onPress={()=>setCounselModalPwd(false)} >
-                                <DefText text='취소' style={[styles.counselButtonText]} />
-                            </TouchableOpacity>
-                    
+                <Box p={5} backgroundColor='#fff' borderTopLeftRadius={20} borderTopRightRadius={20} position={'absolute'} bottom={0} width={width}>
+
+                <DefText text={"건강을 위한 개인정보 수집과 건강상담이용 \n안내를 확인하고 동의해주세요."} style={{fontSize:18, fontWeight:'700', fontFamily:Font.NotoSansBold, lineHeight:28}} />
+
+                <HStack alignItems={'center'} mt={'15px'}>
+                    <TouchableOpacity onPress={()=>setPrivacyAgree(!privacyAgree)}>
+                        <HStack>
+                            <Box style={[{width:20, height:20, borderRadius:40, borderWidth:1, borderColor:'#f1f1f1', alignItems:'center', justifyContent:'center', marginRight:10}, privacyAgree && {borderColor:'#696969'}]}>
+                                <CheckIcon width={11} color={ privacyAgree ? '#696969' : '#f1f1f1'} />
+                            </Box>
+                            <DefText text='개인(민감)정보 수집 및 이용약관' style={{color:'#696969'}}  />
                         </HStack>
+                    </TouchableOpacity>
+                   
+                    <TouchableOpacity style={{marginLeft:10, marginTop:-4}} onPress={()=>PersonalRecieve('personal2')}>
+                        <Box borderBottomWidth={1} borderBottomColor='#696969'>
+                            <DefText text='자세히' style={{fontSize:13,color:'#696969'}} />
+                        </Box>
+                    </TouchableOpacity>
+                </HStack>
+
+                <HStack alignItems={'center'} mt={2.5}>
+                    <TouchableOpacity onPress={()=>setHealthAgree(!healthAgree)}>
+                        <HStack>
+                            <Box style={[{width:20, height:20, borderRadius:40, borderWidth:1, borderColor:'#f1f1f1', alignItems:'center', justifyContent:'center', marginRight:10}, healthAgree && {borderColor:'#696969'}]}>
+                                <CheckIcon width={11} color={ healthAgree ? '#696969' : '#f1f1f1'} />
+                            </Box>
+                            <DefText text='건강상담 이용규정' style={{color:'#696969'}}  />
+                        </HStack>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={{marginLeft:10, marginTop:-4}} onPress={()=>PersonalRecieve('bio')}>
+                        <Box borderBottomWidth={1} borderBottomColor='#696969'>
+                            <DefText text='자세히' style={{fontSize:13,color:'#696969'}} />
+                        </Box>
+                    </TouchableOpacity>
+                </HStack>
+                <DefText text='자문 비밀번호' style={{fontSize:18, color:'#000', fontWeight:'bold', fontFamily:Font.NotoSansBold, lineHeight:22, marginTop:15}} />
+                    
+                    <Input 
+                        value={counselPwd}
+                        onChangeText={counselChange}
+                        _focus='transparent'
+                        height='45px'
+                        placeholder='자문 비밀번호 입력'
+                        placeholderTextColor={'#a3a3a3'}
+                        secureTextEntry={true}
+                        onSubmitEditing={qaNavigationGo}
+                        keyboardType={'number-pad'}
+                        borderWidth={1}
+                        borderColor='#f1f1f1'
+                        borderRadius={10}
+                        style={[{marginTop:10, fontWeight:'bold', fontFamily:Font.NotoSansBold}, counselPwd.length > 0 && {backgroundColor:'#F1F1F1'}]}
+                    />
+                    <HStack justifyContent='space-between' mt={'15px'}>
+                        <TouchableOpacity onPress={()=>qaNavigationGo()} style={{width:(width-40)*0.47, height:45, borderRadius:10, alignItems:'center', justifyContent:'center', backgroundColor:'#696969'}}>
+                            <DefText text='동의' style={[styles.counselButtonText, {color:'#fff'}]} />
+                        </TouchableOpacity>
                         
+                        <TouchableOpacity style={{width:(width-40)*0.47, height:45,  borderRadius:10, alignItems:'center', justifyContent:'center', backgroundColor:'#696969'}} onPress={()=>setCounselModalPwd(false)} >
+                            <DefText text='취소' style={[styles.counselButtonText, , {color:'#fff'}]} />
+                        </TouchableOpacity>
+                
+                    </HStack>
+                </Box>
+                
+            </Modal>
+            <Modal isOpen={privacyAgreeModal} onClose={()=>setPrivacyAgreeModal(false)}>
+                <Modal.Content maxWidth={width-40} backgroundColor='#fff'>
+                    <Modal.Body>
+                        <DefText text={personalData.title} style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                        <Box mt={5}>
+                            {
+                                personalData != '' &&
+                                <HTML 
+                                    ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontSize', 'br']}
+                                    ignoredTags={['head', 'script', 'src']}
+                                    imagesMaxWidth={Dimensions.get('window').width - 90}
+                                    source={{html: personalData.content}} 
+                                    tagsStyles={StyleHtml}
+                                    containerStyle={{ flex: 1, }}
+                                    contentWidth={Dimensions.get('window').width}  
+                                />
+                            }
+                            
+                        </Box>
+                        <HStack justifyContent='space-between' mt={2.5}>
+                            <TouchableOpacity onPress={()=>setPrivacyAgreeModal(false)} style={{width:width-90, height:45, backgroundColor:'#696969', justifyContent:'center', alignItems:'center', borderRadius:10}}>
+                                <DefText text='확인' style={{color:'#fff'}} />
+                            </TouchableOpacity>
+                            
+                        </HStack>
                     </Modal.Body>
                 </Modal.Content>
             </Modal>
+            {/* <Modal isOpen={healthAgreeModal} onClose={()=>setHealthAgreeModal(false)}>
+                <Modal.Content maxWidth={width-40} backgroundColor='#fff'>
+                    <Modal.Body>
+                        <DefText text='건강상담 이용 안내' style={{fontWeight:'bold', fontFamily:Font.NotoSansBold}} />
+                        <Box mt={5}>
+                            {
+                                bioData != '' && 
+                                <HTML 
+                                    ignoredStyles={[ 'width', 'height', 'margin', 'padding', 'fontFamily', 'lineHeight', 'fontSize', 'br']}
+                                    ignoredTags={['head', 'script', 'src']}
+                                    imagesMaxWidth={Dimensions.get('window').width - 90}
+                                    source={{html: bioData.content}} 
+                                    tagsStyles={StyleHtml}
+                                    containerStyle={{ flex: 1, }}
+                                    contentWidth={Dimensions.get('window').width}  
+                                />
+                            }
+
+                        </Box>
+                        <HStack justifyContent='space-between' mt={2.5}>
+                            <TouchableOpacity onPress={()=>setHealthAgreeModal(false)} style={{width:width-90, height:45, backgroundColor:'#696969', justifyContent:'center', alignItems:'center', borderRadius:10}}>
+                                <DefText text='확인' style={{color:'#fff'}} />
+                            </TouchableOpacity>
+                            
+                        </HStack>
+                    </Modal.Body>
+                </Modal.Content>
+            </Modal> */}
             <Modal isOpen={checkListSaveModal} backgroundColor='rgba(255,255,255,0.7)' onClose={()=>setCheckListSaveModal(false)}>
                 <Modal.Content maxWidth={width-40} backgroundColor='#fff'>
                     <Modal.Body>
@@ -728,26 +1029,31 @@ const Home = (props) => {
             </Modal>
             {
                 hospitalChange &&
-                <Box backgroundColor='rgba(255,255,255,0.78)' height={heightHome} width={width} position='absolute' top='75px' zIndex='99'>
+                <Box backgroundColor='rgba(255,255,255,0.78)' height={heightHome} width={width} position='absolute' top='50px' zIndex='99'>
                     {
                         userInfo != undefined && 
-                        <HStack px={5} py={2.5} backgroundColor='#fff' alignItems='center'>
-                            {
-                                userInfo.membership.map((item, index)=> {
-                                    return(
-                                        <TouchableOpacity onPress={()=>hospitalChangeBtn(item.hcode)}  key={index} style={[ {justifyContent:'center', alignItems:'center'}, index != 0 && {marginLeft:20} ]}>
-                                            <Image 
-                                                source={{uri:item.logo}} 
-                                                //source={{uri:memberInfosHeader.photo}} 
-                                                alt='hospital logo'
-                                                style={{marginRight:10, width:40, height:40, resizeMode:'cover', borderRadius:20, overflow:'hidden'}}
-                                            />
-                                            <DefText text={ textLengthOverCut(item.hname, 5) } style={{marginTop:10}} />
-                                        </TouchableOpacity>
-                                    )
-                                })
-                            }
-                        </HStack>
+                        <>
+                            <HStack px={5} height='100px' backgroundColor='#fff' alignItems='center'>
+                                {
+                                    userInfo.membership.map((item, index)=> {
+                                        return(
+                                            <TouchableOpacity onPress={()=>hospitalChangeBtn(item.hcode)}  key={index} style={[ {justifyContent:'center', alignItems:'center'}, index != 0 && {marginLeft:20} ]}>
+                                                <Image 
+                                                    source={{uri:item.logo}} 
+                                                    //source={{uri:memberInfosHeader.photo}} 
+                                                    alt='hospital logo'
+                                                    style={{marginRight:10, width:40, height:40, resizeMode:'cover', borderRadius:20, overflow:'hidden'}}
+                                                />
+                                                <DefText text={ textLengthOverCut(item.hname, 5) } style={{marginTop:10}} />
+                                            </TouchableOpacity>
+                                        )
+                                    })
+                                }
+                            </HStack>
+                            <TouchableWithoutFeedback onPress={()=>setHospitalChange(false)}>
+                                <Box height={height - 175} />
+                            </TouchableWithoutFeedback>
+                        </>
                     }
                 </Box>
             }
@@ -772,19 +1078,22 @@ const styles = StyleSheet.create({
 
     counselButton: {
         paddingHorizontal:10,
-        borderRadius:5,
-        borderWidth:1,
-        borderColor:'#666',
-        marginTop:10,
+        borderRadius:10,
+        marginTop:15,
         width:'auto',
         height:45,
         justifyContent:'center',
-        backgroundColor:'#fff',
+        backgroundColor:'#f1f1f1',
         width:'auto'
     },
     counselButtonText: {
-        fontSize:14,
-        color:'#333'
+        color:'#000',
+        fontWeight:'500',
+        fontFamily:Font.NotoSansMedium,
+        
+    },
+    buttonShadow: {
+        marginLeft:-7,
     }
 })
 

@@ -16,6 +16,10 @@ import Register from '../screen/Register';
 import RegisterSns from './RegisterSns';
 import PasswordLost from '../screen/PasswordLost';
 import PasswordChange from '../screen/PasswordChange';
+import PasswordChange2 from './PasswordChange2';
+import PasswordChange3 from './PasswordChange3';
+
+import EasyPwdCh from './EasyPwdCh';
 
 import Home from '../screen/Home';
 import Community from './Community';
@@ -80,10 +84,23 @@ import HospitalAdd from './HospitalAdd';
 import ReportWeek from './ReportWeek';
 import FoodReportWeek from './FoodReportWeek';
 import FoodReportMonth from './FoodReportMonth';
+import Graphs from './Graphs';
 
 import Toast from 'react-native-toast-message';
 import Font from '../common/Font';
 import ClinicViews from '../screen/ClinicViews';
+
+import PasswordCh from '../screen/PasswordCh';
+import HospitalList from '../screen/HospitalList';
+
+import BloodSugarList from '../screen/BloodSugarList';
+import BloodPressureList from '../screen/BloodPressureList';
+import InbodyList from '../screen/InbodyList';
+import InbodyInfo from '../screen/InbodyInfo';
+
+import MedicineListView from '../screen/MedicineListView';
+import ReportWeekN from './ReportWeekN';
+import GraphView from './GraphView';
 
 
 const Stack = createStackNavigator();
@@ -140,11 +157,11 @@ function CustomTabBar(props){
                  {
                      screenName === 'Home' ?
                      <>
-                         <Image source={require('../images/tab01_on.png')} alt='tabon' />
+                         <Image source={require('../images/bottomMenuOn01.png')} style={{width:28, height:30, resizeMode:'contain'}} alt='tabon' />
                      </>
                      :
                      <>
-                         <Image source={require('../images/tab01_off.png')} alt='taboff' />
+                         <Image source={require('../images/bottomMenuOff01.png')} style={{width:28, height:30, resizeMode:'contain'}} alt='taboff' />
                      </>
                  }
              </TouchableOpacity>
@@ -152,11 +169,11 @@ function CustomTabBar(props){
                  {
                      screenName === 'Community' ?
                      <>
-                         <Image source={require('../images/tab02_on.png')} alt='tabon' />
+                         <Image source={require('../images/bottomMenuOn02.png')} style={{width:30, height:30, resizeMode:'contain'}} alt='tabon' />
                      </>
                      :
                      <>
-                         <Image source={require('../images/tab02_off.png')} alt='taboff' />
+                         <Image source={require('../images/bottomMenuOff02.png')} style={{width:30, height:30, resizeMode:'contain'}} alt='taboff' />
                      </>
                  }
              </TouchableOpacity>
@@ -164,11 +181,11 @@ function CustomTabBar(props){
                  {
                      screenName === 'ChatingList' ?
                      <>
-                         <Image source={require('../images/tab03_on.png')} alt='tabon' />
+                         <Image source={require('../images/bottomMenuOn03.png')} style={{width:27, height:30, resizeMode:'contain'}} alt='tabon' />
                      </>
                      :
                      <>
-                         <Image source={require('../images/tab03_off.png')} alt='taboff' />
+                         <Image source={require('../images/bottomMenuOff03.png')} style={{width:27, height:30, resizeMode:'contain'}} alt='taboff' />
                      </>
                  }
              </TouchableOpacity>
@@ -176,11 +193,11 @@ function CustomTabBar(props){
                  {
                      screenName === 'ReportWeek' ?
                      <>
-                         <Image source={require('../images/tab04_on.png')} alt='tabon' />
+                         <Image source={require('../images/bottomMenuOn04.png')} style={{width:33, height:30, resizeMode:'contain'}} alt='tabon' />
                      </>
                      :
                      <>
-                         <Image source={require('../images/tab04_off.png')} alt='taboff' />
+                         <Image source={require('../images/bottomMenuOff04.png')} style={{width:33, height:30, resizeMode:'contain'}} alt='taboff' />
                      </>
                  }
              </TouchableOpacity>
@@ -188,11 +205,11 @@ function CustomTabBar(props){
                  {
                      screenName === 'Mypage' ?
                      <>
-                         <Image source={require('../images/tab05_on.png')} alt='tabon' />
+                         <Image source={require('../images/bottomMenuOn05.png')} style={{width:30, height:30, resizeMode:'contain'}} alt='tabon' />
                      </>
                      :
                      <>
-                         <Image source={require('../images/tab05_off.png')} alt='taboff' />
+                         <Image source={require('../images/bottomMenuOff05.png')} style={{width:30, height:30, resizeMode:'contain'}} alt='taboff' />
                      </>
                  }
              </TouchableOpacity>
@@ -254,9 +271,9 @@ const Main = (props) => {
             <PaperProvider>
                 <NativeBaseProvider theme={theme}>
                     <NavigationContainer >
-                        <SafeAreaView style={{flex:1}}>
+                         <SafeAreaView style={{flex:1}}>
                             <Stack.Navigator
-                                initialRouteName="Intro"
+                                
                                 screenOptions={{
                                     headerShown:false,
                                 }}
@@ -269,6 +286,8 @@ const Main = (props) => {
                                 <Stack.Screen name="RegisterSns" component={RegisterSns} />
                                 <Stack.Screen name="PasswordLost" component={PasswordLost} />
                                 <Stack.Screen name="PasswordChange" component={PasswordChange} />
+                                <Stack.Screen name="PasswordChange2" component={PasswordChange2} />
+                                <Stack.Screen name="PasswordChange3" component={PasswordChange3} />
                                 <Stack.Screen name="HospitalInfo" component={HospitalInfo} />
                                 <Stack.Screen name="Medicine" component={Medicine} />
                                 <Stack.Screen name="MedicineList" component={MedicineList} />
@@ -328,12 +347,24 @@ const Main = (props) => {
                                 <Stack.Screen name="ReportWeek" component={ReportWeek} />
                                 <Stack.Screen name="FoodReportWeek" component={FoodReportWeek} />
                                 <Stack.Screen name="FoodReportMonth" component={FoodReportMonth} />
+                                <Stack.Screen name="PasswordCh" component={PasswordCh} />
+                                <Stack.Screen name="EasyPwdCh" component={EasyPwdCh} />
+                                <Stack.Screen name="HospitalList" component={HospitalList} />
+                                <Stack.Screen name="BloodSugarList" component={BloodSugarList} />
+                                <Stack.Screen name="BloodPressureList" component={BloodPressureList} />
+                                <Stack.Screen name="InbodyList" component={InbodyList} />
+                                <Stack.Screen name="InbodyInfo" component={InbodyInfo} />
+                                <Stack.Screen name="MedicineListView" component={MedicineListView} />
+                                <Stack.Screen name="Graphs" component={Graphs} />
+                                <Stack.Screen name="GraphView" component={GraphView} />
                                 
                             </Stack.Navigator>
                         </SafeAreaView>
-                        <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
+                       
                     </NavigationContainer>
+                    <Toast config={toastConfig} ref={(ref) => Toast.setRef(ref)} />
                 </NativeBaseProvider>
+                
             </PaperProvider>
         </Provider>
     );

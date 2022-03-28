@@ -1,13 +1,14 @@
 import React, {useState, useEffect} from 'react';
 import { TouchableOpacity, Dimensions, Text, ScrollView, StyleSheet, FlatList } from 'react-native';
 import { Box, Image, HStack } from 'native-base';
-import { DefText, DefInput } from '../common/BOOTSTRAP';
+import { DefText, DefInput, SaveButton } from '../common/BOOTSTRAP';
 import HeaderComponents from '../components/HeaderComponents';
 import ToastMessage from '../components/ToastMessage';
 import { connect } from 'react-redux';
 import { actionCreators as UserAction } from '../redux/module/action/UserAction';
 import Api from '../Api';
 import AsyncStorage from '@react-native-community/async-storage';
+import Font from '../common/Font';
 
 const InquiryForm = (props) => {
 
@@ -83,8 +84,8 @@ const InquiryForm = (props) => {
                 <Box p={5}>
                     <Box>
                         <HStack>
-                            <DefText text='문의제목' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='문의제목' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                         </HStack>
                         <DefInput 
                             placeholderText='제목을 입력하세요.'
@@ -96,8 +97,8 @@ const InquiryForm = (props) => {
                     </Box>
                     <Box mt={5}>
                         <HStack>
-                            <DefText text='문의내용' style={{fontSize:14}} />
-                            <DefText text='*' style={{fontSize:14, color:'#f00', marginLeft:5}} />
+                            <DefText text='문의내용' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
+                            <DefText text='*' style={{fontSize:18, color:'#FFC400', marginLeft:5}} />
                         </HStack>
                         <DefInput 
                             placeholderText='내용을 입력하세요.'
@@ -112,10 +113,8 @@ const InquiryForm = (props) => {
                     
                 </Box>
             </ScrollView>
-            <Box p={2.5} px={5}>
-                <TouchableOpacity onPress={inqSubmit} style={[styles.buttonDef]}>
-                    <DefText text='문의하기' style={styles.buttonDefText} />
-                </TouchableOpacity>
+            <Box position={'absolute'} bottom={"30px"} right={"30px"}>
+                <SaveButton onPress={inqSubmit} />
             </Box>
         </Box>
     );

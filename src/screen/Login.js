@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {Box, VStack, Image, Input, CheckIcon, HStack} from 'native-base';
-import { ScrollView, Dimensions, Alert, TouchableOpacity, Platform} from 'react-native';
+import { ScrollView, Dimensions, Alert, TouchableOpacity, Platform, StyleSheet} from 'react-native';
 import {DefText, Button, Button2, DefInput} from '../common/BOOTSTRAP';
 import {email_check} from '../common/dataFunction';
 import ToastMessage from '../components/ToastMessage';
@@ -22,17 +22,96 @@ import {
     login,
     logout,
     unlink,
-  } from '@react-native-seoul/kakao-login';
+} from '@react-native-seoul/kakao-login';
+import appleAuth, {
+    AppleButton,
+    AppleAuthRequestOperation,
+    AppleAuthRequestScope,
+    AppleAuthCredentialState,
+  } from '@invertase/react-native-apple-authentication';
+  
 
 import { BASE_URL } from '../Utils/APIConstant';
+import Font from '../common/Font';
+
+const {width} = Dimensions.get('window');
 
 const Login = (props) => {
 
-    console.log('BASE_URL', BASE_URL)
+    //console.log('BASE_URL', BASE_URL)
 
     const {navigation, member_login, member_info} = props;
 
-    const {width} = Dimensions.get('window');
+
+
+    async function onAppleButtonPress() {
+        const appleAuthRequestResponse = await appleAuth.performRequest({
+          requestedOperation: appleAuth.Operation.LOGIN,
+          requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+        });
+      
+        // Ensure Apple returned a user identityToken
+        if (!appleAuthRequestResponse.identityToken) {
+          throw 'Apple Sign-In failed - no identify token returned';
+        }
+      
+        const {identityToken, user, email, fullName} = appleAuthRequestResponse;
+
+        const { familyName, givenName } = fullName;
+      
+        // console.log('identityToken: ', identityToken);
+        // console.log('nonce: ', nonce);
+        console.log('appleAuthRequestResponse', appleAuthRequestResponse);
+
+
+        const params = {
+            snskey: user,
+            email: email,
+            name : familyName + givenName,
+            sns : 'apple'
+        };
+
+        Api.send('member_snsCheck', params, (args)=>{
+            let resultItem = args.resultItem;
+            let arrItems = args.arrItems;
+    
+            if(resultItem.result === 'Y' && arrItems) {
+                
+                console.log('sns 로그인 진행 성공 메시지:', resultItem);
+
+                console.log('sns 로그인 진행 성공 타입:', arrItems);
+
+                if(!arrItems.check){
+                    console.log('회원가입으로..');
+                    navigation.navigate('RegisterSns', params);
+                }else{
+                    console.log('로그인으로..');
+
+
+                    _loginButtonSNS(params);
+                    // const token =  messaging().getToken();
+                    // const formData = new FormData();
+                    // formData.append('id', userInfo.user.email);
+                    // formData.append('autoLoginCheck', autoLoginCheck);
+                    // formData.append('token', token);
+                    // formData.append('method', 'member_login');
+        
+                    // const login =  member_login(formData);
+        
+                    // console.log('login::::', login);
+     
+                }
+
+
+
+            }else{
+                console.log('sns 로그인 진행 실패...', resultItem);
+            
+            }
+        });
+
+      }
+
 
     const _signIn = async () => {
         try {
@@ -344,49 +423,68 @@ const Login = (props) => {
     //     });
     // }, [])
 
-
+    const [passwordStatus, setPasswordStatus] = useState(true);
 
     return (
         <Box flex={1} backgroundColor='#fff'>
             <ScrollView>
-                <VStack justifyContent='center' alignItems='center' >
+                {/* <VStack justifyContent='center' alignItems='center' >
                     <Image source={require('../images/LoginLogo.png')} alt='logo' style={{marginTop:37, marginBottom:30}} />
                     <DefText text='안녕하세요.' style={{marginBottom:10, fontSize:20, lineHeight:24}}/>
                     <DefText text="건강을 지키는 종소리 '힐링'에" style={{marginBottom:10, fontSize:20, lineHeight:24}} />
                     <DefText text='오신 걸 환영합니다.' style={{fontSize:20,lineHeight:24}} />
-                </VStack>
-                <VStack py={10} px={12}>
+                </VStack> */}
+                <Box mt={8}>
+                    <Image source={require('../images/mainLoginLogo.png')} alt='앱로고' width={width} height={200} resizeMode='contain' />
+                </Box>
+                <VStack py={10} px={12} pt={7}>
                     <Box>
-                        <DefText text='이메일' style={{fontSize:14}} />
+                        <DefText text='이메일' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
                         <Input 
                             placeholder='이메일을 입력해주세요.'
+                            placeholderTextColor={'#a3a3a3'}
                             value = {emailInput}
                             onChangeText = {emailChange}
                             multiline = {false}
-                            
+                            height='45px'
                             _focus='transparent'
-                            style={{fontSize:14, marginTop:10}}
+                            borderWidth={1}
+                            borderColor='#f1f1f1'
+                            style={[{fontSize:16, marginTop:10, fontFamily:Font.NotoSansMedium}, emailInput.length > 0 && {backgroundColor:'#f1f1f1'}]}
                         />
                         
                     </Box>
                     <Box mt={5}>
-                        <DefText text='비밀번호' style={{fontSize:14}} />
+                        <DefText text='비밀번호' style={{fontFamily:Font.NotoSansMedium, color:'#696969'}} />
                         <Box mt='10px'>
                             <Input 
                                 placeholder='비밀번호를 입력해주세요.'
-                                
+                                height='45px'
                                 value = {passwordInput}
                                 onChangeText = {passwordChange}
                                 multiline = {false}
-                                secureTextEntry={true}
+                                secureTextEntry={passwordStatus}
                                 _focus='transparent'
-                                style={{fontSize:14}}
+                                borderWidth={1}
+                                borderColor='#f1f1f1'
+                                style={[{fontSize:16, fontFamily:Font.NotoSansMedium}, passwordInput.length > 0 && {backgroundColor:'#f1f1f1'}]}
                             />
-                            <Box style={{height:48, position:'absolute', top:0, right:15, justifyContent:'center'}}>
-                                <Image 
-                                    source={require('../images/eyes.png')} 
-                                    alt='암호화'
-                                />
+                            <Box style={{height:45, position:'absolute', top:0, right:15, justifyContent:'center'}}>
+                                <TouchableOpacity onPress={()=>setPasswordStatus(!passwordStatus)}>
+                                    {
+                                        passwordStatus ?
+                                        <Image 
+                                            source={require('../images/eyes.png')} 
+                                            alt='암호화'
+                                        />
+                                        :
+                                        <Image 
+                                            source={require('../images/eyes_yes.png')} 
+                                            alt='암호화'
+                                        />
+                                    }
+                                    
+                                </TouchableOpacity>
                             </Box>
                         </Box>
                     </Box>
@@ -400,26 +498,26 @@ const Login = (props) => {
                                             <CheckIcon style={{width:15, height:15}} />
                                         }
                                     </Box>
-                                    <DefText text='자동 로그인' style={{fontSize:12, color:'#ABB3BB', marginLeft:10}} />
+                                    <DefText text='자동 로그인' style={{fontSize:14, color:'#696969', marginLeft:10}} />
                                 </HStack>
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={()=>{navigation.navigate('PasswordLost')}}
                             >
-                                <DefText text='비밀번호를 잊어버리셨나요?' style={{fontSize:12, color:'#FC6D5B'}} />
+                                <DefText text='비밀번호를 잊어버리셨나요?' style={{fontSize:14, color:'#FC6D5B'}} />
                             </TouchableOpacity>
                         </HStack>
                         <Box mt={7}>
-                            <Button onPress={_loginButton} text='로그인' buttonStyle={{borderRadius:8}} textStyle={{lineHeight:22, fontSize:14}} />
+                            <Button onPress={_loginButton} text='로그인' buttonStyle={{borderRadius:10, height:45, backgroundColor:'#696969'}} textStyle={{lineHeight:22, fontSize:16, fontFamily:Font.NotoSansMedium}} />
                         </Box>
                         <Box mt={5}>
-                            <Button onPress={_RegisterButton} text='가입하기' buttonStyle={{borderRadius:8}} textStyle={{lineHeight:22, fontSize:14}} />
+                            <Button onPress={_RegisterButton} text='가입하기' buttonStyle={{borderRadius:10, height:45, backgroundColor:'#696969'}} textStyle={{lineHeight:22, fontSize:16, fontFamily:Font.NotoSansMedium}} />
                         </Box>
                         <Box mt={3}>
                             <HStack alignItems='center' justifyContent='space-between'>
-                                <Box style={{width:width*0.32, height:1, backgroundColor:'#E1E1E1'}}></Box>
-                                <DefText text='Or' style={{fontSize:14, color:'#ABB3BB'}} />
-                                <Box style={{width:width*0.32, height:1, backgroundColor:'#E1E1E1'}}></Box>
+                                <Box style={{width:width*0.32, height:1, backgroundColor:'#f1f1f1'}}></Box>
+                                <DefText text='Or' style={{fontSize:14, color:'#696969'}} />
+                                <Box style={{width:width*0.32, height:1, backgroundColor:'#f1f1f1'}}></Box>
                             </HStack>
                         </Box>
                         <Box mt={3}>
@@ -448,12 +546,35 @@ const Login = (props) => {
                                 onPress={()=>signInWithKakao()}
                             />
                         </Box>
+                        {
+                            Platform.OS === 'ios' && 
+                            <Box mt={5}>
+                                <AppleButton
+                                    buttonStyle={AppleButton.Style.BLACK}
+                                    buttonType={AppleButton.Type.SIGN_IN}
+                                    style={styles.appleButton}
+                                    onPress={() =>
+                                    onAppleButtonPress().then(() =>
+                                        console.log('Apple sign-in complete!'),
+                                    )
+                                    }
+                                />
+                            </Box>
+                        }
+                        
                     </Box>
                 </VStack>
             </ScrollView>
         </Box>
     );
 };
+
+const styles = StyleSheet.create({
+    appleButton: {
+        width: width - 95,
+        height: 50,
+    },
+});
 
 export default connect(
     ({ User }) => ({
