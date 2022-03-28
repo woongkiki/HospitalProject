@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@actbase/react-daum-postcode": "1.0.1",
+    "@invertase/react-native-apple-authentication": "2.1.5",
     "@react-native-community/async-storage": "1.12.1",
     "@react-native-community/datetimepicker": "3.5.2",
     "@react-native-community/masked-view": "0.1.11",
@@ -45,6 +46,7 @@
     "react-native-render-html": "6.2.0",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "3.6.0",
+    "react-native-shadow-2": "6.0.3",
     "react-native-svg": "12.1.1",
     "react-native-swiper": "1.6.0",
     "react-native-tab-view": "3.1.1",
