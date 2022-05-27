@@ -589,12 +589,13 @@ Bubble.propTypes = {
 ```JS
     import PropTypes from 'prop-types';
     import React from 'react';
-    import { Linking, StyleSheet, View, } from 'react-native';
+    import { Linking, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
     // @ts-ignore
     import ParsedText from 'react-native-parsed-text';
     import Communications from 'react-native-communications';
     import { StylePropType } from './utils';
     import Font from '../../../src/common/Font'; //사용하는 폰트가 있다면
+    import { DefText } from '../../../src/common/BOOTSTRAP';
 
     const WWW_URL_PATTERN = /^www\./i;
 
@@ -702,7 +703,14 @@ Bubble.propTypes = {
                 { type: 'phone', style: linkStyle, onPress: this.onPhonePress },
                 { type: 'email', style: linkStyle, onPress: this.onEmailPress },
             ]} childrenProps={{ ...this.props.textProps }}>
-            {this.props.currentMessage.text}
+                {
+                  this.props.currentMessage.text.substring(0,4) == 'http' ?
+                    <TouchableOpacity onPress={()=>Linking.openURL(this.props.currentMessage.text)}>
+                        <DefText text={this.props.currentMessage.upfile_name} style={{color:'#fff', fontSize:14}} />  
+                    </TouchableOpacity>
+                    :
+                    this.props.currentMessage.text
+                }
             </ParsedText>
         </View>);
         }
@@ -744,6 +752,7 @@ Bubble.propTypes = {
         customTextStyle: StylePropType,
     };
     //# sourceMappingURL=MessageText.js.map
+
 
 ```
 
