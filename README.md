@@ -6,8 +6,7 @@ yarn 명령어로 전체 패키지 설치<br>
 안드로이드 시뮬레이터 실행 yarn android<br>
 ios 시뮬레이터 실행 yarn ios<br>
 
-
-## node module 수정본
+## node module 수정본1
 
 gift-chat 커스텀 부분이 node 모듈을 새로 다운할 때 마다 원래 코드로 초기화 됨으로<br>
 아래 경로에 다음 코드를 입력
@@ -747,9 +746,9 @@ Bubble.propTypes = {
 
 ```
 
-###   react-native-gifted-chat ⇒ lib ⇒ Composer.js
+### react-native-gifted-chat ⇒ lib ⇒ Composer.js
 
-###   gift-chat 채팅 입력 input 커스텀
+### gift-chat 채팅 입력 input 커스텀
 
 ```JS
     import PropTypes from 'prop-types';
